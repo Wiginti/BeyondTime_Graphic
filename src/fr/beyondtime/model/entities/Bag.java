@@ -24,18 +24,6 @@ public class Bag extends Item implements Containable {
 		return items;
 	}
 	
-	public Item getItemByName(String name) {
-	    if (items == null || name == null) {
-	        return null;
-	    }
-	    for (Item item : items) {
-	        if (item.getClass().getSimpleName().equalsIgnoreCase(name)) {
-	            return item;
-	        }
-	    }
-	    return null;
-	}
-	
 	public void addItem(Item item) {
 		if(this.size < Bag.MAX_ITEMS) {
 			items.add(item);	

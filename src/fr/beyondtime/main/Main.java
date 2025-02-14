@@ -15,10 +15,14 @@ public class Main extends Application {
 		GameView view = new GameView();
 		Scene scene = new Scene(view, 400, 400);	
 		new Controller(model, view, scene);
+		
+		primaryStage.setTitle("BeyondTime");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 	}
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 	
 }

@@ -1,29 +1,49 @@
 package fr.beyondtime.main;
 
-import fr.beyondtime.controller.Controller;
-import fr.beyondtime.model.GameModel;
 import fr.beyondtime.view.GameView;
-import fr.beyondtime.view.editor.EditorView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	
-	@Override
-	public void start(Stage primaryStage) {
-		GameModel model = new GameModel();
-		EditorView view = new EditorView();
-		Scene scene = new Scene(view, 800, 700);	
-		new Controller(model, view, scene);
-		
-		primaryStage.setTitle("BeyondTime");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+
+	private void showMenuScene(Stage primaryStage) {
+		GameView menuPrincipal = new GameView(false);
+		Scene sceneMenu = new Scene(menuPrincipal);
+		sceneMenu.getStylesheets().add(
+				getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm()
+		);
+		menuPrincipal.getJouerButton().setOnAction(event -> showNiveauScene(primaryStage));
+		menuPrincipal.getScoresButton().setOnAction(event -> {
+			System.out.println("affichage score a faire plus tard");
+		});
+		menuPrincipal.getQuitterButton().setOnAction(event -> {
+			primaryStage.close();
+		});
+		primaryStage.setScene(sceneMenu);
+		primaryStage.setFullScreen(true);
+		primaryStage.show();
 	}
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-	
+	private void showNiveauScene(Stage primaryStage) {
+		GameView choixNiveau = new GameView(true);
+		Scene sceneNiveau = new Scene(choixNiveau);
+		sceneNiveau.getStylesheets().add(
+				getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm()
+		);
+		choixNiveau.getRetourBtn().setOnAction(event -> showMenuScene(primaryStage));
+		primaryStage.setScene(sceneNiveau);
+		primaryStage.setFullScreen(true);
+		primaryStage.show();
+	}
+
+	@Override
+	public void start(Stage primaryStage) {
+		primaryStage.setTitle("Menu de Jeu");
+		showMenuScene(primaryStage);
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
 }

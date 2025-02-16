@@ -1,0 +1,40 @@
+.root {
+    -fx-background-image: url("3858.jpg");
+    -fx-background-size: cover;
+}
+
+.button.classique-button {
+    -fx-background-image: url("bigbutton.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-background-position: center;
+    -fx-font-size: 40px;
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.button.personnalise-button {
+    -fx-background-image: url("bigbutton.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-font-size: 40px;
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.button {
+    -fx-font-size: 40px;
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+    -fx-background-image: url("img.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-background-position: center;
+}
+
+.vbox-gameview {
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-alignment: center;
+}

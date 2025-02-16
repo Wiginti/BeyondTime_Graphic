@@ -4,49 +4,62 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bag extends Item implements Containable {
-	
+
 	private int size;
-	
+
 	public static final int MAX_ITEMS = 5;
 	private ArrayList<Item> items;
-	
+
 	public Bag() {
 		this.size = 0;
-		this.items = new ArrayList<Item>();
+		this.items = new ArrayList<>();
 	}
-	
+
+	@Override
+	public List<Item> getItems() {
+		return this.items;
+	}
+
 	public int getSize() {
 		return this.size;
 	}
-	
+
 	@Override
-	public List<Item> getItems() {
-		return items;
-	}
-	
 	public void addItem(Item item) {
-		if(this.size < Bag.MAX_ITEMS) {
-			items.add(item);	
+		if (this.size < MAX_ITEMS) {
+			items.add(item);
 			this.size++;
 		}
 	}
-	
+
+	@Override
 	public void removeItem(Item item) {
-		if(items.contains(item)) {
+		if (items.contains(item)) {
 			items.remove(item);
 			this.size--;
 		}
 	}
-	
-	public void displayItems() {
-		try {
-			System.out.println("List of items available in your Bag :");
-			for(Item item : this.items) {
-				System.out.println("- " + item.getClass().getSimpleName());
+
+	@Override
+	public Item getItemByName(String name) {
+		for (Item item : items) {
+			if (item.getClass().getSimpleName().equals(name)) {
+				return item;
 			}
-		} catch (Exception e) {
-			System.out.println("There is no item in your Bag !");
+		}
+		return null;
+	}
+
+	@Override
+	public void displayItems() {
+		if (items.isEmpty()) {
+			System.out.println("Il n’y a pas d’objets dans votre sac !");
+			return;
+		}
+		System.out.println("Objets dans votre sac :");
+		for (Item item : items) {
+			System.out.println("- " + item.getClass().getSimpleName());
 		}
 	}
-	
+
 }

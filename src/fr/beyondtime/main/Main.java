@@ -5,13 +5,15 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class Main extends Application {
 
 	private void showMenuScene(Stage primaryStage) {
 		GameView menuPrincipal = new GameView(false);
 		Scene sceneMenu = new Scene(menuPrincipal);
 		sceneMenu.getStylesheets().add(
-				getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm()
+				Objects.requireNonNull(getClass().getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
 		);
 		menuPrincipal.getJouerButton().setOnAction(event -> showNiveauScene(primaryStage));
 		menuPrincipal.getScoresButton().setOnAction(event -> {

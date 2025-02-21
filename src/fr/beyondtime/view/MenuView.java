@@ -4,7 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
-public class GameView extends VBox {
+public class MenuView extends VBox {
 
     private Button jouerButton;
     private Button scoresButton;
@@ -13,11 +13,11 @@ public class GameView extends VBox {
     private Button personnaliseBtn;
     private Button retourBtn;
 
-    public GameView() {
+    public MenuView() {
         this(false);
     }
 
-    public GameView(boolean isNiveau) {
+    public MenuView(boolean isNiveau) {
         super();
         this.getStyleClass().add("vbox-gameview");
 

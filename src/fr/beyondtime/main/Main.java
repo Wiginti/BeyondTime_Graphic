@@ -1,6 +1,6 @@
 package fr.beyondtime.main;
 
-import fr.beyondtime.view.GameView;
+import fr.beyondtime.view.MenuView;
 import fr.beyondtime.view.editor.EditorView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Main extends Application {
 
 	private void showMenuScene(Stage primaryStage) {
-		GameView menuPrincipal = new GameView(false);
+		MenuView menuPrincipal = new MenuView(false);
 		Scene sceneMenu = new Scene(menuPrincipal);
 		sceneMenu.getStylesheets().add(
 				Objects.requireNonNull(getClass().getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
@@ -28,7 +28,7 @@ public class Main extends Application {
 	}
 
 	private void showNiveauScene(Stage primaryStage) {
-		GameView choixNiveau = new GameView(true);
+		MenuView choixNiveau = new MenuView(true);
 		Scene sceneNiveau = new Scene(choixNiveau);
 		sceneNiveau.getStylesheets().add(
 				Objects.requireNonNull(getClass().getResource("/fr/beyondtime/resources/style.css")).toExternalForm()

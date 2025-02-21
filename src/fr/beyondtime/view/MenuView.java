@@ -19,6 +19,7 @@ public class MenuView extends VBox {
     private Button retourBtn;
     private Button niveau1Btn;
     private Button niveau2Btn;
+    private Button niveau3Btn;
 
     public MenuView() {
         this(false, false);
@@ -43,10 +44,12 @@ public class MenuView extends VBox {
         } else {
             niveau1Btn = new Button("Niveau 1 - Préhistoire");
             niveau2Btn = new Button("Niveau 2 - Égypte Antique");
+            niveau3Btn = new Button("Niveau 3 - 2nde Guerre Mondiale");
             retourBtn = new Button("Retour");
             niveau1Btn.getStyleClass().add("classique-button");
             niveau2Btn.getStyleClass().add("classique-button");
-            getChildren().addAll(niveau1Btn, niveau2Btn, retourBtn);
+            niveau3Btn.getStyleClass().add("classique-button");
+            getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
         }
 
         setAlignment(Pos.CENTER);
@@ -82,6 +85,10 @@ public class MenuView extends VBox {
     
     public Button getNiveau2Btn() { 
     	return niveau2Btn; 
+    }
+    
+    public Button getNiveau3Btn() {
+    	return niveau3Btn;
     }
 
     // Affiche le menu principal
@@ -130,8 +137,11 @@ public class MenuView extends VBox {
         classiqueNiveau.getNiveau1Btn().setOnAction(event -> {
             System.out.println("Lancement du Niveau 1 - Préhistoire");
         });
-        classiqueNiveau.getNiveau1Btn().setOnAction(event -> {
+        classiqueNiveau.getNiveau2Btn().setOnAction(event -> {
             System.out.println("Lancement du Niveau 2 - Égypte Antique");
+        });
+        classiqueNiveau.getNiveau3Btn().setOnAction(event -> {
+            System.out.println("Lancement du Niveau 3 - 2nd Guerre Mondiale");
         });
 
         stage.setScene(sceneClassique);

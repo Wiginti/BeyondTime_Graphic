@@ -17,12 +17,14 @@ public class MenuView extends VBox {
     private Button classiqueBtn;
     private Button personnaliseBtn;
     private Button retourBtn;
+    private Button niveau1Btn;
+    private Button niveau2Btn;
 
     public MenuView() {
-        this(false);
+        this(false, false);
     }
 
-    public MenuView(boolean isNiveau) {
+    public MenuView(boolean isNiveau, boolean isClassique) {
         super();
         this.getStyleClass().add("vbox-gameview");
 
@@ -31,45 +33,60 @@ public class MenuView extends VBox {
             scoresButton = new Button("Scores");
             quitterButton = new Button("Quitter");
             getChildren().addAll(jouerButton, scoresButton, quitterButton);
-        } else {
+        } else if (!isClassique) {
             classiqueBtn = new Button("Niveau Classique");
             personnaliseBtn = new Button("Niveau Personnalisé");
             retourBtn = new Button("Retour");
             classiqueBtn.getStyleClass().add("classique-button");
             personnaliseBtn.getStyleClass().add("personnalise-button");
             getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
+        } else {
+            niveau1Btn = new Button("Niveau 1 - Préhistoire");
+            niveau2Btn = new Button("Niveau 2 - Égypte Antique");
+            retourBtn = new Button("Retour");
+            niveau1Btn.getStyleClass().add("classique-button");
+            niveau2Btn.getStyleClass().add("classique-button");
+            getChildren().addAll(niveau1Btn, niveau2Btn, retourBtn);
         }
 
         setAlignment(Pos.CENTER);
     }
 
     public Button getJouerButton() {
-        return jouerButton;
+    	return jouerButton; 
     }
-
-    public Button getScoresButton() {
-        return scoresButton;
+    
+    public Button getScoresButton() { 
+    	return scoresButton; 
     }
-
-    public Button getQuitterButton() {
-        return quitterButton;
+    
+    public Button getQuitterButton() { 
+    	return quitterButton; 
     }
-
-    public Button getClassiqueBtn() {
-        return classiqueBtn;
+    
+    public Button getClassiqueBtn() { 
+    	return classiqueBtn; 
     }
-
-    public Button getPersonnaliseBtn() {
-        return personnaliseBtn;
+    
+    public Button getPersonnaliseBtn() { 
+    	return personnaliseBtn; 
     }
-
-    public Button getRetourBtn() {
-        return retourBtn;
+    
+    public Button getRetourBtn() { 
+    	return retourBtn; 
+    }
+    
+    public Button getNiveau1Btn() { 
+    	return niveau1Btn; 
+    }
+    
+    public Button getNiveau2Btn() { 
+    	return niveau2Btn; 
     }
 
     // Affiche le menu principal
     public static void showMenuScene(Stage stage) {
-        MenuView menuPrincipal = new MenuView(false);
+        MenuView menuPrincipal = new MenuView(false, false);
         Scene sceneMenu = new Scene(menuPrincipal);
         sceneMenu.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
@@ -77,18 +94,17 @@ public class MenuView extends VBox {
 
         menuPrincipal.getJouerButton().setOnAction(event -> showNiveauScene(stage));
         menuPrincipal.getScoresButton().setOnAction(event -> {
-            System.out.println("affichage score à faire plus tard");
+            System.out.println("Affichage des scores à faire plus tard");
         });
         menuPrincipal.getQuitterButton().setOnAction(event -> stage.close());
 
         stage.setScene(sceneMenu);
-        stage.setFullScreen(true);
         stage.show();
     }
 
     // Affiche le choix du niveau
     public static void showNiveauScene(Stage stage) {
-        MenuView choixNiveau = new MenuView(true);
+        MenuView choixNiveau = new MenuView(true, false);
         Scene sceneNiveau = new Scene(choixNiveau);
         sceneNiveau.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
@@ -96,10 +112,29 @@ public class MenuView extends VBox {
 
         choixNiveau.getRetourBtn().setOnAction(event -> showMenuScene(stage));
         choixNiveau.getPersonnaliseBtn().setOnAction(event -> showEditorScene(stage));
-        // Vous pouvez également définir une action pour le bouton classique
+        choixNiveau.getClassiqueBtn().setOnAction(event -> showClassiqueScene(stage));
 
         stage.setScene(sceneNiveau);
-        stage.setFullScreen(true);
+        stage.show();
+    }
+
+    // Affiche la scène du mode classique
+    public static void showClassiqueScene(Stage stage) {
+        MenuView classiqueNiveau = new MenuView(true, true);
+        Scene sceneClassique = new Scene(classiqueNiveau);
+        sceneClassique.getStylesheets().add(
+                Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
+        );
+
+        classiqueNiveau.getRetourBtn().setOnAction(event -> showNiveauScene(stage));
+        classiqueNiveau.getNiveau1Btn().setOnAction(event -> {
+            System.out.println("Lancement du Niveau 1 - Préhistoire");
+        });
+        classiqueNiveau.getNiveau1Btn().setOnAction(event -> {
+            System.out.println("Lancement du Niveau 2 - Égypte Antique");
+        });
+
+        stage.setScene(sceneClassique);
         stage.show();
     }
 
@@ -112,7 +147,6 @@ public class MenuView extends VBox {
         );
 
         stage.setScene(sceneEditor);
-        stage.setFullScreen(true);
         stage.show();
     }
 }

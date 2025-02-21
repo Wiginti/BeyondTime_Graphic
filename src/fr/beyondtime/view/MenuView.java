@@ -42,13 +42,13 @@ public class MenuView extends VBox {
             personnaliseBtn.getStyleClass().add("personnalise-button");
             getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
         } else {
-            niveau1Btn = new Button("Niveau 1 - Préhistoire");
-            niveau2Btn = new Button("Niveau 2 - Égypte Antique");
-            niveau3Btn = new Button("Niveau 3 - 2nde Guerre Mondiale");
+            niveau1Btn = new Button("Niv. 1 - Préhistoire");
+            niveau2Btn = new Button("Niv. 2 - Égypte Antique");
+            niveau3Btn = new Button("Niv. 3 - 2nde Guerre Mondiale");
             retourBtn = new Button("Retour");
-            niveau1Btn.getStyleClass().add("classique-button");
-            niveau2Btn.getStyleClass().add("classique-button");
-            niveau3Btn.getStyleClass().add("classique-button");
+            niveau1Btn.getStyleClass().add("level-button");
+            niveau2Btn.getStyleClass().add("level-button");
+            niveau3Btn.getStyleClass().add("level-button");
             getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
         }
 

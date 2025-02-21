@@ -23,6 +23,16 @@
     -fx-background-color: transparent;
 }
 
+.button.level-button{
+	-fx-background-image: url("bigbutton.png");
+	-fx-background-position: center;
+	-fx-background-repeat: no-repeat;
+	-fx-background-size: contain;
+	-fx-font-size: 40px;
+	-fx-padding: 30px;
+	-fx-background-color: transparent;
+}
+
 .button {
     -fx-font-size: 40px;
     -fx-padding: 10px;

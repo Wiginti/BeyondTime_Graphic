@@ -56,39 +56,39 @@ public class MenuView extends VBox {
     }
 
     public Button getJouerButton() {
-    	return jouerButton; 
+        return jouerButton;
     }
-    
-    public Button getScoresButton() { 
-    	return scoresButton; 
+
+    public Button getScoresButton() {
+        return scoresButton;
     }
-    
-    public Button getQuitterButton() { 
-    	return quitterButton; 
+
+    public Button getQuitterButton() {
+        return quitterButton;
     }
-    
-    public Button getClassiqueBtn() { 
-    	return classiqueBtn; 
+
+    public Button getClassiqueBtn() {
+        return classiqueBtn;
     }
-    
-    public Button getPersonnaliseBtn() { 
-    	return personnaliseBtn; 
+
+    public Button getPersonnaliseBtn() {
+        return personnaliseBtn;
     }
-    
-    public Button getRetourBtn() { 
-    	return retourBtn; 
+
+    public Button getRetourBtn() {
+        return retourBtn;
     }
-    
-    public Button getNiveau1Btn() { 
-    	return niveau1Btn; 
+
+    public Button getNiveau1Btn() {
+        return niveau1Btn;
     }
-    
-    public Button getNiveau2Btn() { 
-    	return niveau2Btn; 
+
+    public Button getNiveau2Btn() {
+        return niveau2Btn;
     }
-    
+
     public Button getNiveau3Btn() {
-    	return niveau3Btn;
+        return niveau3Btn;
     }
 
     // Affiche le menu principal

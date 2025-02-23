@@ -10,14 +10,15 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		// Récupérer la zone visible de l'écran
+		// Récupération de la zone visible de l'écran
 		Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 		primaryStage.setX(screenBounds.getMinX());
 		primaryStage.setY(screenBounds.getMinY());
 		primaryStage.setWidth(screenBounds.getWidth());
 		primaryStage.setHeight(screenBounds.getHeight());
-
 		primaryStage.setTitle("Menu de Jeu");
+
+		// Affichage du menu principal
 		MenuView.showMenuScene(primaryStage);
 	}
 

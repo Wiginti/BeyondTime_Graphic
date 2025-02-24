@@ -157,7 +157,7 @@ public class EditorView extends VBox {
         });
 
         Button exitButton = new Button("Quitter");
-        exitButton.getStyleClass().add("classique-button");
+        exitButton.getStyleClass().add("classique-buttonn");
         exitButton.setOnAction(e -> {
             Stage stage = (Stage) this.getScene().getWindow();
             MenuView.showNiveauScene(stage);

@@ -1,162 +1,165 @@
 package fr.beyondtime.view;
 
+import fr.beyondtime.util.MapLoader;
 import fr.beyondtime.view.editor.EditorView;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
-public class MenuView extends VBox {
+public class MenuView {
 
-    private Button jouerButton;
-    private Button scoresButton;
-    private Button quitterButton;
-    private Button classiqueBtn;
-    private Button personnaliseBtn;
-    private Button retourBtn;
-    private Button niveau1Btn;
-    private Button niveau2Btn;
-    private Button niveau3Btn;
-
-    public MenuView() {
-        this(false, false);
-    }
-
-    public MenuView(boolean isNiveau, boolean isClassique) {
-        super();
-        this.getStyleClass().add("vbox-gameview");
-
-        if (!isNiveau) {
-            jouerButton = new Button("Jouer");
-            scoresButton = new Button("Scores");
-            quitterButton = new Button("Quitter");
-            getChildren().addAll(jouerButton, scoresButton, quitterButton);
-        } else if (!isClassique) {
-            classiqueBtn = new Button("Niveau Classique");
-            personnaliseBtn = new Button("Niveau Personnalisé");
-            retourBtn = new Button("Retour");
-            classiqueBtn.getStyleClass().add("classique-button");
-            personnaliseBtn.getStyleClass().add("personnalise-button");
-            getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
-        } else {
-            niveau1Btn = new Button("Niv. 1 - Préhistoire");
-            niveau2Btn = new Button("Niv. 2 - Égypte Antique");
-            niveau3Btn = new Button("Niv. 3 - 2nde Guerre Mondiale");
-            retourBtn = new Button("Retour");
-            niveau1Btn.getStyleClass().add("level-button");
-            niveau2Btn.getStyleClass().add("level-button");
-            niveau3Btn.getStyleClass().add("level-button");
-            getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
-        }
-
-        setAlignment(Pos.CENTER);
-    }
-
-    public Button getJouerButton() {
-        return jouerButton;
-    }
-
-    public Button getScoresButton() {
-        return scoresButton;
-    }
-
-    public Button getQuitterButton() {
-        return quitterButton;
-    }
-
-    public Button getClassiqueBtn() {
-        return classiqueBtn;
-    }
-
-    public Button getPersonnaliseBtn() {
-        return personnaliseBtn;
-    }
-
-    public Button getRetourBtn() {
-        return retourBtn;
-    }
-
-    public Button getNiveau1Btn() {
-        return niveau1Btn;
-    }
-
-    public Button getNiveau2Btn() {
-        return niveau2Btn;
-    }
-
-    public Button getNiveau3Btn() {
-        return niveau3Btn;
-    }
-
-    // Affiche le menu principal
     public static void showMenuScene(Stage stage) {
-        MenuView menuPrincipal = new MenuView(false, false);
+        VBox menuPrincipal = new VBox(10);
+        menuPrincipal.setAlignment(Pos.CENTER);
+        menuPrincipal.getStyleClass().add("vbox-gameview");
+
+        Button jouerButton = new Button("Jouer");
+        Button scoresButton = new Button("Scores");
+        Button quitterButton = new Button("Quitter");
+
+        jouerButton.setOnAction(event -> showNiveauScene(stage));
+        scoresButton.setOnAction(event -> {
+            System.out.println("Affichage des scores à faire plus tard");
+        });
+        quitterButton.setOnAction(event -> stage.close());
+
+        menuPrincipal.getChildren().addAll(jouerButton, scoresButton, quitterButton);
+
         Scene sceneMenu = new Scene(menuPrincipal);
         sceneMenu.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
-
-        menuPrincipal.getJouerButton().setOnAction(event -> showNiveauScene(stage));
-        menuPrincipal.getScoresButton().setOnAction(event -> {
-            System.out.println("Affichage des scores à faire plus tard");
-        });
-        menuPrincipal.getQuitterButton().setOnAction(event -> stage.close());
-
         stage.setScene(sceneMenu);
         stage.show();
     }
 
-    // Affiche le choix du niveau
     public static void showNiveauScene(Stage stage) {
-        MenuView choixNiveau = new MenuView(true, false);
+        VBox choixNiveau = new VBox(10);
+        choixNiveau.setAlignment(Pos.CENTER);
+        choixNiveau.getStyleClass().add("vbox-gameview");
+
+        Button classiqueBtn = new Button("Niveau Classique");
+        Button personnaliseBtn = new Button("Niveau Personnalisé");
+        Button retourBtn = new Button("Retour");
+
+        classiqueBtn.getStyleClass().add("classique-button");
+        personnaliseBtn.getStyleClass().add("personnalise-button");
+
+        classiqueBtn.setOnAction(event -> showClassiqueScene(stage));
+        personnaliseBtn.setOnAction(event -> showEditorScene(stage));
+        retourBtn.setOnAction(event -> showMenuScene(stage));
+
+        choixNiveau.getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
+
         Scene sceneNiveau = new Scene(choixNiveau);
         sceneNiveau.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
-
-        choixNiveau.getRetourBtn().setOnAction(event -> showMenuScene(stage));
-        choixNiveau.getPersonnaliseBtn().setOnAction(event -> showEditorScene(stage));
-        choixNiveau.getClassiqueBtn().setOnAction(event -> showClassiqueScene(stage));
-
         stage.setScene(sceneNiveau);
         stage.show();
     }
 
-    // Affiche la scène du mode classique
     public static void showClassiqueScene(Stage stage) {
-        MenuView classiqueNiveau = new MenuView(true, true);
-        Scene sceneClassique = new Scene(classiqueNiveau);
+        VBox classiqueMenu = new VBox(10);
+        classiqueMenu.setAlignment(Pos.CENTER);
+        classiqueMenu.getStyleClass().add("vbox-gameview");
+
+        Button niveau1Btn = new Button("Niv. 1 - Préhistoire");
+        Button niveau2Btn = new Button("Niv. 2 - Égypte Antique");
+        Button niveau3Btn = new Button("Niv. 3 - 2nde Guerre Mondiale");
+        Button retourBtn = new Button("Retour");
+
+        niveau1Btn.getStyleClass().add("level-button");
+        niveau2Btn.getStyleClass().add("level-button");
+        niveau3Btn.getStyleClass().add("level-button");
+
+        niveau1Btn.setOnAction(event -> selectAndLoadMap(stage, "Niveau 1 - Préhistoire"));
+        niveau2Btn.setOnAction(event -> selectAndLoadMap(stage, "Niveau 2 - Égypte Antique"));
+        niveau3Btn.setOnAction(event -> selectAndLoadMap(stage, "Niveau 3 - 2nde Guerre Mondiale"));
+        retourBtn.setOnAction(event -> showNiveauScene(stage));
+
+        classiqueMenu.getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
+
+        Scene sceneClassique = new Scene(classiqueMenu);
         sceneClassique.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
-
-        classiqueNiveau.getRetourBtn().setOnAction(event -> showNiveauScene(stage));
-        classiqueNiveau.getNiveau1Btn().setOnAction(event -> {
-            System.out.println("Lancement du Niveau 1 - Préhistoire");
-        });
-        classiqueNiveau.getNiveau2Btn().setOnAction(event -> {
-            System.out.println("Lancement du Niveau 2 - Égypte Antique");
-        });
-        classiqueNiveau.getNiveau3Btn().setOnAction(event -> {
-            System.out.println("Lancement du Niveau 3 - 2nd Guerre Mondiale");
-        });
-
         stage.setScene(sceneClassique);
         stage.show();
     }
 
-    // Affiche l'interface de l'éditeur
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
         Scene sceneEditor = new Scene(editorView);
         sceneEditor.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
-
         stage.setScene(sceneEditor);
         stage.show();
+    }
+
+
+    private static void selectAndLoadMap(Stage stage, String levelName) {
+        File[] maps = MapLoader.getMapFilesForLevel(levelName);
+        if (maps.length == 0) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Chargement");
+            alert.setHeaderText(null);
+            alert.setContentText("Aucune map sauvegardée pour " + levelName);
+            alert.showAndWait();
+            return;
+        }
+        // Prépare la liste des noms de fichiers
+        List<String> choices = new ArrayList<>();
+        for (File file : maps) {
+            choices.add(file.getName());
+        }
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+        dialog.setTitle("Sélection de map");
+        dialog.setHeaderText("Choisissez la map à ouvrir pour " + levelName);
+        dialog.setContentText("Map :");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String selectedFileName = result.get();
+            File selectedFile = null;
+            for (File file : maps) {
+                if (file.getName().equals(selectedFileName)) {
+                    selectedFile = file;
+                    break;
+                }
+            }
+            if (selectedFile != null) {
+                GridPane grid = MapLoader.loadMapFromFile(selectedFile);
+                if (grid != null) {
+                    ScrollPane scrollPane = new ScrollPane(grid);
+                    scrollPane.setPannable(true);
+                    Button retour = new Button("Retour");
+                    retour.getStyleClass().add("classique-button");
+                    retour.setOnAction(e -> showClassiqueScene(stage));
+                    VBox vbox = new VBox(10, scrollPane, retour);
+                    vbox.setPadding(new Insets(10));
+                    vbox.setAlignment(Pos.CENTER);
+                    Scene sceneLoaded = new Scene(vbox);
+                    sceneLoaded.getStylesheets().add(
+                            Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
+                    );
+                    stage.setScene(sceneLoaded);
+                    stage.show();
+                }
+            }
+        }
     }
 }

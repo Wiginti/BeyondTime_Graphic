@@ -1,6 +1,11 @@
 package fr.beyondtime.view.editor;
 
+import fr.beyondtime.util.MapSaver;
+import fr.beyondtime.view.MenuView;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -23,31 +28,33 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class EditorView extends VBox {
 
     private GridPane mapGrid;
-    private final int cellSize = 50;   // Taille de chaque cellule en pixels
+    private final int cellSize = 50;
 
-    // Pour la navigation dans les assets
     private File rootAssets;
     private File currentDirectory;
 
-    // Image actuellement sélectionnée dans la ListView (pour placement par clic)
     private Image selectedAssetImage = null;
-    // Mode gomme (effacement)
+    private String selectedAssetPath = null;
     private boolean eraserMode = false;
 
+    private int gridRows;
+    private int gridColumns;
+
     public EditorView() {
-        // Applique la classe "root" pour le background défini dans le CSS
         getStyleClass().add("root");
 
-        // Initialisation du dossier racine des assets
         try {
             rootAssets = new File(getClass().getResource("/fr/beyondtime/assets").toURI());
             currentDirectory = rootAssets;
@@ -55,9 +62,9 @@ public class EditorView extends VBox {
             e.printStackTrace();
         }
 
-        // Création d'un formulaire de configuration intégré
         VBox configPane = new VBox(10);
         configPane.getStyleClass().add("vbox-config");
+        configPane.setAlignment(Pos.CENTER);
 
         Label configLabel = new Label("Configurer la taille de la grille");
         configLabel.getStyleClass().add("config-label");
@@ -82,7 +89,8 @@ public class EditorView extends VBox {
             try {
                 int rows = Integer.parseInt(rowsField.getText());
                 int columns = Integer.parseInt(columnsField.getText());
-                // Une fois la configuration validée, on retire le formulaire et on construit l'éditeur complet
+                gridRows = rows;
+                gridColumns = columns;
                 getChildren().remove(configPane);
                 buildEditorUI(rows, columns);
             } catch (NumberFormatException ex) {
@@ -91,12 +99,8 @@ public class EditorView extends VBox {
         });
     }
 
-    /**
-     * Construit l'interface de l'éditeur (menu, navigation des assets, grille et boutons outils)
-     * avec la taille choisie.
-     */
+
     private void buildEditorUI(int rows, int columns) {
-        // Création de la barre de menu
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem closeItem = new MenuItem("Close");
@@ -109,23 +113,19 @@ public class EditorView extends VBox {
         helpMenu.getItems().add(aboutItem);
         menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
 
-        // Création du SplitPane qui séparera la navigation (gauche) et la zone d'édition (droite)
         SplitPane splitPane = new SplitPane();
         splitPane.setDividerPositions(0.25);
 
-        // Volet gauche : ListView pour naviguer dans les dossiers/assets
         AnchorPane leftPane = new AnchorPane();
         ListView<AssetEntry> assetListView = createAssetListView();
         assetListView.setPrefSize(200, 600);
         leftPane.getChildren().add(assetListView);
 
-        // Volet central : zone d'édition de la carte dans un ScrollPane
         ScrollPane scrollPane = new ScrollPane();
         AnchorPane contentPane = new AnchorPane();
         contentPane.setPrefHeight(800.0);
         contentPane.setPrefWidth(600.0);
 
-        // Création de la grille selon la taille choisie
         mapGrid = createMapGrid(rows, columns);
         contentPane.getChildren().add(mapGrid);
         AnchorPane.setTopAnchor(mapGrid, 10.0);
@@ -134,47 +134,59 @@ public class EditorView extends VBox {
 
         splitPane.getItems().addAll(leftPane, scrollPane);
 
-        // Bouton pour effacer la grille
         Button clearButton = new Button("Effacer la grille");
         clearButton.getStyleClass().add("classique-button");
         clearButton.setOnAction(e -> clearGrid());
 
-        // Bouton Gomme pour activer/désactiver le mode effacement
         Button eraserButton = new Button("Gomme");
         eraserButton.getStyleClass().add("classique-buttonn");
-        eraserButton.setOnAction(e -> {
-            eraserMode = !eraserMode;
+        eraserButton.setOnAction(e -> eraserMode = !eraserMode);
+
+        Button saveButton = new Button("Sauvegarder");
+        saveButton.getStyleClass().add("classique-button");
+        saveButton.setOnAction(e -> {
+            List<String> choices = List.of("Niveau 1 - Préhistoire", "Niveau 2 - Égypte Antique", "Niveau 3 - 2nde Guerre Mondiale");
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Sauvegarde de la Map");
+            dialog.setHeaderText("Choisissez le niveau classique de sauvegarde");
+            dialog.setContentText("Niveau :");
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(chosenLevel -> {
+                MapSaver.saveMap(mapGrid, gridRows, gridColumns, chosenLevel);
+            });
         });
 
-        // Ajout des boutons outils dans un conteneur horizontal
+        Button exitButton = new Button("Quitter");
+        exitButton.getStyleClass().add("classique-button");
+        exitButton.setOnAction(e -> {
+            Stage stage = (Stage) this.getScene().getWindow();
+            MenuView.showNiveauScene(stage);
+        });
+
         HBox toolsBox = new HBox(10);
-        toolsBox.getChildren().addAll(clearButton, eraserButton);
+        toolsBox.getChildren().addAll(clearButton, eraserButton, saveButton, exitButton);
         toolsBox.setPadding(new Insets(10));
 
-        // Ajout du menu, du SplitPane et des outils à l'éditeur
         getChildren().addAll(menuBar, splitPane, toolsBox);
         setPadding(new Insets(10));
     }
 
-    /**
-     * Crée et configure un ListView pour la navigation dans le dossier assets.
-     */
+
     private ListView<AssetEntry> createAssetListView() {
         ListView<AssetEntry> listView = new ListView<>();
         updateAssetListView(listView);
 
-        // Enregistre l'image sélectionnée lors du clic sur un asset (fichier PNG)
         listView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isBack() && newVal.getFile().isFile()) {
                 InputStream is = getClass().getResourceAsStream("/fr/beyondtime/assets"
                         + newVal.getFile().getAbsolutePath().split("assets")[1]);
                 if (is != null) {
                     selectedAssetImage = new Image(is);
+                    selectedAssetPath = "/fr/beyondtime/assets" + newVal.getFile().getAbsolutePath().split("assets")[1];
                 }
             }
         });
 
-        // Double-clic pour naviguer dans les dossiers
         listView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 AssetEntry selected = listView.getSelectionModel().getSelectedItem();
@@ -190,7 +202,6 @@ public class EditorView extends VBox {
             }
         });
 
-        // CellFactory pour afficher le nom du dossier ou l'aperçu d'une image
         listView.setCellFactory(lv -> new ListCell<AssetEntry>() {
             private final ImageView imageView = new ImageView();
             {
@@ -227,7 +238,6 @@ public class EditorView extends VBox {
             }
         });
 
-        // (Optionnel) Gestion du drag & drop reste disponible
         listView.setOnDragDetected(event -> {
             AssetEntry selected = listView.getSelectionModel().getSelectedItem();
             if (selected != null && !selected.isBack() && selected.getFile().isFile()) {
@@ -247,9 +257,7 @@ public class EditorView extends VBox {
         return listView;
     }
 
-    /**
-     * Met à jour le ListView pour afficher le contenu du dossier courant.
-     */
+
     private void updateAssetListView(ListView<AssetEntry> listView) {
         listView.getItems().clear();
         if (!currentDirectory.equals(rootAssets)) {
@@ -268,11 +276,6 @@ public class EditorView extends VBox {
         }
     }
 
-    /**
-     * Crée la grille (GridPane) pour représenter la carte.
-     * Chaque cellule est un StackPane qui accepte le clic pour placer l'asset sélectionné
-     * ou pour effacer la cellule en mode gomme.
-     */
     private GridPane createMapGrid(int rows, int columns) {
         GridPane grid = new GridPane();
         grid.setHgap(0);
@@ -287,7 +290,6 @@ public class EditorView extends VBox {
                 background.setStroke(Color.BLACK);
                 cell.getChildren().add(background);
 
-                // Placement par clic
                 cell.setOnMouseClicked(event -> {
                     if (eraserMode) {
                         clearCell(cell);
@@ -296,7 +298,6 @@ public class EditorView extends VBox {
                     }
                 });
 
-                // (Optionnel) Drag & drop
                 cell.setOnDragOver(event -> {
                     if (event.getGestureSource() != cell && event.getDragboard().hasImage()) {
                         event.acceptTransferModes(TransferMode.COPY);
@@ -320,9 +321,7 @@ public class EditorView extends VBox {
         return grid;
     }
 
-    /**
-     * Place l'asset actuellement sélectionné dans la cellule donnée.
-     */
+
     private void placeAssetOnCell(StackPane cell) {
         if (selectedAssetImage != null) {
             cell.getChildren().clear();
@@ -334,23 +333,23 @@ public class EditorView extends VBox {
             assetView.setFitWidth(cellSize);
             assetView.setFitHeight(cellSize);
             cell.getChildren().add(assetView);
+            // Sauvegarde le chemin de l'asset dans la cellule (pour la sauvegarde)
+            cell.setUserData(selectedAssetPath);
         }
     }
 
-    /**
-     * Efface le contenu de la cellule (remet à l'état initial).
-     */
+
     private void clearCell(StackPane cell) {
         cell.getChildren().clear();
         Rectangle background = new Rectangle(cellSize, cellSize);
         background.setFill(Color.LIGHTGRAY);
         background.setStroke(Color.BLACK);
         cell.getChildren().add(background);
+        // Réinitialise la donnée associée
+        cell.setUserData(null);
     }
 
-    /**
-     * Efface tous les assets placés sur la grille en réinitialisant chaque cellule.
-     */
+
     private void clearGrid() {
         for (javafx.scene.Node node : mapGrid.getChildren()) {
             if (node instanceof StackPane) {
@@ -359,10 +358,7 @@ public class EditorView extends VBox {
         }
     }
 
-    /**
-     * Classe interne représentant une entrée dans la ListView d'assets.
-     * Si isBack est true, cela représente l'option "Retour aux dossiers supérieurs".
-     */
+
     private static class AssetEntry {
         private File file;
         private boolean isBack;

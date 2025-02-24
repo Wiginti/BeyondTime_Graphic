@@ -1,10 +1,12 @@
 package fr.beyondtime.view.editor;
 
 import fr.beyondtime.model.map.Tile;
+import fr.beyondtime.util.MapLoader;
 import fr.beyondtime.util.MapSaver;
 import fr.beyondtime.view.MenuView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Button;
@@ -31,9 +33,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -49,15 +54,16 @@ public class EditorView extends VBox {
     private Image selectedAssetImage = null;
     private String selectedAssetPath = null;
     private boolean eraserMode = false;
-    // Mode propriété pour modifier les propriétés d'une cellule
-    private boolean propertyMode = false;
+
+    // Ajout du type POISON à l'énumération
+    private enum TileType { NORMAL, OBSTACLE, SLOW, POISON }
+    private TileType currentTileType = null;
 
     private int gridRows;
     private int gridColumns;
 
+    // Constructeur pour créer une nouvelle carte (configuration de la grille)
     public EditorView() {
-        getStyleClass().add("root");
-
         try {
             rootAssets = new File(getClass().getResource("/fr/beyondtime/assets").toURI());
             currentDirectory = rootAssets;
@@ -85,8 +91,20 @@ public class EditorView extends VBox {
         Button startButton = new Button("Créer la carte");
         startButton.getStyleClass().add("classique-button");
 
-        configPane.getChildren().addAll(configLabel, rowsLabel, rowsField, columnsLabel, columnsField, startButton);
+        // Bouton de modification d'une carte existante
+        Button modifyButton = new Button("Modifier une carte existante");
+        modifyButton.getStyleClass().add("classique-button");
+
+        Button returnButton = new Button("Retour");
+        returnButton.getStyleClass().add("classique-buttonn");
+
+        configPane.getChildren().addAll(configLabel, rowsLabel, rowsField, columnsLabel, columnsField, startButton, modifyButton, returnButton);
         getChildren().add(configPane);
+
+        returnButton.setOnAction(e -> {
+            Stage stage = (Stage)this.getScene().getWindow();
+            MenuView.showNiveauScene(stage);
+        });
 
         startButton.setOnAction(e -> {
             try {
@@ -95,14 +113,86 @@ public class EditorView extends VBox {
                 gridRows = rows;
                 gridColumns = columns;
                 getChildren().remove(configPane);
-                buildEditorUI(rows, columns);
+                // Supprimer le CSS pour obtenir l'affichage de modification
+                if (getScene() != null) {
+                    getScene().getStylesheets().clear();
+                }
+                mapGrid = createMapGrid(rows, columns);
+                buildEditorUI();
             } catch (NumberFormatException ex) {
                 System.out.println("Veuillez entrer des nombres valides.");
             }
         });
+
+        modifyButton.setOnAction(e -> {
+            File saveDir = new File("saved_maps");
+            File[] files = saveDir.listFiles((dir, name) -> name.endsWith(".map"));
+            if (files == null || files.length == 0) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Modification");
+                alert.setHeaderText(null);
+                alert.setContentText("Aucune carte existante à modifier.");
+                alert.showAndWait();
+                return;
+            }
+            List<String> choices = new ArrayList<>();
+            for (File f : files) {
+                choices.add(f.getName());
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Choix de la carte à modifier");
+            dialog.setHeaderText("Sélectionnez une carte personnalisée");
+            dialog.setContentText("Carte : ");
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                String selectedFileName = result.get();
+                File selectedFile = null;
+                for (File f : files) {
+                    if (f.getName().equals(selectedFileName)) {
+                        selectedFile = f;
+                        break;
+                    }
+                }
+                if (selectedFile != null) {
+                    try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                        String firstLine = reader.readLine();
+                        if (firstLine != null) {
+                            String[] dims = firstLine.split(",");
+                            int rows = Integer.parseInt(dims[0].trim());
+                            int columns = Integer.parseInt(dims[1].trim());
+                            gridRows = rows;
+                            gridColumns = columns;
+                            GridPane loadedGrid = MapLoader.loadMapFromFile(selectedFile);
+                            if (loadedGrid != null) {
+                                EditorView newEditor = new EditorView(loadedGrid, rows, columns);
+                                Stage stage = (Stage)this.getScene().getWindow();
+                                stage.setScene(new Scene(newEditor, 800, 600));
+                            }
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
-    private void buildEditorUI(int rows, int columns) {
+    // Constructeur pour éditer une carte déjà existante
+    public EditorView(GridPane preloadedGrid, int rows, int columns) {
+        try {
+            rootAssets = new File(getClass().getResource("/fr/beyondtime/assets").toURI());
+            currentDirectory = rootAssets;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        this.mapGrid = preloadedGrid;
+        this.gridRows = rows;
+        this.gridColumns = columns;
+        buildEditorUI();
+    }
+
+    // Construction de l'interface de l'éditeur (menu, zone d'édition et outils)
+    private void buildEditorUI() {
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem closeItem = new MenuItem("Close");
@@ -128,7 +218,6 @@ public class EditorView extends VBox {
         contentPane.setPrefHeight(800.0);
         contentPane.setPrefWidth(600.0);
 
-        mapGrid = createMapGrid(rows, columns);
         contentPane.getChildren().add(mapGrid);
         AnchorPane.setTopAnchor(mapGrid, 10.0);
         AnchorPane.setLeftAnchor(mapGrid, 10.0);
@@ -144,17 +233,28 @@ public class EditorView extends VBox {
         eraserButton.getStyleClass().add("classique-buttonn");
         eraserButton.setOnAction(e -> eraserMode = !eraserMode);
 
-        // Bouton Propriété qui active le mode édition des propriétés de la cellule
-        Button propertyButton = new Button("Propriété");
-        propertyButton.getStyleClass().add("classique-button");
-        propertyButton.setOnAction(e -> {
-            propertyMode = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Mode Propriété");
-            alert.setHeaderText(null);
-            alert.setContentText("Cliquez sur la cellule dont vous souhaitez modifier la propriété.");
-            alert.showAndWait();
-        });
+        // Boutons pour sélectionner une propriété à appliquer sur les cases
+        Button normalPropButton = new Button("Normal");
+        normalPropButton.getStyleClass().add("classique-button");
+        normalPropButton.setOnAction(e -> currentTileType = TileType.NORMAL);
+
+        Button obstaclePropButton = new Button("Obstacle");
+        obstaclePropButton.getStyleClass().add("classique-button");
+        obstaclePropButton.setOnAction(e -> currentTileType = TileType.OBSTACLE);
+
+        Button slowPropButton = new Button("Ralentissement");
+        slowPropButton.getStyleClass().add("classique-button");
+        slowPropButton.setOnAction(e -> currentTileType = TileType.SLOW);
+
+        // Nouveau bouton pour le mode Poison
+        Button poisonPropButton = new Button("Poison");
+        poisonPropButton.getStyleClass().add("classique-button");
+        poisonPropButton.setOnAction(e -> currentTileType = TileType.POISON);
+
+        // Bouton pour revenir en mode asset (désactiver le mode propriété)
+        Button clearPropButton = new Button("Mode Asset");
+        clearPropButton.getStyleClass().add("classique-buttonn");
+        clearPropButton.setOnAction(e -> currentTileType = null);
 
         Button saveButton = new Button("Sauvegarder");
         saveButton.getStyleClass().add("classique-button");
@@ -173,12 +273,14 @@ public class EditorView extends VBox {
         Button exitButton = new Button("Quitter");
         exitButton.getStyleClass().add("classique-buttonn");
         exitButton.setOnAction(e -> {
-            Stage stage = (Stage) this.getScene().getWindow();
+            Stage stage = (Stage)this.getScene().getWindow();
             MenuView.showNiveauScene(stage);
         });
 
         HBox toolsBox = new HBox(10);
-        toolsBox.getChildren().addAll(clearButton, eraserButton, propertyButton, saveButton, exitButton);
+        toolsBox.getChildren().addAll(clearButton, eraserButton,
+                normalPropButton, obstaclePropButton, slowPropButton, poisonPropButton, clearPropButton,
+                saveButton, exitButton);
         toolsBox.setPadding(new Insets(10));
 
         getChildren().addAll(menuBar, splitPane, toolsBox);
@@ -277,18 +379,15 @@ public class EditorView extends VBox {
         }
         File[] files = currentDirectory.listFiles();
         if (files != null) {
-            // D'abord les sous-dossiers
             Arrays.stream(files)
                     .filter(File::isDirectory)
                     .forEach(f -> listView.getItems().add(new AssetEntry(f, false)));
-            // Puis les fichiers PNG
             Arrays.stream(files)
                     .filter(f -> f.isFile() && f.getName().toLowerCase().endsWith(".png"))
                     .forEach(f -> listView.getItems().add(new AssetEntry(f, false)));
         }
     }
 
-    // Création de la grille avec initialisation de chaque cellule
     private GridPane createMapGrid(int rows, int columns) {
         GridPane grid = new GridPane();
         grid.setHgap(0);
@@ -302,14 +401,24 @@ public class EditorView extends VBox {
                 background.setFill(Color.LIGHTGRAY);
                 background.setStroke(Color.BLACK);
                 cell.getChildren().add(background);
-                // Par défaut, la cellule est Normal (passable, sans ralentissement)
-                cell.getProperties().put("tile", new Tile(true, 1.0));
-
-                // Au clic, si le mode propriété est actif, ouvrir la fenêtre de sélection.
+                // Par défaut, la cellule est en mode Normal (damage = 0)
+                cell.getProperties().put("tile", new Tile(true, 1.0, 0));
                 cell.setOnMouseClicked(event -> {
-                    if (propertyMode) {
-                        showTileTypeDialog(cell);
-                        propertyMode = false;
+                    if (currentTileType != null) {
+                        switch (currentTileType) {
+                            case NORMAL:
+                                setCellAsNormal(cell);
+                                break;
+                            case OBSTACLE:
+                                setCellAsObstacle(cell);
+                                break;
+                            case SLOW:
+                                setCellAsSlowZone(cell);
+                                break;
+                            case POISON:
+                                setCellAsPoison(cell);
+                                break;
+                        }
                     } else {
                         if (eraserMode) {
                             clearCell(cell);
@@ -318,7 +427,6 @@ public class EditorView extends VBox {
                         }
                     }
                 });
-
                 cell.setOnDragOver(event -> {
                     if (event.getGestureSource() != cell && event.getDragboard().hasImage()) {
                         event.acceptTransferModes(TransferMode.COPY);
@@ -335,52 +443,33 @@ public class EditorView extends VBox {
                     event.setDropCompleted(success);
                     event.consume();
                 });
-
                 grid.add(cell, col, row);
             }
         }
         return grid;
     }
 
-    // Ouvre une boîte de dialogue pour choisir le type de la cellule
-    private void showTileTypeDialog(StackPane cell) {
-        List<String> options = List.of("Normal", "Obstacle", "Zone de ralentissement");
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Normal", options);
-        dialog.setTitle("Type de cellule");
-        dialog.setHeaderText("Choisissez le type de cette cellule");
-        dialog.setContentText("Type:");
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            String selected = result.get();
-            switch (selected) {
-                case "Normal":
-                    setCellAsNormal(cell);
-                    break;
-                case "Obstacle":
-                    setCellAsObstacle(cell);
-                    break;
-                case "Zone de ralentissement":
-                    setCellAsSlowZone(cell);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     private void setCellAsNormal(StackPane cell) {
-        cell.getProperties().put("tile", new Tile(true, 1.0));
+        cell.getProperties().put("tile", new Tile(true, 1.0, 0));
         updateCellBackground(cell, Color.LIGHTGRAY);
     }
 
     private void setCellAsObstacle(StackPane cell) {
-        cell.getProperties().put("tile", new Tile(false, 0));
+        cell.getProperties().put("tile", new Tile(false, 0, 0));
         updateCellBackground(cell, Color.RED);
     }
 
     private void setCellAsSlowZone(StackPane cell) {
-        cell.getProperties().put("tile", new Tile(true, 0.5));
+        cell.getProperties().put("tile", new Tile(true, 0.5, 0));
         updateCellBackground(cell, Color.ORANGE);
+    }
+
+    // Nouvelle méthode pour définir une cellule comme toxique/poison
+    private void setCellAsPoison(StackPane cell) {
+        // Ici, la cellule reste franchissable avec un ralentissement normal (1.0)
+        // mais inflige 10 points de dégâts lorsque le joueur la traverse
+        cell.getProperties().put("tile", new Tile(true, 1.0, 10));
+        updateCellBackground(cell, Color.PURPLE);
     }
 
     private void updateCellBackground(StackPane cell, Color color) {
@@ -402,7 +491,6 @@ public class EditorView extends VBox {
             assetView.setFitWidth(cellSize);
             assetView.setFitHeight(cellSize);
             cell.getChildren().add(assetView);
-            // Sauvegarde le chemin de l'asset dans la cellule (pour la sauvegarde)
             cell.setUserData(selectedAssetPath);
         }
     }

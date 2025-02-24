@@ -1,5 +1,6 @@
 package fr.beyondtime.util;
 
+import fr.beyondtime.model.map.Tile;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -18,7 +19,6 @@ import java.util.Arrays;
 
 public class MapLoader {
 
-
     public static File[] getMapFilesForLevel(String levelName) {
         File saveDir = new File("saved_maps");
         if (!saveDir.exists()) {
@@ -34,7 +34,6 @@ public class MapLoader {
         );
         return matchingFiles;
     }
-
 
     public static GridPane loadMapFromFile(File file) {
         System.out.println("Loading map from file: " + file.getAbsolutePath());
@@ -63,7 +62,32 @@ public class MapLoader {
                     background.setFill(Color.LIGHTGRAY);
                     background.setStroke(Color.BLACK);
                     cell.getChildren().add(background);
-                    String assetPath = cellData[col].trim();
+
+                    String cellValue = cellData[col].trim();
+                    String assetPath = "";
+                    boolean passable = true;
+                    double slowdown = 1.0;
+
+                    if (!cellValue.isEmpty()) {
+                        // Format attendu : assetPath|passable;slowdownFactor
+                        String[] parts = cellValue.split("\\|");
+                        if (parts.length == 2) {
+                            assetPath = parts[0];
+                            String[] tileParts = parts[1].split(";");
+                            if (tileParts.length == 2) {
+                                passable = Boolean.parseBoolean(tileParts[0]);
+                                slowdown = Double.parseDouble(tileParts[1]);
+                            }
+                        } else {
+                            // Au cas où le format ne correspondrait pas, on traite toute la chaîne comme assetPath
+                            assetPath = cellValue;
+                        }
+                    }
+
+                    // Appliquer les propriétés du Tile sur la cellule
+                    cell.getProperties().put("tile", new Tile(passable, slowdown));
+
+                    // Si un asset est défini, le charger et l'afficher
                     if (!assetPath.isEmpty()) {
                         System.out.println("Loading asset at cell (" + row + "," + col + "): " + assetPath);
                         try {
@@ -80,6 +104,7 @@ public class MapLoader {
                             System.out.println("Exception loading asset: " + assetPath + " - " + ex.getMessage());
                         }
                     }
+
                     grid.add(cell, col, row);
                 }
             }

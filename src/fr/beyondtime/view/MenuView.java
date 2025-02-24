@@ -30,6 +30,7 @@ public class MenuView {
         Button scoresButton = new Button("Scores");
         Button quitterButton = new Button("Quitter");
 
+        // Lorsque l'utilisateur clique sur "Jouer", on affiche le choix des niveaux
         jouerButton.setOnAction(event -> showNiveauScene(stage));
         scoresButton.setOnAction(event -> {
             System.out.println("Affichage des scores à faire plus tard");
@@ -38,7 +39,7 @@ public class MenuView {
 
         menuPrincipal.getChildren().addAll(jouerButton, scoresButton, quitterButton);
 
-        Scene sceneMenu = new Scene(menuPrincipal);
+        Scene sceneMenu = new Scene(menuPrincipal, 400, 300);
         sceneMenu.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
@@ -64,7 +65,7 @@ public class MenuView {
 
         choixNiveau.getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
 
-        Scene sceneNiveau = new Scene(choixNiveau);
+        Scene sceneNiveau = new Scene(choixNiveau, 400, 300);
         sceneNiveau.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
@@ -93,7 +94,7 @@ public class MenuView {
 
         classiqueMenu.getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
 
-        Scene sceneClassique = new Scene(classiqueMenu);
+        Scene sceneClassique = new Scene(classiqueMenu, 400, 300);
         sceneClassique.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
@@ -103,7 +104,7 @@ public class MenuView {
 
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
-        Scene sceneEditor = new Scene(editorView);
+        Scene sceneEditor = new Scene(editorView, 800, 600);
         sceneEditor.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );
@@ -111,7 +112,7 @@ public class MenuView {
         stage.show();
     }
 
-
+    // Permet de sélectionner une map sauvegardée pour un niveau classique et de lancer le gameplay via GameView
     private static void selectAndLoadMap(Stage stage, String levelName) {
         File[] maps = MapLoader.getMapFilesForLevel(levelName);
         if (maps.length == 0) {
@@ -122,7 +123,7 @@ public class MenuView {
             alert.showAndWait();
             return;
         }
-        // Prépare la liste des noms de fichiers
+        // Préparation de la liste des fichiers
         List<String> choices = new ArrayList<>();
         for (File file : maps) {
             choices.add(file.getName());
@@ -144,20 +145,8 @@ public class MenuView {
             if (selectedFile != null) {
                 GridPane grid = MapLoader.loadMapFromFile(selectedFile);
                 if (grid != null) {
-                    ScrollPane scrollPane = new ScrollPane(grid);
-                    scrollPane.setPannable(true);
-                    Button retour = new Button("Retour");
-                    retour.getStyleClass().add("classique-button");
-                    retour.setOnAction(e -> showClassiqueScene(stage));
-                    VBox vbox = new VBox(10, scrollPane, retour);
-                    vbox.setPadding(new Insets(10));
-                    vbox.setAlignment(Pos.CENTER);
-                    Scene sceneLoaded = new Scene(vbox);
-                    sceneLoaded.getStylesheets().add(
-                            Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
-                    );
-                    stage.setScene(sceneLoaded);
-                    stage.show();
+                    // Lancement du gameplay en passant la map chargée à GameView
+                    new GameView(stage, grid);
                 }
             }
         }

@@ -32,8 +32,3 @@ public class MapView {
         return gridPane;
     }
 }
-
-
-
-
-

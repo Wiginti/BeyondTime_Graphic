@@ -1,5 +1,6 @@
 package fr.beyondtime.view.editor;
 
+import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.util.MapSaver;
 import fr.beyondtime.view.MenuView;
 import javafx.geometry.Insets;
@@ -48,6 +49,8 @@ public class EditorView extends VBox {
     private Image selectedAssetImage = null;
     private String selectedAssetPath = null;
     private boolean eraserMode = false;
+    // Mode propriété pour modifier les propriétés d'une cellule
+    private boolean propertyMode = false;
 
     private int gridRows;
     private int gridColumns;
@@ -99,7 +102,6 @@ public class EditorView extends VBox {
         });
     }
 
-
     private void buildEditorUI(int rows, int columns) {
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
@@ -142,6 +144,18 @@ public class EditorView extends VBox {
         eraserButton.getStyleClass().add("classique-buttonn");
         eraserButton.setOnAction(e -> eraserMode = !eraserMode);
 
+        // Bouton Propriété qui active le mode édition des propriétés de la cellule
+        Button propertyButton = new Button("Propriété");
+        propertyButton.getStyleClass().add("classique-button");
+        propertyButton.setOnAction(e -> {
+            propertyMode = true;
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Mode Propriété");
+            alert.setHeaderText(null);
+            alert.setContentText("Cliquez sur la cellule dont vous souhaitez modifier la propriété.");
+            alert.showAndWait();
+        });
+
         Button saveButton = new Button("Sauvegarder");
         saveButton.getStyleClass().add("classique-button");
         saveButton.setOnAction(e -> {
@@ -164,13 +178,12 @@ public class EditorView extends VBox {
         });
 
         HBox toolsBox = new HBox(10);
-        toolsBox.getChildren().addAll(clearButton, eraserButton, saveButton, exitButton);
+        toolsBox.getChildren().addAll(clearButton, eraserButton, propertyButton, saveButton, exitButton);
         toolsBox.setPadding(new Insets(10));
 
         getChildren().addAll(menuBar, splitPane, toolsBox);
         setPadding(new Insets(10));
     }
-
 
     private ListView<AssetEntry> createAssetListView() {
         ListView<AssetEntry> listView = new ListView<>();
@@ -257,7 +270,6 @@ public class EditorView extends VBox {
         return listView;
     }
 
-
     private void updateAssetListView(ListView<AssetEntry> listView) {
         listView.getItems().clear();
         if (!currentDirectory.equals(rootAssets)) {
@@ -265,7 +277,7 @@ public class EditorView extends VBox {
         }
         File[] files = currentDirectory.listFiles();
         if (files != null) {
-            // Ajoute d'abord les sous-dossiers
+            // D'abord les sous-dossiers
             Arrays.stream(files)
                     .filter(File::isDirectory)
                     .forEach(f -> listView.getItems().add(new AssetEntry(f, false)));
@@ -276,6 +288,7 @@ public class EditorView extends VBox {
         }
     }
 
+    // Création de la grille avec initialisation de chaque cellule
     private GridPane createMapGrid(int rows, int columns) {
         GridPane grid = new GridPane();
         grid.setHgap(0);
@@ -289,12 +302,20 @@ public class EditorView extends VBox {
                 background.setFill(Color.LIGHTGRAY);
                 background.setStroke(Color.BLACK);
                 cell.getChildren().add(background);
+                // Par défaut, la cellule est Normal (passable, sans ralentissement)
+                cell.getProperties().put("tile", new Tile(true, 1.0));
 
+                // Au clic, si le mode propriété est actif, ouvrir la fenêtre de sélection.
                 cell.setOnMouseClicked(event -> {
-                    if (eraserMode) {
-                        clearCell(cell);
+                    if (propertyMode) {
+                        showTileTypeDialog(cell);
+                        propertyMode = false;
                     } else {
-                        placeAssetOnCell(cell);
+                        if (eraserMode) {
+                            clearCell(cell);
+                        } else {
+                            placeAssetOnCell(cell);
+                        }
                     }
                 });
 
@@ -321,6 +342,54 @@ public class EditorView extends VBox {
         return grid;
     }
 
+    // Ouvre une boîte de dialogue pour choisir le type de la cellule
+    private void showTileTypeDialog(StackPane cell) {
+        List<String> options = List.of("Normal", "Obstacle", "Zone de ralentissement");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Normal", options);
+        dialog.setTitle("Type de cellule");
+        dialog.setHeaderText("Choisissez le type de cette cellule");
+        dialog.setContentText("Type:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String selected = result.get();
+            switch (selected) {
+                case "Normal":
+                    setCellAsNormal(cell);
+                    break;
+                case "Obstacle":
+                    setCellAsObstacle(cell);
+                    break;
+                case "Zone de ralentissement":
+                    setCellAsSlowZone(cell);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void setCellAsNormal(StackPane cell) {
+        cell.getProperties().put("tile", new Tile(true, 1.0));
+        updateCellBackground(cell, Color.LIGHTGRAY);
+    }
+
+    private void setCellAsObstacle(StackPane cell) {
+        cell.getProperties().put("tile", new Tile(false, 0));
+        updateCellBackground(cell, Color.RED);
+    }
+
+    private void setCellAsSlowZone(StackPane cell) {
+        cell.getProperties().put("tile", new Tile(true, 0.5));
+        updateCellBackground(cell, Color.ORANGE);
+    }
+
+    private void updateCellBackground(StackPane cell, Color color) {
+        for (javafx.scene.Node node : cell.getChildren()) {
+            if (node instanceof Rectangle) {
+                ((Rectangle) node).setFill(color);
+            }
+        }
+    }
 
     private void placeAssetOnCell(StackPane cell) {
         if (selectedAssetImage != null) {
@@ -338,17 +407,14 @@ public class EditorView extends VBox {
         }
     }
 
-
     private void clearCell(StackPane cell) {
         cell.getChildren().clear();
         Rectangle background = new Rectangle(cellSize, cellSize);
         background.setFill(Color.LIGHTGRAY);
         background.setStroke(Color.BLACK);
         cell.getChildren().add(background);
-        // Réinitialise la donnée associée
         cell.setUserData(null);
     }
-
 
     private void clearGrid() {
         for (javafx.scene.Node node : mapGrid.getChildren()) {
@@ -357,7 +423,6 @@ public class EditorView extends VBox {
             }
         }
     }
-
 
     private static class AssetEntry {
         private File file;

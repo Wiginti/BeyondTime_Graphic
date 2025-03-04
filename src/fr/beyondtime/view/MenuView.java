@@ -104,7 +104,7 @@ public class MenuView {
 
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
-        Scene sceneEditor = new Scene(editorView, 800, 600);
+        Scene sceneEditor = new Scene(editorView, 600, 400);
         sceneEditor.getStylesheets().add(
                 Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
         );

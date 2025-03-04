@@ -1,7 +1,6 @@
 package fr.beyondtime.controller;
 
 import fr.beyondtime.model.GameModel;
-import fr.beyondtime.view.GameView;
 import fr.beyondtime.view.editor.EditorView;
 import javafx.scene.Scene;
 

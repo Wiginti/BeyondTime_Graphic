@@ -1,39 +1,27 @@
 package fr.beyondtime.model.entities;
 
 public abstract class Entity {
-	
-	private int healthPoint;
+	private int health;
 	private String name;
-	
-	//Getter and Setter for Health
-	
-	public Entity(int defaultHealthpoint, String name) {
-		this.healthPoint = defaultHealthpoint;
+
+	public Entity(int health, String name) {
+		this.health = health;
 		this.name = name;
 	}
 
 	public int getHealth() {
-		return this.healthPoint;
-	}
-	
-	public void removeHealth(int amount) {
-		this.healthPoint -= amount;
-	}
-	
-	public void addHealth(int amount) {
-		this.healthPoint += amount;
-	}
-	
-	public void setHealth(int amount) {
-		this.healthPoint = amount;
-	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
-	public void changeName(String newName) {
-		this.name = newName;
+		return health;
 	}
 
+	public void removeHealth(int amount) {
+		this.health = Math.max(0, this.health - amount);
+	}
+
+	public void setHealth(int health) {
+		this.health = health;
+	}
+
+	public String getName() {
+		return name;
+	}
 }

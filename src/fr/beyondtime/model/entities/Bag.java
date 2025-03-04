@@ -48,5 +48,11 @@ public class Bag extends Item implements Containable {
 			System.out.println("There is no item in your Bag !");
 		}
 	}
+
+	@Override
+	public Item getItemByName(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

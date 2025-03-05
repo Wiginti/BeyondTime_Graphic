@@ -65,14 +65,17 @@ public class GameView {
         // Ensuite, on ajoute la vue du héros
         rootPane.getChildren().add(heroView);
         
+
+        scene = new Scene(rootPane, 800, 600);
         scene.setOnKeyPressed(event -> {
+            // Gestion de F11 pour le plein écran
             if (event.getCode() == KeyCode.F11) {
                 stage.setFullScreen(!stage.isFullScreen());
             }
+            // Gestion des autres touches pour le héros
+            heroController.handleKeyEvent(event);
         });
 
-        scene = new Scene(rootPane, 800, 600);
-        scene.setOnKeyPressed(event -> heroController.handleKeyEvent(event));
         stage.setScene(scene);
         stage.show();
 
@@ -100,7 +103,16 @@ public class GameView {
         rootPane.getChildren().add(heroView);
 
         scene = new Scene(rootPane, 800, 600);
-        scene.setOnKeyPressed(event -> heroController.handleKeyEvent(event));
+        //Menu plein écran lors du clique sur F11
+        scene.setOnKeyPressed(event -> {
+            // Gestion de F11 pour le plein écran
+            if (event.getCode() == KeyCode.F11) {
+                stage.setFullScreen(!stage.isFullScreen());
+            }
+            // Gestion des autres touches pour le héros
+            heroController.handleKeyEvent(event);
+        });
+
         stage.setScene(scene);
         stage.show();
 

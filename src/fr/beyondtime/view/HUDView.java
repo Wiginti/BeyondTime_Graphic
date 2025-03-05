@@ -38,27 +38,10 @@ public class HUDView extends AnchorPane {
 
     private void buildHUD() {
         // Construction de la barre de vie (health bar)
-        healthBar = new HBox(5);
-        heartSlots = new ImageView[maxHearts];
-        for (int i = 0; i < maxHearts; i++) {
-            ImageView heartView = new ImageView(heartFull);
-            heartView.setFitWidth(30);
-            heartView.setFitHeight(30);
-            heartSlots[i] = heartView;
-            healthBar.getChildren().add(heartView);
-        }
+        healthBar = buildHealthBar();
 
         // Construction de la barre d'inventaire
-        inventoryBar = new HBox(10);
-        for (int i = 0; i < inventorySlots; i++) {
-            StackPane slot = new StackPane();
-            slot.setPrefSize(40, 40);
-            Rectangle bg = new Rectangle(40, 40);
-            bg.setFill(Color.TRANSPARENT);
-            bg.setStroke(Color.WHITE);
-            slot.getChildren().add(bg);
-            inventoryBar.getChildren().add(slot);
-        }
+        inventoryBar = buildInventory();
 
         // Disposer le HUD dans un VBox et le positionner en haut de l'écran
         VBox hudContainer = new VBox(10);
@@ -74,6 +57,34 @@ public class HUDView extends AnchorPane {
         setTopAnchor(hudContainer, 0.0);
         setLeftAnchor(hudContainer, 0.0);
         getChildren().add(hudContainer);
+    }
+    
+    public HBox buildHealthBar() {
+    	HBox healthBar = new HBox(5);
+        heartSlots = new ImageView[maxHearts];
+        for (int i = 0; i < maxHearts; i++) {
+            ImageView heartView = new ImageView(heartFull);
+            heartView.setFitWidth(30);
+            heartView.setFitHeight(30);
+            heartSlots[i] = heartView;
+            healthBar.getChildren().add(heartView);
+        }
+        return healthBar;
+    }
+    
+    public HBox buildInventory() {
+        HBox inventoryBar = new HBox(10);
+        for (int i = 0; i < inventorySlots; i++) {
+            StackPane slot = new StackPane();
+            slot.setPrefSize(40, 40);
+            Rectangle bg = new Rectangle(40, 40);
+            bg.setFill(Color.TRANSPARENT);
+            bg.setStroke(Color.WHITE);
+            slot.getChildren().add(bg);
+            inventoryBar.getChildren().add(slot);
+        }
+        
+        return inventoryBar;
     }
 
     /**

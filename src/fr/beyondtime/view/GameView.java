@@ -7,6 +7,7 @@ import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -63,6 +64,12 @@ public class GameView {
         rootPane.getChildren().add(hud);
         // Ensuite, on ajoute la vue du héros
         rootPane.getChildren().add(heroView);
+        
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.F11) {
+                stage.setFullScreen(!stage.isFullScreen());
+            }
+        });
 
         scene = new Scene(rootPane, 800, 600);
         scene.setOnKeyPressed(event -> heroController.handleKeyEvent(event));

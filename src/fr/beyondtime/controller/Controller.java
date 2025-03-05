@@ -15,5 +15,17 @@ public class Controller {
 		this.view = view;
 		this.scene = scene;
 	}
-  //test
+	
+	public GameModel getModel() {
+		return this.model;
+	}
+	
+	public EditorView getView() {
+		return this.view;
+	}
+	
+	public Scene getScene() {
+		return this.scene;
+	}
+	
 }

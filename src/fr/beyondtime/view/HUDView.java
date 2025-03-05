@@ -6,7 +6,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.control.Label;
 
 import java.util.List;
 
@@ -49,9 +48,9 @@ public class HUDView extends AnchorPane {
         hudContainer.setPadding(new Insets(10));
 
         // On peut aussi ajouter un titre ou d'autres informations
-        Label hudTitle = new Label("HUD");
-        hudTitle.setTextFill(Color.WHITE);
-        hudContainer.getChildren().add(0, hudTitle);
+        //Label hudTitle = new Label("HUD");
+        //hudTitle.setTextFill(Color.WHITE);
+        //hudContainer.getChildren().add(0, hudTitle);
 
         // Positionner le conteneur HUD en haut à gauche
         setTopAnchor(hudContainer, 0.0);

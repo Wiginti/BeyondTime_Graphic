@@ -51,7 +51,9 @@ public class GameView {
         hero = new Hero();
         heroView = new HeroView();
         heroController = new HeroController(hero, heroView, defaultGrid, DEFAULT_CELL_SIZE);
-
+        
+        hideGridDisplay(defaultGrid);
+        
         // Création du conteneur principal de la scène
         rootPane = new Pane();
         // On ajoute d'abord la grille

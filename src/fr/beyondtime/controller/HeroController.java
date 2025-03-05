@@ -10,7 +10,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
 public class HeroController {
-    private Hero hero;
+    @SuppressWarnings("unused")
+	private Hero hero;
     private HeroView heroView;
 
     // Position actuelle du héros

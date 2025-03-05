@@ -51,7 +51,7 @@ public class MenuView {
         choixNiveau.getStyleClass().add("vbox-gameview");
 
         Button classiqueBtn = new Button("Niveau Classique");
-        Button personnaliseBtn = new Button("Niveau Personnalisé");
+        Button personnaliseBtn = new Button("Map Editor");
         Button retourBtn = new Button("Retour");
 
         classiqueBtn.getStyleClass().add("classique-button");

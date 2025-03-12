@@ -8,6 +8,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
@@ -17,6 +18,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import static fr.beyondtime.view.MenuView.showNiveauScene;
 
 public class GameView {
 
@@ -65,6 +68,9 @@ public class GameView {
         hud = new HUDView(5, 5);
         rootPane.getChildren().add(hud);
 
+        // Ajout du bouton Quitter visible pendant le jeu
+        addQuitButton(stage);
+
         scene = new Scene(rootPane, 800, 600);
 
         scene.setOnKeyPressed(event -> {
@@ -108,6 +114,9 @@ public class GameView {
         // Position initiale du héros
         heroView.setPosition(50, 50);
 
+        // Ajout du bouton Quitter visible pendant le jeu
+        addQuitButton(stage);
+
         scene = new Scene(rootPane, 800, 600);
 
         scene.setOnKeyPressed(event -> {
@@ -131,6 +140,19 @@ public class GameView {
     }
 
     /**
+     * Méthode permettant d'ajouter un bouton "Quitter" qui, lorsqu'il est cliqué,
+     * arrête les animations et renvoie vers le menu principal (MenuView).
+     */
+    private void addQuitButton(Stage stage) {
+        Button btnQuit = new Button("Quitter");
+        // Positionnement fixe en haut à droite de la scène (ajustez les valeurs si nécessaire)
+        btnQuit.setLayoutX(720);
+        btnQuit.setLayoutY(10);
+        btnQuit.setOnAction(ActionEvent -> showNiveauScene(stage));
+        rootPane.getChildren().add(btnQuit);
+    }
+
+    /**
      * AnimationTimer qui met à jour en continu la translation du groupe caméra pour centrer le héros dans la scène.
      */
     private void startCamera() {
@@ -139,7 +161,7 @@ public class GameView {
             public void handle(long now) {
                 double sceneWidth = scene.getWidth();
                 double sceneHeight = scene.getHeight();
-                // On calcule le centre du héros en se basant sur sa position et sa taille
+                // Calcul du centre du héros
                 double heroWidth = heroView.getBoundsInLocal().getWidth();
                 double heroHeight = heroView.getBoundsInLocal().getHeight();
                 double heroX = heroView.getLayoutX();

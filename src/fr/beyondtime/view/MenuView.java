@@ -1,6 +1,7 @@
 package fr.beyondtime.view;
 
 import fr.beyondtime.util.MapLoader;
+import fr.beyondtime.util.StyleLoader;
 import fr.beyondtime.view.editor.EditorView;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,7 +15,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class MenuView {
@@ -38,9 +38,10 @@ public class MenuView {
         menuPrincipal.getChildren().addAll(jouerButton, scoresButton, quitterButton);
 
         Scene sceneMenu = new Scene(menuPrincipal, 400, 300);
-        sceneMenu.getStylesheets().add(
-                Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
-        );
+        
+        //Importer le fichier style.css
+        sceneMenu.getStylesheets().add(StyleLoader.getStyleSheet());
+        
         stage.setScene(sceneMenu);
         stage.show();
     }
@@ -64,9 +65,9 @@ public class MenuView {
         choixNiveau.getChildren().addAll(classiqueBtn, personnaliseBtn, retourBtn);
 
         Scene sceneNiveau = new Scene(choixNiveau, 400, 300);
-        sceneNiveau.getStylesheets().add(
-                Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
-        );
+        
+        //Importer le fichier style.css
+        sceneNiveau.getStylesheets().add(StyleLoader.getStyleSheet());
         stage.setScene(sceneNiveau);
         stage.show();
     }
@@ -93,9 +94,8 @@ public class MenuView {
         classiqueMenu.getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);
 
         Scene sceneClassique = new Scene(classiqueMenu, 400, 300);
-        sceneClassique.getStylesheets().add(
-                Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
-        );
+        //Importer le fichier css
+        sceneClassique.getStylesheets().add(StyleLoader.getStyleSheet());
         stage.setScene(sceneClassique);
         stage.show();
     }
@@ -103,9 +103,7 @@ public class MenuView {
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
         Scene sceneEditor = new Scene(editorView, 600, 400);
-        sceneEditor.getStylesheets().add(
-                Objects.requireNonNull(MenuView.class.getResource("/fr/beyondtime/resources/style.css")).toExternalForm()
-        );
+        sceneEditor.getStylesheets().add(StyleLoader.getStyleSheet());
         stage.setScene(sceneEditor);
         stage.show();
     }

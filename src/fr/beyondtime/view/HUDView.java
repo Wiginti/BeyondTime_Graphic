@@ -1,15 +1,18 @@
 package fr.beyondtime.view;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
 import java.util.List;
 
-public class HUDView extends AnchorPane {
+public class HUDView extends BorderPane {
 
     private HBox healthBar;
     private HBox inventoryBar;
@@ -26,48 +29,56 @@ public class HUDView extends AnchorPane {
     public HUDView(int maxHearts, int inventorySlots) {
         this.maxHearts = maxHearts;
         this.inventorySlots = inventorySlots;
-
         buildHUD();
     }
 
     private void buildHUD() {
-        // Construction de la barre de vie (health bar)
+        // Construction des barres
         healthBar = buildHealthBar();
-
-        // Construction de la barre d'inventaire
         inventoryBar = buildInventory();
-
-        // Disposer le HUD dans un VBox et le positionner en haut de l'écran
-        VBox hudContainer = new VBox(10);
-        hudContainer.getChildren().addAll(healthBar, inventoryBar);
-        hudContainer.setPadding(new Insets(10));
-
-        // On peut aussi ajouter un titre ou d'autres informations
-        //Label hudTitle = new Label("HUD");
-        //hudTitle.setTextFill(Color.WHITE);
-        //hudContainer.getChildren().add(0, hudTitle);
-
-        // Positionner le conteneur HUD en haut à gauche
-        setTopAnchor(hudContainer, 0.0);
-        setLeftAnchor(hudContainer, 0.0);
-        getChildren().add(hudContainer);
+        
+        // Conteneur pour la barre de vie en haut à gauche
+        HBox healthContainer = new HBox(healthBar);
+        healthContainer.setPadding(new Insets(10));
+        healthContainer.setAlignment(Pos.TOP_LEFT);
+        
+        // Conteneur pour l'inventaire : on l'enveloppe dans un StackPane
+        // afin de forcer son centrage horizontal sur toute la largeur.
+        StackPane inventoryContainer = new StackPane(inventoryBar);
+        inventoryContainer.setPadding(new Insets(10));
+        inventoryContainer.setAlignment(Pos.CENTER);
+        
+        // Pour que le BorderPane occupe toute la hauteur,
+        // on place un nœud expansible (Region) au centre.
+        Region centerRegion = new Region();
+        setCenter(centerRegion);
+        
+        // Placement dans le BorderPane
+        setTop(healthContainer);
+        setBottom(inventoryContainer);
+        BorderPane.setAlignment(inventoryContainer, Pos.CENTER);
+        
+        // Optionnel : fixer une taille pour tester le layout
+        this.setPrefSize(800, 600);
     }
-    
+
     public HBox buildHealthBar() {
-    	HBox healthBar = new HBox(5);
+        HBox hb = new HBox(5);
         heartSlots = new ImageView[maxHearts];
         for (int i = 0; i < maxHearts; i++) {
-            ImageView heartView = new ImageView(heartFull);
-            heartView.setFitWidth(30);
-            heartView.setFitHeight(30);
-            heartSlots[i] = heartView;
-            healthBar.getChildren().add(heartView);
+            ImageView heart = new ImageView(heartFull);
+            heart.setFitWidth(30);
+            heart.setFitHeight(30);
+            heartSlots[i] = heart;
+            hb.getChildren().add(heart);
         }
-        return healthBar;
+        return hb;
     }
-    
+
     public HBox buildInventory() {
-        HBox inventoryBar = new HBox(10);
+        HBox ib = new HBox(10);
+        // On peut également centrer le contenu de l'HBox si besoin :
+        ib.setAlignment(Pos.CENTER);
         for (int i = 0; i < inventorySlots; i++) {
             StackPane slot = new StackPane();
             slot.setPrefSize(40, 40);
@@ -75,23 +86,17 @@ public class HUDView extends AnchorPane {
             bg.setFill(Color.TRANSPARENT);
             bg.setStroke(Color.WHITE);
             slot.getChildren().add(bg);
-            inventoryBar.getChildren().add(slot);
+            ib.getChildren().add(slot);
         }
-        
-        return inventoryBar;
+        return ib;
     }
 
-    /**
-     * Met à jour l'affichage de la barre de vie.
-     * @param health La santé actuelle exprimée en unités (exemple : 3.5 pour 3 cœurs pleins et un demi-cœur).
-     * On suppose ici que la santé maximale est égale au nombre de cœurs.
-     */
     public void updateHealth(double health) {
         for (int i = 0; i < maxHearts; i++) {
-            double heartValue = health - i;
-            if (heartValue >= 1) {
+            double val = health - i;
+            if (val >= 1) {
                 heartSlots[i].setImage(heartFull);
-            } else if (heartValue >= 0.5) {
+            } else if (val >= 0.5) {
                 heartSlots[i].setImage(heartHalf);
             } else {
                 heartSlots[i].setImage(heartEmpty);
@@ -99,23 +104,17 @@ public class HUDView extends AnchorPane {
         }
     }
 
-    /**
-     * Met à jour l'affichage de l'inventaire en plaçant des items dans les slots.
-     * @param items Une liste d'images représentant les items à afficher.
-     * Les items seront affichés dans l'ordre dans les slots disponibles.
-     */
     public void updateInventory(List<Image> items) {
         for (int i = 0; i < inventorySlots; i++) {
             StackPane slot = (StackPane) inventoryBar.getChildren().get(i);
-            // On conserve le fond du slot (premier enfant) et on supprime d'éventuels items précédents
             if (slot.getChildren().size() > 1) {
                 slot.getChildren().remove(1, slot.getChildren().size());
             }
             if (i < items.size()) {
-                ImageView itemView = new ImageView(items.get(i));
-                itemView.setFitWidth(30);
-                itemView.setFitHeight(30);
-                slot.getChildren().add(itemView);
+                ImageView item = new ImageView(items.get(i));
+                item.setFitWidth(30);
+                item.setFitHeight(30);
+                slot.getChildren().add(item);
             }
         }
     }

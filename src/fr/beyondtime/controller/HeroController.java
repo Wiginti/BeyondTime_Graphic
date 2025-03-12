@@ -18,7 +18,7 @@ public class HeroController {
     // Position actuelle du héros
     private double x;
     private double y;
-    private double speed = 5; // Vitesse de base
+    private double speed = 3; // Vitesse de base
 
     private boolean upPressed = false;
     private boolean downPressed = false;

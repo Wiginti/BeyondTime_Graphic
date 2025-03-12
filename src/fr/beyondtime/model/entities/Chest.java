@@ -1,5 +1,7 @@
 package fr.beyondtime.model.entities;
 
+import fr.beyondtime.model.interfaces.Containable;
+
 import java.util.ArrayList;
 import java.util.List;
 

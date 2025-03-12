@@ -1,5 +1,8 @@
 package fr.beyondtime.model.entities;
 
+import fr.beyondtime.model.interfaces.Fightable;
+import fr.beyondtime.model.interfaces.Interactable;
+
 public class Boss extends Entity implements Interactable, Fightable {
 	
 	private int damageAmount;

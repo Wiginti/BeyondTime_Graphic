@@ -4,10 +4,12 @@ import fr.beyondtime.controller.HeroController;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.entities.HeroView;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -24,6 +26,7 @@ public class GameView {
     private Pane rootPane;
     private Scene scene;
     private HUDView hud;
+    private Group cameraGroup; // Conteneur regroupant la carte et le héros
 
     private static final int DEFAULT_CELL_SIZE = 50;
 
@@ -32,6 +35,7 @@ public class GameView {
     private GridPane mapGrid;
 
     public GameView(Stage stage) {
+        // Création d'une grille par défaut
         GridPane defaultGrid = new GridPane();
         StackPane cell = new StackPane();
         cell.setPrefSize(DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
@@ -41,7 +45,6 @@ public class GameView {
         cell.getChildren().add(background);
         cell.getProperties().put("tile", new Tile(true, 1.0, 0));
         defaultGrid.add(cell, 0, 0);
-
         this.mapGrid = defaultGrid;
 
         hero = new Hero();
@@ -51,10 +54,16 @@ public class GameView {
         hideGridDisplay(defaultGrid);
 
         rootPane = new Pane();
-        rootPane.getChildren().add(defaultGrid);
+
+        // Création du groupe caméra qui contiendra la carte et le héros
+        cameraGroup = new Group();
+        cameraGroup.getChildren().add(mapGrid);
+        cameraGroup.getChildren().add(heroView);
+        rootPane.getChildren().add(cameraGroup);
+
+        // Ajout du HUD (qui restera fixe)
         hud = new HUDView(5, 5);
         rootPane.getChildren().add(hud);
-        rootPane.getChildren().add(heroView);
 
         scene = new Scene(rootPane, 800, 600);
 
@@ -75,6 +84,7 @@ public class GameView {
         hud.updateHealth(hero.getHealth() / 20.0);
 
         startPoisonTimer();
+        startCamera(); // Démarrage de la mise à jour de la caméra
     }
 
     public GameView(Stage stage, GridPane mapGrid) {
@@ -85,11 +95,18 @@ public class GameView {
         heroController = new HeroController(hero, heroView, mapGrid, DEFAULT_CELL_SIZE);
 
         rootPane = new Pane();
-        rootPane.getChildren().add(mapGrid);
+
+        // Création du groupe caméra qui contiendra la carte et le héros
+        cameraGroup = new Group();
+        cameraGroup.getChildren().add(mapGrid);
+        cameraGroup.getChildren().add(heroView);
+        rootPane.getChildren().add(cameraGroup);
+
         hud = new HUDView(5, 5);
         rootPane.getChildren().add(hud);
+
+        // Position initiale du héros
         heroView.setPosition(50, 50);
-        rootPane.getChildren().add(heroView);
 
         scene = new Scene(rootPane, 800, 600);
 
@@ -110,6 +127,32 @@ public class GameView {
         hud.updateHealth(hero.getHealth() / 20.0);
 
         startPoisonTimer();
+        startCamera(); // Activation de la caméra qui suit le héros
+    }
+
+    /**
+     * AnimationTimer qui met à jour en continu la translation du groupe caméra pour centrer le héros dans la scène.
+     */
+    private void startCamera() {
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                double sceneWidth = scene.getWidth();
+                double sceneHeight = scene.getHeight();
+                // On calcule le centre du héros en se basant sur sa position et sa taille
+                double heroWidth = heroView.getBoundsInLocal().getWidth();
+                double heroHeight = heroView.getBoundsInLocal().getHeight();
+                double heroX = heroView.getLayoutX();
+                double heroY = heroView.getLayoutY();
+                double heroCenterX = heroX + heroWidth / 2;
+                double heroCenterY = heroY + heroHeight / 2;
+                // Calcul des décalages pour centrer le héros dans la scène
+                double offsetX = sceneWidth / 2 - heroCenterX;
+                double offsetY = sceneHeight / 2 - heroCenterY;
+                cameraGroup.setTranslateX(offsetX);
+                cameraGroup.setTranslateY(offsetY);
+            }
+        }.start();
     }
 
     private void startPoisonTimer() {

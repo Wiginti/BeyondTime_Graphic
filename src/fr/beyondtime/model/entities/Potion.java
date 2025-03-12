@@ -1,5 +1,7 @@
 package fr.beyondtime.model.entities;
 
+import fr.beyondtime.model.interfaces.Usable;
+
 public class Potion extends Item implements Usable {
 	
 	private int healthAmount;

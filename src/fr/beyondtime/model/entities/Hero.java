@@ -1,5 +1,7 @@
 package fr.beyondtime.model.entities;
 
+import fr.beyondtime.model.interfaces.Fightable;
+
 public class Hero extends Entity implements Fightable {
 
 	private int damageAmount;

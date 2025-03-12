@@ -23,7 +23,7 @@ public class GameView {
     private HeroController heroController;
     private Pane rootPane;
     private Scene scene;
-    private HUDView hud; // Affichage tête haute (barre de vie et inventaire)
+    private HUDView hud;
 
     private static final int DEFAULT_CELL_SIZE = 50;
 

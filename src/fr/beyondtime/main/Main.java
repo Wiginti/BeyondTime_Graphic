@@ -12,13 +12,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+    	
+    	//Récupérer les dimensions de l'écran utilisateur
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        
         primaryStage.setX(screenBounds.getMinX());
         primaryStage.setY(screenBounds.getMinY());
         primaryStage.setWidth(screenBounds.getWidth());
         primaryStage.setHeight(screenBounds.getHeight());
-        primaryStage.setTitle("Menu de Jeu");
+        primaryStage.setTitle("BeyondTime");
 
         // Affichage de la scène du menu
         MenuView.showMenuScene(primaryStage);

@@ -15,10 +15,10 @@ public class HUDView extends AnchorPane {
     private HBox inventoryBar;
     private ImageView[] heartSlots;
 
-    // Chemins d'accès aux assets de cœur (à adapter selon l'emplacement de vos fichiers)
-    private final Image heartFull;
-    private final Image heartHalf;
-    private final Image heartEmpty;
+    // Chargement des assets de cœurs
+    private final Image heartFull = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/full.png"));
+    private final Image heartHalf = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/half.png"));
+    private final Image heartEmpty = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/empty.png"));
 
     private final int maxHearts;
     private final int inventorySlots;
@@ -26,11 +26,6 @@ public class HUDView extends AnchorPane {
     public HUDView(int maxHearts, int inventorySlots) {
         this.maxHearts = maxHearts;
         this.inventorySlots = inventorySlots;
-
-        // Chargement des assets de cœurs
-        heartFull = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/full.png"));
-        heartHalf = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/half.png"));
-        heartEmpty = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/hearts/empty.png"));
 
         buildHUD();
     }

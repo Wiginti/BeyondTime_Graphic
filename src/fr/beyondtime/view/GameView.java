@@ -56,17 +56,19 @@ public class GameView {
 
         hideGridDisplay(defaultGrid);
 
-        rootPane = new Pane();
+        rootPane = new StackPane();
 
         // Création du groupe caméra qui contiendra la carte et le héros
         cameraGroup = new Group();
-        cameraGroup.getChildren().add(mapGrid);
-        cameraGroup.getChildren().add(heroView);
+        cameraGroup.getChildren().addAll(mapGrid, heroView);
         rootPane.getChildren().add(cameraGroup);
 
         // Ajout du HUD (qui restera fixe)
         hud = new HUDView(5, 5);
+        hud.prefWidthProperty().bind(rootPane.widthProperty());
+        hud.prefHeightProperty().bind(rootPane.heightProperty());
         rootPane.getChildren().add(hud);
+
 
         // Ajout du bouton Quitter visible pendant le jeu
         addQuitButton(stage);
@@ -109,6 +111,9 @@ public class GameView {
         rootPane.getChildren().add(cameraGroup);
 
         hud = new HUDView(5, 5);
+        // Ajout du HUD (qui restera fixe)
+        hud.prefWidthProperty().bind(rootPane.widthProperty());
+        hud.prefHeightProperty().bind(rootPane.heightProperty());
         rootPane.getChildren().add(hud);
 
         // Position initiale du héros

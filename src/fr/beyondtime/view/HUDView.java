@@ -4,15 +4,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import java.util.List;
 
-public class HUDView extends BorderPane {
+public class HUDView extends AnchorPane {
 
     private HBox healthBar;
     private HBox inventoryBar;
@@ -30,36 +32,41 @@ public class HUDView extends BorderPane {
         this.maxHearts = maxHearts;
         this.inventorySlots = inventorySlots;
         buildHUD();
+        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     private void buildHUD() {
-        // Construction des barres
         healthBar = buildHealthBar();
         inventoryBar = buildInventory();
-        
-        // Conteneur pour la barre de vie en haut à gauche
+
+        // Conteneur pour la barre de vie en haut
         HBox healthContainer = new HBox(healthBar);
         healthContainer.setPadding(new Insets(10));
         healthContainer.setAlignment(Pos.TOP_LEFT);
-        
-        // Conteneur pour l'inventaire : on l'enveloppe dans un StackPane
-        // afin de forcer son centrage horizontal sur toute la largeur.
-        StackPane inventoryContainer = new StackPane(inventoryBar);
+
+        // Conteneur pour l'inventaire en bas
+        HBox inventoryContainer = new HBox(inventoryBar);
         inventoryContainer.setPadding(new Insets(10));
         inventoryContainer.setAlignment(Pos.CENTER);
-        
-        // Pour que le BorderPane occupe toute la hauteur,
-        // on place un nœud expansible (Region) au centre.
-        Region centerRegion = new Region();
-        setCenter(centerRegion);
-        
-        // Placement dans le BorderPane
-        setTop(healthContainer);
-        setBottom(inventoryContainer);
-        BorderPane.setAlignment(inventoryContainer, Pos.CENTER);
-        
-        // Optionnel : fixer une taille pour tester le layout
-        this.setPrefSize(800, 600);
+        inventoryContainer.setPrefHeight(60);
+
+        // Filler pour occuper l'espace restant entre le top et le bottom
+        Region filler = new Region();
+        VBox.setVgrow(filler, Priority.ALWAYS);
+
+        // Utilisation d'un VBox pour empiler verticalement :
+        // - La barre de vie en haut
+        // - Le filler qui pousse l'inventaire vers le bas
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(healthContainer, filler, inventoryContainer);
+
+        // Ancrer le VBox sur toute la surface du HUDView
+        AnchorPane.setTopAnchor(vbox, 0.0);
+        AnchorPane.setBottomAnchor(vbox, 0.0);
+        AnchorPane.setLeftAnchor(vbox, 0.0);
+        AnchorPane.setRightAnchor(vbox, 0.0);
+
+        getChildren().add(vbox);
     }
 
     public HBox buildHealthBar() {
@@ -77,7 +84,6 @@ public class HUDView extends BorderPane {
 
     public HBox buildInventory() {
         HBox ib = new HBox(10);
-        // On peut également centrer le contenu de l'HBox si besoin :
         ib.setAlignment(Pos.CENTER);
         for (int i = 0; i < inventorySlots; i++) {
             StackPane slot = new StackPane();

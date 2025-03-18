@@ -122,6 +122,7 @@ public class GameView {
         // Ajout du bouton Quitter visible pendant le jeu
         addQuitButton(stage);
 
+
         scene = new Scene(rootPane, 800, 600);
 
         scene.setOnKeyPressed(event -> {
@@ -150,6 +151,7 @@ public class GameView {
      */
     private void addQuitButton(Stage stage) {
         Button btnQuit = new Button("Quitter");
+        btnQuit.setFocusTraversable(false);
         // Positionnement fixe en haut à droite de la scène (ajustez les valeurs si nécessaire)
         btnQuit.setLayoutX(720);
         btnQuit.setLayoutY(10);

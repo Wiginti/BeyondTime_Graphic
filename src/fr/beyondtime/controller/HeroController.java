@@ -11,14 +11,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
 public class HeroController {
-    @SuppressWarnings("unused")
     private Hero hero;
     private HeroView heroView;
 
     // Position actuelle du héros
     private double x;
     private double y;
-    private double speed = 3; // Vitesse de base
+    private double speed = 5; // Vitesse de base
 
     private boolean upPressed = false;
     private boolean downPressed = false;
@@ -73,36 +72,38 @@ public class HeroController {
         if (leftPressed) nextX -= speed;
         if (rightPressed) nextX += speed;
 
-        int col = (int) (nextX / cellSize);
-        int row = (int) (nextY / cellSize);
+        // Vérification de collision avec toute la hitbox du héros
+        if (!checkCollision(nextX, nextY)) {
+            x = nextX;
+            y = nextY;
+            updateView();
+        }
+    }
 
-        // Vérification des limites de la grille
+    private boolean checkCollision(double nextX, double nextY) {
+        return isTileBlocked(nextX, nextY) ||
+                isTileBlocked(nextX + cellSize -1 , nextY) ||
+                isTileBlocked(nextX, nextY + cellSize -1 ) ||
+                isTileBlocked(nextX + cellSize-1 , nextY + cellSize-1 );
+    }
+    private boolean isTileBlocked(double x, double y) {
+        int col = (int) (x / cellSize);
+        int row = (int) (y / cellSize);
+
         if (col < 0 || row < 0 || col >= mapGrid.getColumnCount() || row >= mapGrid.getRowCount()) {
-            return;
+            return true; // Empêcher de sortir des limites
         }
 
-        // Récupération de la cellule
         Node node = getCellAt(mapGrid, row, col);
         if (node instanceof StackPane) {
             StackPane cell = (StackPane) node;
             Object tileObj = cell.getProperties().get("tile");
             if (tileObj instanceof Tile) {
                 Tile tile = (Tile) tileObj;
-                if (!tile.isPassable()) {
-                    return; // Collision détectée, on ne bouge pas
-                } else {
-                    double effectiveSpeed = speed * tile.getSlowdownFactor();
-                    if (upPressed) nextY = y - effectiveSpeed;
-                    if (downPressed) nextY = y + effectiveSpeed;
-                    if (leftPressed) nextX = x - effectiveSpeed;
-                    if (rightPressed) nextX = x + effectiveSpeed;
-                }
+                return !tile.isPassable();
             }
         }
-
-        x = nextX;
-        y = nextY;
-        updateView();
+        return false;
     }
 
     private void updateView() {

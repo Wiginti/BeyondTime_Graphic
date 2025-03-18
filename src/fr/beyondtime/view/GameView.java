@@ -164,7 +164,7 @@ public class GameView {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                double sceneWidth = scene.getWidth();
+                double sceneWidth = scene.getWidth() ;
                 double sceneHeight = scene.getHeight();
                 // Calcul du centre du héros
                 double heroWidth = heroView.getBoundsInLocal().getWidth();

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class MapManager {
 
-    private static final String SAVE_DIR = "saved_maps";
+    private static final String SAVE_DIR = "C:\\Users\\ruben\\Desktop\\Travail\\Projet\\POO\\BeyondTime_Graphic\\src\\fr\\beyondtime\\saved_maps\\";
 
     public static void saveMap(GridPane grid, int rows, int columns, String levelName) {
         String[][] mapData = new String[rows][columns];

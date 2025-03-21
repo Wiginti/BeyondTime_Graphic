@@ -20,7 +20,7 @@ import java.util.Arrays;
 public class MapLoader {
 
     public static File[] getMapFilesForLevel(String levelName) {
-        File saveDir = new File("C:\\Users\\ruben\\Desktop\\Travail\\Projet\\POO\\BeyondTime_Graphic\\src\\fr\\beyondtime\\saved_maps\\");
+        File saveDir = new File("saved_maps");
         if (!saveDir.exists()) {
             return new File[0];
         }

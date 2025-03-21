@@ -41,7 +41,7 @@ public class MapSaver {
                 mapData[row][col] = assetPath + "|" + tileData;
             }
         }
-        File saveDir = new File("C:\\Users\\ruben\\Desktop\\Travail\\Projet\\POO\\BeyondTime_Graphic\\src\\fr\\beyondtime\\saved_maps\\");
+        File saveDir = new File("saved_maps");
         if (!saveDir.exists()){
             saveDir.mkdirs();
         }

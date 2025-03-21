@@ -1,8 +1,7 @@
 package fr.beyondtime.view.editor;
 
 import fr.beyondtime.model.map.Tile;
-import fr.beyondtime.util.MapLoader;
-import fr.beyondtime.util.MapSaver;
+import fr.beyondtime.util.MapManager;
 import fr.beyondtime.view.MenuView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -162,7 +161,7 @@ public class EditorView extends VBox {
                             int columns = Integer.parseInt(dims[1].trim());
                             gridRows = rows;
                             gridColumns = columns;
-                            GridPane loadedGrid = MapLoader.loadMapFromFile(selectedFile);
+                            GridPane loadedGrid = MapManager.loadMapFromFile(selectedFile);
                             if (loadedGrid != null) {
                                 EditorView newEditor = new EditorView(loadedGrid, rows, columns);
                                 Stage stage = (Stage)this.getScene().getWindow();
@@ -266,7 +265,7 @@ public class EditorView extends VBox {
             dialog.setContentText("Niveau :");
             Optional<String> result = dialog.showAndWait();
             result.ifPresent(chosenLevel -> {
-                MapSaver.saveMap(mapGrid, gridRows, gridColumns, chosenLevel);
+                MapManager.saveMap(mapGrid, gridRows, gridColumns, chosenLevel);
             });
         });
 

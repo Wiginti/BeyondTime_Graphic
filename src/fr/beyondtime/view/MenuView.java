@@ -1,7 +1,7 @@
 package fr.beyondtime.view;
 
 import fr.beyondtime.util.LevelNames;
-import fr.beyondtime.util.MapHelper;
+import fr.beyondtime.util.MapManager;
 import fr.beyondtime.util.StyleLoader;
 import fr.beyondtime.view.editor.EditorView;
 import javafx.event.ActionEvent;
@@ -80,9 +80,9 @@ public class MenuView {
         classiqueMenu.setAlignment(Pos.CENTER);
         classiqueMenu.getStyleClass().add("vbox-gameview");
 
-        Button niveau1Btn = createButton("Niv. 1 - Préhistoire", event -> MapHelper.selectAndLoadMap(stage, LevelNames.PREHISTOIRE), "level-button");
-        Button niveau2Btn = createButton("Niv. 2 - Égypte Antique", event -> MapHelper.selectAndLoadMap(stage, LevelNames.EGYPTE_ANTIQUITE), "level-button");
-        Button niveau3Btn = createButton("Niv. 3 - 2nde Guerre Mondiale", event -> MapHelper.selectAndLoadMap(stage, LevelNames.SECONDE_GUERRE), "level-button");
+        Button niveau1Btn = createButton("Niv. 1 - Préhistoire", event -> MapManager.selectAndLoadMap(stage, LevelNames.PREHISTOIRE), "level-button");
+        Button niveau2Btn = createButton("Niv. 2 - Égypte Antique", event -> MapManager.selectAndLoadMap(stage, LevelNames.EGYPTE_ANTIQUITE), "level-button");
+        Button niveau3Btn = createButton("Niv. 3 - 2nde Guerre Mondiale", event -> MapManager.selectAndLoadMap(stage, LevelNames.SECONDE_GUERRE), "level-button");
         Button retourBtn = createButton("Retour", event -> showNiveauScene(stage), null);
 
         classiqueMenu.getChildren().addAll(niveau1Btn, niveau2Btn, niveau3Btn, retourBtn);

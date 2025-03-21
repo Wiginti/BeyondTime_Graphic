@@ -4,6 +4,7 @@ import fr.beyondtime.view.MenuView;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -15,7 +16,8 @@ public class Main extends Application {
     	
     	//Récupérer les dimensions de l'écran utilisateur
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        
+        Image icon = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/logo.png"));
+        primaryStage.getIcons().add(icon);
         primaryStage.setX(screenBounds.getMinX());
         primaryStage.setY(screenBounds.getMinY());
         primaryStage.setWidth(screenBounds.getWidth());

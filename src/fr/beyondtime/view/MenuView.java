@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 public class MenuView {
 
+	// Afficher le Menu Principal
     public static void showMenuScene(Stage stage) {
         VBox menuPrincipal = createMainMenu(stage);
         Scene sceneMenu = new Scene(menuPrincipal, 400, 300);
@@ -21,7 +22,8 @@ public class MenuView {
         stage.setScene(sceneMenu);
         stage.show();
     }
-
+    
+    // Afficher le Menu des niveaux 
     public static void showNiveauScene(Stage stage) {
         VBox choixNiveau = createNiveauMenu(stage);
         Scene sceneNiveau = new Scene(choixNiveau, 400, 300);
@@ -29,7 +31,8 @@ public class MenuView {
         stage.setScene(sceneNiveau);
         stage.show();
     }
-
+    
+    // Afficher le Menu des niveaux classiques
     public static void showClassiqueScene(Stage stage) {
         VBox classiqueMenu = createClassiqueMenu(stage);
         Scene sceneClassique = new Scene(classiqueMenu, 400, 300);
@@ -37,7 +40,8 @@ public class MenuView {
         stage.setScene(sceneClassique);
         stage.show();
     }
-
+    
+    // Afficher l'éditeur
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
         Scene sceneEditor = new Scene(editorView, 600, 400);

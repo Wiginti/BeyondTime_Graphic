@@ -1,12 +1,15 @@
 package fr.beyondtime.view;
 
+import fr.beyondtime.controller.ButtonController;
 import fr.beyondtime.controller.HeroController;
+import fr.beyondtime.model.ButtonModel;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
@@ -19,8 +22,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static fr.beyondtime.view.MenuView.showNiveauScene;
-
 public class GameView {
 
     private Hero hero;
@@ -30,6 +31,7 @@ public class GameView {
     private Scene scene;
     private HUDView hud;
     private Group cameraGroup; // Conteneur regroupant la carte et le héros
+    private Button btnQuit;
 
     private static final int DEFAULT_CELL_SIZE = 50;
 
@@ -71,7 +73,7 @@ public class GameView {
 
 
         // Ajout du bouton Quitter visible pendant le jeu
-        addQuitButton(stage);
+        QuitButton(stage);
 
         scene = new Scene(rootPane, 800, 600);
 
@@ -120,7 +122,7 @@ public class GameView {
         heroView.setPosition(50, 50);
 
         // Ajout du bouton Quitter visible pendant le jeu
-        addQuitButton(stage);
+        QuitButton(stage);
 
 
         scene = new Scene(rootPane, 800, 600);
@@ -149,13 +151,20 @@ public class GameView {
      * Méthode permettant d'ajouter un bouton "Quitter" qui, lorsqu'il est cliqué,
      * arrête les animations et renvoie vers le menu principal (MenuView).
      */
-    private void addQuitButton(Stage stage) {
-        Button btnQuit = new Button("Quitter");
+    private void QuitButton(Stage stage) {
+        ButtonModel buttonModel = new ButtonModel();
+        ButtonController buttonController = new ButtonController(stage);
+
+// Création du bouton en utilisant les propriétés du modèle
+        Button btnQuit = new Button(buttonModel.getText());
         btnQuit.setFocusTraversable(false);
-        // Positionnement fixe en haut à droite de la scène (ajustez les valeurs si nécessaire)
-        btnQuit.setLayoutX(720);
-        btnQuit.setLayoutY(10);
-        btnQuit.setOnAction(ActionEvent -> showNiveauScene(stage));
+        btnQuit.setLayoutX(buttonModel.getLayoutX());
+        btnQuit.setLayoutY(buttonModel.getLayoutY());
+
+// Association de l'action via le contrôleur
+        btnQuit.setOnAction(e -> buttonController.quitAction());
+
+// Ajout du bouton au conteneur de la vue
         rootPane.getChildren().add(btnQuit);
     }
 
@@ -192,7 +201,7 @@ public class GameView {
             int row = (int) (heroY / DEFAULT_CELL_SIZE);
 
             StackPane currentCell = null;
-            for (javafx.scene.Node node : mapGrid.getChildren()) {
+            for (Node node : mapGrid.getChildren()) {
                 Integer nodeCol = GridPane.getColumnIndex(node);
                 Integer nodeRow = GridPane.getRowIndex(node);
                 if (nodeCol == null) nodeCol = 0;

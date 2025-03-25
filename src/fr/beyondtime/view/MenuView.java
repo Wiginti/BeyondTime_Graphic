@@ -1,8 +1,11 @@
 package fr.beyondtime.view;
 
+import java.net.URL;
+
 import fr.beyondtime.util.LevelNames;
 import fr.beyondtime.util.MapManager;
 import fr.beyondtime.util.StyleLoader;
+import fr.beyondtime.view.editor.EditorController;
 import fr.beyondtime.view.editor.EditorView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -41,13 +44,43 @@ public class MenuView {
         stage.show();
     }
     
-    // Afficher l'éditeur
     public static void showEditorScene(Stage stage) {
-        EditorView editorView = new EditorView();
-        Scene sceneEditor = new Scene(editorView, 600, 400);
-        applyStyle(sceneEditor);
-        stage.setScene(sceneEditor);
-        stage.show();
+        try {
+            // 1. Initialisation du contrôleur et de la vue
+            EditorController controller = new EditorController();
+            EditorView editorView = new EditorView(controller);
+            
+            // 2. Configuration de la scène avec des dimensions adaptées
+            Scene sceneEditor = new Scene(editorView, 1200, 800); // Taille augmentée
+            
+            // 3. Application des styles (version sécurisée)
+            try {
+                String cssPath = "/fr/beyondtime/resources/style.css";
+                URL cssUrl = EditorView.class.getResource(cssPath);
+                if (cssUrl != null) {
+                    sceneEditor.getStylesheets().add(cssUrl.toExternalForm());
+                } else {
+                    System.err.println("CSS file not found: " + cssPath);
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading CSS:");
+                e.printStackTrace();
+            }
+            
+            // 4. Configuration de la fenêtre
+            stage.setTitle("Beyond Time - Map Editor");
+            stage.setScene(sceneEditor);
+            
+            // 5. Forcer l'affichage initial
+            editorView.showConfigPane(); // Assure l'affichage du panneau de configuration
+            stage.show();
+            
+            // Debug
+            System.out.println("Editor scene loaded successfully");
+        } catch (Exception e) {
+            System.err.println("Failed to load editor scene:");
+            e.printStackTrace();
+        }
     }
 
     // Crée le menu principal

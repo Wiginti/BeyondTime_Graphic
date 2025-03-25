@@ -14,10 +14,16 @@ import javafx.stage.Stage;
 
 public class MenuView {
 
+    private static Scene sceneMenu;
+    private static Scene sceneNiveau;
+    private static Scene sceneClassique;
+    private static Scene sceneEditor;
+
+
 	// Afficher le Menu Principal
     public static void showMenuScene(Stage stage) {
         VBox menuPrincipal = createMainMenu(stage);
-        Scene sceneMenu = new Scene(menuPrincipal, 400, 300);
+        sceneMenu = new Scene(menuPrincipal, 400, 300);
         applyStyle(sceneMenu);
         stage.setScene(sceneMenu);
         stage.show();
@@ -26,7 +32,7 @@ public class MenuView {
     // Afficher le Menu des niveaux 
     public static void showNiveauScene(Stage stage) {
         VBox choixNiveau = createNiveauMenu(stage);
-        Scene sceneNiveau = new Scene(choixNiveau, 400, 300);
+        sceneNiveau = new Scene(choixNiveau, 400, 300);
         applyStyle(sceneNiveau);
         stage.setScene(sceneNiveau);
         stage.show();
@@ -35,7 +41,7 @@ public class MenuView {
     // Afficher le Menu des niveaux classiques
     public static void showClassiqueScene(Stage stage) {
         VBox classiqueMenu = createClassiqueMenu(stage);
-        Scene sceneClassique = new Scene(classiqueMenu, 400, 300);
+        sceneClassique = new Scene(classiqueMenu, 400, 300);
         applyStyle(sceneClassique);
         stage.setScene(sceneClassique);
         stage.show();
@@ -44,7 +50,7 @@ public class MenuView {
     // Afficher l'éditeur
     public static void showEditorScene(Stage stage) {
         EditorView editorView = new EditorView();
-        Scene sceneEditor = new Scene(editorView, 600, 400);
+        sceneEditor = new Scene(editorView, 600, 400);
         applyStyle(sceneEditor);
         stage.setScene(sceneEditor);
         stage.show();
@@ -106,5 +112,21 @@ public class MenuView {
     // Applique le fichier CSS à une scène
     private static void applyStyle(Scene scene) {
         scene.getStylesheets().add(StyleLoader.getStyleSheet());
+    }
+
+    public static Scene getSceneNiveau() {
+        return sceneNiveau;
+    }
+
+    public static Scene getSceneMenu() {
+        return sceneMenu;
+    }
+
+    public static Scene getSceneClassique() {
+        return sceneClassique;
+    }
+
+    public static Scene getSceneEditor() {
+        return sceneEditor;
     }
 }

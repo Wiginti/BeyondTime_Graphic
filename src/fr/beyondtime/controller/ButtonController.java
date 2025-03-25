@@ -2,7 +2,7 @@ package fr.beyondtime.controller;
 
 import javafx.stage.Stage;
 
-import static fr.beyondtime.view.MenuView.getSceneNiveau;
+import static fr.beyondtime.view.MenuView.*;
 
 public class ButtonController {
     private Stage stage;
@@ -16,9 +16,24 @@ public class ButtonController {
         showNiveauScene();
     }
 
+    public void menuAction() {
+        showMenuScene();
+    }
+
     // Implémentez ici la logique pour changer de scène
     private void showNiveauScene() {
-        System.out.println("Changement de scène vers NiveauScene");
         stage.setScene(getSceneNiveau());
+    }
+
+    private void showMenuScene() {
+        stage.setScene(getSceneMenu());
+    }
+
+    private void showEditorScene() {
+        stage.setScene(getSceneEditor());
+    }
+
+    private void showClassiqueScene() {
+        stage.setScene(getSceneClassique());
     }
 }

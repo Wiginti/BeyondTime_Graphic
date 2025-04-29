@@ -6,6 +6,8 @@ public class Hero extends Entity implements Fightable {
 
 	private int damageAmount;
 	private Bag bag;
+	private double x;
+	private double y;
 
 	public static final int DEFAULT_HEALTH = 100;
 	public static final int DEFAULT_DAMAGE = 25;
@@ -14,6 +16,8 @@ public class Hero extends Entity implements Fightable {
 		super(DEFAULT_HEALTH, "Hero");
 		this.damageAmount = DEFAULT_DAMAGE;
 		this.bag = new Bag();
+		this.x = 0;
+		this.y = 0;
 	}
 
 	// Getter pour l'inventaire
@@ -39,5 +43,18 @@ public class Hero extends Entity implements Fightable {
 	@Override
 	public void attack(Entity entity) {
 		entity.removeHealth(this.damageAmount);
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setPosition(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 }

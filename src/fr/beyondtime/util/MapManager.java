@@ -1,7 +1,9 @@
 package fr.beyondtime.util;
 
 import fr.beyondtime.model.map.Tile;
-import fr.beyondtime.view.GameView;
+import fr.beyondtime.view.screens.GameScreen;
+import fr.beyondtime.model.game.GameState;
+import fr.beyondtime.model.map.GameMap;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class MapManager {
 
-    private static final String SAVE_DIR = "C:\\Users\\ruben\\Desktop\\Travail\\Projet\\POO\\BeyondTime_Graphic\\src\\fr\\beyondtime\\saved_maps\\";
+    private static final String SAVE_DIR = "saved_map";
 
     public static void saveMap(GridPane grid, int rows, int columns, String levelName) {
         String[][] mapData = new String[rows][columns];
@@ -44,17 +46,24 @@ public class MapManager {
             }
         }
         File saveDir = new File(SAVE_DIR);
-        if (!saveDir.exists()) saveDir.mkdirs();
+        if (!saveDir.exists()) {
+            boolean created = saveDir.mkdirs();
+            if (!created) {
+                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier de sauvegarde: " + SAVE_DIR, Alert.AlertType.ERROR);
+                return;
+            }
+        }
         String fileName = levelName.replaceAll("\\s+", "_") + "_" + System.currentTimeMillis() + ".map";
         File saveFile = new File(saveDir, fileName);
         try (PrintWriter out = new PrintWriter(new FileWriter(saveFile))) {
             out.println(rows + "," + columns);
-            for (String[] row : mapData) {
-                out.println(String.join(",", row));
+            for (String[] rowData : mapData) {
+                out.println(String.join(",", rowData));
             }
             showAlert("Sauvegarde réussie", "Map sauvegardée dans : " + saveFile.getAbsolutePath(), Alert.AlertType.INFORMATION);
         } catch (IOException e) {
             showAlert("Erreur de sauvegarde", "Impossible de sauvegarder la map.", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
 
@@ -80,18 +89,30 @@ public class MapManager {
                     double slowdown = parts.length > 1 ? Double.parseDouble(parts[1].split(";")[1]) : 1.0;
                     cell.getProperties().put("tile", new Tile(passable, slowdown));
                     if (!assetPath.isEmpty()) {
-                        ImageView assetView = new ImageView(new Image(MapManager.class.getResourceAsStream(assetPath)));
-                        assetView.setFitWidth(cellSize);
-                        assetView.setFitHeight(cellSize);
-                        cell.getChildren().add(assetView);
-                        cell.setUserData(assetPath);
+                        try {
+                            InputStream is = MapManager.class.getResourceAsStream("/fr/beyondtime/assets/" + assetPath);
+                            if (is != null) {
+                                ImageView assetView = new ImageView(new Image(is));
+                                assetView.setFitWidth(cellSize);
+                                assetView.setFitHeight(cellSize);
+                                assetView.setPreserveRatio(true);
+                                cell.getChildren().add(assetView);
+                                cell.setUserData(assetPath);
+                            } else {
+                                System.err.println("Could not find asset resource: /fr/beyondtime/assets/" + assetPath);
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error loading asset image: " + assetPath);
+                            e.printStackTrace();
+                        }
                     }
                     grid.add(cell, col, row);
                 }
             }
             return grid;
-        } catch (IOException e) {
-            showAlert("Erreur", "Erreur lors du chargement de la map.", Alert.AlertType.ERROR);
+        } catch (IOException | NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            showAlert("Erreur", "Erreur lors du chargement de la map: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
             return null;
         }
     }
@@ -112,7 +133,10 @@ public class MapManager {
             if (selectedFile != null) {
                 GridPane grid = loadMapFromFile(selectedFile);
                 if (grid != null) {
-                    new GameView(stage, grid);
+                    GameState gameState = new GameState();
+                    GameMap gameMap = new GameMap(grid);
+                    gameState.setMap(gameMap);
+                    new GameScreen(stage, gameState);
                 }
             }
         });

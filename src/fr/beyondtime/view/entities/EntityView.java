@@ -7,28 +7,31 @@ import javafx.scene.layout.Pane;
 public abstract class EntityView extends Pane {
 	
 	private ImageView entityImageView;
-	
+
     public EntityView(Image entityImage) {
-        entityImageView = new ImageView();
-        // Chargement de l'image de l'entité depuis les ressources
-        entityImageView.setImage(entityImage);
-        entityImageView.setFitWidth(50);
-        entityImageView.setFitHeight(50);
-        getChildren().add(entityImageView);
+        if (entityImage == null || entityImage.isError()) {
+             if (entityImage == null) {
+                 System.err.println("EntityView Error: Provided entityImage is null! Cannot display entity.");
+             } else {
+                 System.err.println("EntityView Error: Failed to load image. URL: " + (entityImage.getUrl() != null ? entityImage.getUrl() : "N/A"));
+                 System.err.println("Exception: " + entityImage.getException());
+             }
+            entityImageView = new ImageView(); 
+        } else {
+            entityImageView = new ImageView(entityImage);
+            
+            entityImageView.setPreserveRatio(true);
+            entityImageView.setSmooth(false);
+            
+            System.out.println("EntityView: Image loaded successfully for " + this.getClass().getSimpleName() + 
+                             ", Natural Size: " + entityImage.getWidth() + "x" + entityImage.getHeight());
+        }
+        
+        getChildren().add(entityImageView); 
     }
 
-    // Permet de positionner la vue d'une Entity à la position souhaitée
     public void setPosition(double x, double y) {
-        setLayoutX(x);
-        setLayoutY(y);
+        setLayoutX(Math.floor(x));
+        setLayoutY(Math.floor(y));
     }
-    
-    public double getEntityWidth() {
-        return entityImageView.getFitWidth();
-    }
-
-    public double getEntityHeight() {
-        return entityImageView.getFitHeight();
-    }
-	
 }

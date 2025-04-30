@@ -183,17 +183,13 @@ public class EditorController {
     
     /**
      * Handles returning to the main menu screen.
-     * Replaces the current scene's root with a new MenuScreen instance.
+     * Creates a new MenuScreen instance and scene to avoid node reuse issues.
      */
     public void handleReturn() {
-        // Return to the main menu
+        // Create a new MenuScreen instance
         MenuScreen menuScreen = new MenuScreen(stage);
-        // Make sure MenuScreen is properly set as root
-        if (stage.getScene() != null) {
-             stage.getScene().setRoot(menuScreen);
-        } else {
-            stage.setScene(new Scene(menuScreen));
-        }
+        Scene menuScene = menuScreen.getMenuScene();
+        stage.setScene(menuScene);
     }
     
     /**

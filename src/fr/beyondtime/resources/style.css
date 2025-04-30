@@ -56,6 +56,37 @@
 
 /* Styles spécifiques pour l'écran de configuration */
 
+.config-screen {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+}
+
+.config-title {
+    -fx-font-size: 50px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+}
+
+.combo-box {
+    -fx-font-size: 20px;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-min-width: 200px;
+}
+
+.combo-box .list-cell {
+    -fx-font-size: 20px;
+}
+
+.combo-box .list-view {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Styles spécifiques pour l'écran de configuration */
+
 .label.config-label {
     -fx-font-size: 50px;
     -fx-text-fill: white;

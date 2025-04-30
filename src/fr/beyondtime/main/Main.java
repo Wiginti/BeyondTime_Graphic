@@ -35,7 +35,7 @@ public class Main extends Application {
         primaryStage.setTitle("BeyondTime");
 
         MenuScreen menuScreen = new MenuScreen(primaryStage);
-        Scene scene = new Scene(menuScreen);
+        Scene scene = menuScreen.getMenuScene();
         
         final String cssPath = "/fr/beyondtime/resources/style.css"; 
         try {

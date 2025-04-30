@@ -56,6 +56,3 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) :
 4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
 5. Créez une Pull Request
 
-## Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.

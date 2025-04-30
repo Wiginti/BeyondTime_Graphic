@@ -56,25 +56,47 @@ L'implémentation du support multilingue via ResourceBundle :
 
 ### Planning
 
-#### Phase 1 : Conception (2 semaines)
-- Architecture MVC
-- Diagrammes UML
-- Maquettes UI
+#### Phase 1 : Conception et Base du Projet (3 semaines)
+- Architecture MVC ✓
+- Configuration du projet (Maven, Git) ✓
+- Interface utilisateur de base ✓
+- Système de tuiles et carte de base ✓
 
-#### Phase 2 : Core Development (4 semaines)
-- Système de jeu base
-- Moteur de collision
-- Gestion des assets
+#### Phase 2 : Développement Core (4 semaines)
+- Système de déplacement du héros ✓
+- Gestion des collisions ✓
+- Éditeur de niveaux (base) ✓
+- Internationalisation (FR/EN) ✓
+- Configuration du jeu ✓
 
-#### Phase 3 : Features (3 semaines)
-- Éditeur de niveaux
-- Système de combat
-- Internationalisation
+#### Phase 3 : Features et Gameplay (3 semaines)
+- Amélioration de l'éditeur de niveaux (en cours)
+- Système de combat (à faire)
+- Système d'inventaire (à faire)
+- Intégration des assets graphiques (en cours)
+- Système de sauvegarde/chargement (à faire, dispo pour les maps seulement)
 
-#### Phase 4 : Polish (2 semaines)
-- Tests et débogage
-- Documentation
-- Optimisations
+#### Phase 4 : Polish et Finalisation (2 semaines)
+- Tests et correction de bugs
+- Documentation complète
+- Optimisation des performances
+- Équilibrage du gameplay
+
+### État d'Avancement Actuel
+- Architecture de base : 100%
+- Interface utilisateur : 80%
+- Éditeur de niveaux : 70%
+- Système de jeu : 50%
+- Documentation : 60%
+- Tests et débogage : 30%
+
+### Prochaines Étapes Prioritaires
+1. Finaliser l'éditeur de niveaux
+2. Implémenter le système de combat
+3. Ajouter le système d'inventaire
+4. Compléter les tests et la documentation
+5. Optimiser les performances
+6. Création du Lore du jeu 
 
 ### Répartition des Tâches
 
@@ -92,6 +114,8 @@ L'implémentation du support multilingue via ResourceBundle :
 - Éditeur de niveaux
 - Correction de bug 
 - Documentation et rapport 
+- Fichier de configuration Maven, script build.sh 
+- Recherche des assets 
 
 #### Ruben COFFLARD
 - Création des boutons 
@@ -113,7 +137,6 @@ Nous avons adopté une approche Agile avec :
 - Sprints de 2 semaines
 - Daily meetings
 - Code reviews systématiques
-- Tests continus
 
 ## Perspectives d'Amélioration
 

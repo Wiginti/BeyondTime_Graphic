@@ -6,6 +6,7 @@ BeyondTime est un jeu d'aventure en 2D développé en Java avec JavaFX, où le j
 
 - Java JDK 17 ou supérieur
 - Maven 3.8 ou supérieur
+- JavaFX (inclus dans les dépendances Maven)
 
 ## Installation
 
@@ -15,15 +16,61 @@ git clone https://github.com/votre-username/BeyondTime.git
 cd BeyondTime
 ```
 
-2. Compilez le projet avec Maven :
+## Exécution
+
+Il existe plusieurs façons d'exécuter le projet :
+
+### Méthode 1 : Utilisation de Maven (Recommandée)
+
+Cette méthode fonctionne sur tous les systèmes d'exploitation (Windows, macOS, Linux) :
+
+1. Compilation et exécution en une seule commande :
 ```bash
-mvn clean install
+mvn clean compile javafx:run
 ```
 
-3. Exécutez le jeu :
+Ou étape par étape :
+
+1. Compilation :
 ```bash
-java -jar target/beyondtime-1.0.0.jar
+mvn clean compile
 ```
+
+2. Exécution :
+```bash
+mvn javafx:run
+```
+
+### Méthode 2 : Utilisation du script shell (Linux/macOS)
+
+1. Rendez le script exécutable :
+```bash
+chmod +x run.sh
+```
+
+2. Exécutez le script :
+```bash
+./run.sh
+```
+
+### Méthode 3 : Exécution via JAR (Tous les systèmes)
+
+1. Création du JAR :
+```bash
+mvn clean package
+```
+
+2. Exécution du JAR :
+- Windows :
+```cmd
+java --module-path "%PATH_TO_FX%" --add-modules javafx.controls,javafx.fxml -jar target/beyondtime-1.0.0.jar
+```
+- Linux/macOS :
+```bash
+java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar target/beyondtime-1.0.0.jar
+```
+
+Note : Remplacez `%PATH_TO_FX%` ou `$PATH_TO_FX` par le chemin vers votre installation JavaFX si vous n'utilisez pas les dépendances Maven.
 
 ## Structure du Projet
 

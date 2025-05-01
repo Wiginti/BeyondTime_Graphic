@@ -7,7 +7,7 @@ import java.io.File;
 
 public class HeroView extends EntityView {
 	
-    private static final String HERO_IMAGE_PATH = "/hero.png";
+    private static final String HERO_IMAGE_PATH = "/fr/beyondtime/resources/hero.png";
     private static Image heroImage;
 
     static {

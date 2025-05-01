@@ -3,22 +3,15 @@ package fr.beyondtime.view.screens;
 import fr.beyondtime.controller.HeroController;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
-<<<<<<< HEAD
-=======
 import fr.beyondtime.model.entities.Item;
-import fr.beyondtime.model.map.Tile;
-import fr.beyondtime.model.map.GameMap;
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 import fr.beyondtime.model.game.GameState;
+import fr.beyondtime.util.ImageLoader;
 import fr.beyondtime.view.components.HUDView;
-<<<<<<< HEAD
 import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.AnimationTimer;
-=======
-import fr.beyondtime.util.ImageLoader;
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -26,25 +19,19 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.geometry.Rectangle2D;
 
 import java.net.URL;
-<<<<<<< HEAD
-=======
-import java.util.List;
 import java.util.ArrayList;
-import javafx.scene.image.Image;
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
+import java.util.List;
 
 public class GameScreen {
     private static final int CELL_SIZE = 50;
     private static final int MAX_HEARTS_DISPLAY = 10;
-<<<<<<< HEAD
     private static final int DEFAULT_INVENTORY_SLOTS = 8;
     private static final String CSS_PATH = "/fr/beyondtime/resources/style.css";
-=======
-    private static final int DEFAULT_INVENTORY_SLOTS = 5;
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 
     private Stage primaryStage;
     private GameState gameState;
@@ -61,10 +48,16 @@ public class GameScreen {
     }
 
     private void initializeScreen(Stage stage) {
-    	int SCENE_WIDTH = GameConfig.getInstance().getCurrentResolution().getWidth();
-    	int SCENE_HEIGHT = GameConfig.getInstance().getCurrentResolution().getHeight();
+        int SCENE_WIDTH = GameConfig.getInstance().getCurrentResolution().getWidth();
+        int SCENE_HEIGHT = GameConfig.getInstance().getCurrentResolution().getHeight();
 
         stage.setTitle("BeyondTime Game");
+        stage.setWidth(SCENE_WIDTH);
+        stage.setHeight(SCENE_HEIGHT);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - SCENE_WIDTH) / 2);
+        stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - SCENE_HEIGHT) / 2);
 
         cameraGroup = new Group();
         mapGrid = gameState.getMap().getMapGrid();
@@ -74,16 +67,9 @@ public class GameScreen {
         heroView = new HeroView();
         cameraGroup.getChildren().add(heroView);
 
-<<<<<<< HEAD
-        // Cercle de debug au centre logique du héros
         Circle centerDebug = new Circle(3, Color.MAGENTA);
         centerDebug.setMouseTransparent(true);
         cameraGroup.getChildren().add(centerDebug);
-=======
-        int inventorySlots = DEFAULT_INVENTORY_SLOTS;
-        hudView = new HUDView(MAX_HEARTS_DISPLAY, inventorySlots);
-        System.out.println("HUDView créé avec " + inventorySlots + " slots");
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 
         hudView = new HUDView(MAX_HEARTS_DISPLAY, DEFAULT_INVENTORY_SLOTS);
         hudView.setMouseTransparent(true);
@@ -110,21 +96,10 @@ public class GameScreen {
         }
 
         Hero hero = gameState.getHero();
-<<<<<<< HEAD
         if (hero == null) return;
 
-        heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE);
-
-=======
-        if (hero == null) {
-             System.err.println("FATAL ERROR: GameState provided a null hero!");
-             return; 
-        }
-        System.out.println("Création du HeroController avec le HUDView");
         heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE, hudView);
-        heroController.setOnUpdate(this::update);
-        
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
+
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -136,57 +111,40 @@ public class GameScreen {
         stage.setScene(scene);
         stage.show();
 
-        // AnimationTimer pour caméra + debug
         new AnimationTimer() {
             @Override
             public void handle(long now) {
                 double heroX = hero.getX();
                 double heroY = hero.getY();
 
-                // Caméra centrée sur la position logique du héros
-                double offsetX = SCENE_WIDTH / 2.0 - heroX;
-                double offsetY = SCENE_HEIGHT / 2.0 - heroY;
+                cameraGroup.setTranslateX(SCENE_WIDTH / 2.0 - heroX);
+                cameraGroup.setTranslateY(SCENE_HEIGHT / 2.0 - heroY);
 
-                cameraGroup.setTranslateX(offsetX);
-                cameraGroup.setTranslateY(offsetY);
-
-                // Affichage du point de centrage logique
                 centerDebug.setLayoutX(heroX);
                 centerDebug.setLayoutY(heroY);
             }
         }.start();
 
-<<<<<<< HEAD
-=======
-    private void update() {
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
         updateHUD();
-        updateCamera();
     }
 
     private void updateHUD() {
         if (hudView == null || gameState == null || gameState.getHero() == null) return;
-<<<<<<< HEAD
-        double healthProportion = (double) gameState.getHealth() / Hero.DEFAULT_HEALTH;
-        double value = healthProportion * MAX_HEARTS_DISPLAY;
-        hudView.updateHealth(value);
-=======
 
         double healthProportion = (double) gameState.getHealth() / (double) Hero.DEFAULT_HEALTH;
         double healthValueForHUD = healthProportion * MAX_HEARTS_DISPLAY;
         hudView.updateHealth(healthValueForHUD);
-        
+
         List<Item> items = gameState.getHero().getBag().getItems();
         List<Image> itemImages = new ArrayList<>();
-        
+
         for (Item item : items) {
             Image itemImage = ImageLoader.loadImage(item.getImagePath());
             if (itemImage != null) {
                 itemImages.add(itemImage);
             }
         }
-        
+
         hudView.updateInventory(itemImages);
->>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
     }
 }

@@ -4,14 +4,12 @@ import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.util.TranslationManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class ConfigScreen extends VBox {
@@ -19,8 +17,7 @@ public class ConfigScreen extends VBox {
     private GameConfig config;
     private Scene previousScene;
     private TranslationManager translator;
-    
-    // UI elements that need translation
+
     private Label titleLabel;
     private Label resolutionLabel;
     private Label languageLabel;
@@ -58,16 +55,8 @@ public class ConfigScreen extends VBox {
         resolutionComboBox.setOnAction(e -> {
             GameConfig.Resolution selectedRes = resolutionComboBox.getValue();
             config.setCurrentResolution(selectedRes);
-
-            stage.setWidth(selectedRes.getWidth());
-            stage.setHeight(selectedRes.getHeight());
-
-            // Centrage de la fenêtre dans l'écran visible
-            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-            stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - selectedRes.getWidth()) / 2);
-            stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - selectedRes.getHeight()) / 2);
+            config.applySafeResolutionToStage(stage);
         });
-
 
         // Language settings
         languageLabel = new Label();
@@ -90,7 +79,19 @@ public class ConfigScreen extends VBox {
         saveButton.getStyleClass().add("classique-button");
         saveButton.setOnAction(e -> {
             config.saveConfig();
-            stage.setScene(previousScene);
+
+            // Recharge le MenuScreen avec la bonne résolution et style
+            MenuScreen refreshedMenu = new MenuScreen(stage);
+            Scene newScene = refreshedMenu.getMenuScene();
+
+            GameConfig.Resolution res = config.getCurrentResolution();
+            if (res.getWidth() <= 800 && res.getHeight() <= 600) {
+                newScene.getRoot().getStyleClass().add("small-ui");
+            } else {
+                newScene.getRoot().getStyleClass().add("normal-ui");
+            }
+
+            stage.setScene(newScene);
         });
 
         cancelButton = new Button();
@@ -101,10 +102,7 @@ public class ConfigScreen extends VBox {
     }
 
     private void setupTranslations() {
-        // Initial translation
         updateTranslations();
-        
-        // Listen for locale changes
         translator.currentLocaleProperty().addListener((obs, oldLocale, newLocale) -> {
             updateTranslations();
         });
@@ -117,4 +115,4 @@ public class ConfigScreen extends VBox {
         saveButton.setText(translator.get("config.save"));
         cancelButton.setText(translator.get("config.back"));
     }
-} 
+}

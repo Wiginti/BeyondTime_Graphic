@@ -18,19 +18,25 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Récupère la résolution choisie par l'utilisateur (ou par défaut : 1280x720)
-        Resolution res = GameConfig.getInstance().getCurrentResolution();
-        int width = res.getWidth();
-        int height = res.getHeight();
-
         primaryStage.setTitle("BeyondTime");
-        primaryStage.setWidth(width);
-        primaryStage.setHeight(height);
-        primaryStage.setResizable(false); // Empêche le redimensionnement manuel
 
         MenuScreen menuScreen = new MenuScreen(primaryStage);
         Scene scene = menuScreen.getMenuScene();
+        primaryStage.setScene(scene);
 
+        // Appliquer la résolution choisie (plein écran si 1920x1080, sinon centré)
+        GameConfig config = GameConfig.getInstance();
+        Resolution res = config.getCurrentResolution();
+        config.applySafeResolutionToStage(primaryStage);
+
+        // Ajout d'une classe CSS selon la résolution
+        if (res.getWidth() <= 800 && res.getHeight() <= 600) {
+            scene.getRoot().getStyleClass().add("small-ui");
+        } else {
+            scene.getRoot().getStyleClass().add("normal-ui");
+        }
+
+        // Charger la feuille de style CSS
         final String cssPath = "/fr/beyondtime/resources/style.css";
         try {
             URL cssUrl = getClass().getResource(cssPath);
@@ -45,18 +51,18 @@ public class Main extends Application {
             e.printStackTrace();
         }
 
-        primaryStage.setScene(scene);
-
+        // Toggle plein écran avec F11
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.F11) {
                 primaryStage.setFullScreen(!primaryStage.isFullScreen());
             }
         });
 
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
-}
+} 

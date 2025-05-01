@@ -1,6 +1,7 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.editor.EditorController;
+import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.util.MapManager;
 import fr.beyondtime.util.TranslationManager;
 import javafx.geometry.Pos;
@@ -13,8 +14,7 @@ public class MenuScreen extends VBox {
     private Stage stage;
     private Scene menuScene;
     private TranslationManager translator;
-    
-    // UI elements that need translation
+
     private Button btnNiveau1;
     private Button btnNiveau2;
     private Button btnNiveau3;
@@ -29,11 +29,18 @@ public class MenuScreen extends VBox {
         setupTranslations();
         this.menuScene = new Scene(this);
         this.menuScene.getStylesheets().add(getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm());
+        int w = GameConfig.getInstance().getCurrentResolution().getWidth();
+        int h = GameConfig.getInstance().getCurrentResolution().getHeight();
+        if (w <= 800 && h <= 600) {
+            getStyleClass().add("small-ui");
+        }
+
     }
 
     private void setupUI() {
         setAlignment(Pos.CENTER);
         setSpacing(40);
+        getStyleClass().add("vbox-menu");
 
         btnNiveau1 = new Button();
         btnNiveau2 = new Button();
@@ -49,23 +56,10 @@ public class MenuScreen extends VBox {
         btnConfig.getStyleClass().add("classique-button");
         btnRetour.getStyleClass().add("classique-button");
 
-        // Configuration des actions des boutons
-        btnNiveau1.setOnAction(e -> {
-            MapManager.selectAndLoadMap(stage, translator.get("menu.level1"));
-        });
-
-        btnNiveau2.setOnAction(e -> {
-            MapManager.selectAndLoadMap(stage, translator.get("menu.level2"));
-        });
-
-        btnNiveau3.setOnAction(e -> {
-            MapManager.selectAndLoadMap(stage, translator.get("menu.level3"));
-        });
-
-        btnEditor.setOnAction(e -> {
-            @SuppressWarnings("unused")
-			EditorController editorController = new EditorController(stage);
-        });
+        btnNiveau1.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level1")));
+        btnNiveau2.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level2")));
+        btnNiveau3.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level3")));
+        btnEditor.setOnAction(e -> new EditorController(stage));
 
         btnConfig.setOnAction(e -> {
             ConfigScreen configScreen = new ConfigScreen(stage, menuScene);
@@ -74,28 +68,21 @@ public class MenuScreen extends VBox {
             stage.setScene(configScene);
         });
 
-        btnRetour.setOnAction(e -> {
-            stage.close();
-        });
+        btnRetour.setOnAction(e -> stage.close());
 
         getChildren().addAll(
-            btnNiveau1, 
-            btnNiveau2, 
-            btnNiveau3, 
-            btnEditor, 
-            btnConfig, 
+            btnNiveau1,
+            btnNiveau2,
+            btnNiveau3,
+            btnEditor,
+            btnConfig,
             btnRetour
         );
     }
 
     private void setupTranslations() {
-        // Initial translation
         updateTranslations();
-        
-        // Listen for locale changes
-        translator.currentLocaleProperty().addListener((obs, oldLocale, newLocale) -> {
-            updateTranslations();
-        });
+        translator.currentLocaleProperty().addListener((obs, oldLocale, newLocale) -> updateTranslations());
     }
 
     private void updateTranslations() {
@@ -110,4 +97,4 @@ public class MenuScreen extends VBox {
     public Scene getMenuScene() {
         return menuScene;
     }
-} 
+}

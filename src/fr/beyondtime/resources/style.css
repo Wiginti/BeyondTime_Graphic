@@ -21,7 +21,6 @@
     -fx-background-color: transparent;
 }
 
-
 .button.personnalise-button {
     -fx-background-image: url("wood_button_large.png");
     -fx-background-position: center;
@@ -32,7 +31,7 @@
     -fx-background-color: transparent;
 }
 
-.button.level-button{
+.button.level-button {
     -fx-background-image: url("wood_button_large.png");
     -fx-background-position: center;
     -fx-background-repeat: no-repeat;
@@ -84,8 +83,6 @@
     -fx-background-color: rgba(255, 255, 255, 0.9);
 }
 
-/* Styles spécifiques pour l'écran de configuration */
-
 .label.config-label {
     -fx-font-size: 50px;
     -fx-text-fill: white;
@@ -107,3 +104,38 @@
     -fx-spacing: 15px;
     -fx-alignment: center;
 }
+
+/* Responsive adjustments for small resolutions */
+
+.root.small-ui .classique-button {
+	-fx-font-size: 22px;
+
+	-fx-min-width: 240px;
+	-fx-pref-width: 240px;
+	-fx-max-width: 240px;
+
+	-fx-min-height: 55px;
+	-fx-pref-height: 55px;
+	-fx-max-height: 55px;
+}
+
+.root.normal-ui .classique-button {
+    -fx-font-size: 40px;
+    -fx-min-width: 450px;
+    -fx-pref-width: 450px;
+    -fx-max-width: 450px;
+    -fx-min-height: 80px;
+    -fx-pref-height: 80px;
+    -fx-max-height: 80px;
+}
+
+.vbox-menu {
+    -fx-spacing: 40px;
+}
+
+.vbox-menu.small-ui {
+    -fx-spacing: 15px;
+}
+
+
+

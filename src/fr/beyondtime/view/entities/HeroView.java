@@ -24,11 +24,15 @@ public class HeroView extends EntityView {
             return;
         }
 
-        // Décale l'image pour qu'elle soit centrée visuellement
+        // Centrage de l'image
         ImageView iv = getImageView();
         iv.setTranslateX(-heroImage.getWidth() / 2);
         iv.setTranslateY(-heroImage.getHeight() / 2);
 
-        System.out.println("HeroView created with centered image.");
+        // Réduction d'échelle (50%)
+        this.setScaleX(0.5);
+        this.setScaleY(0.5);
+
+        System.out.println("HeroView created with centered and scaled image.");
     }
 }

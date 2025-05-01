@@ -14,7 +14,14 @@ public class Chest extends Item implements Containable {
 	private ArrayList<Item> items = new ArrayList<Item>();
 	
 	public Chest() {
+		super("Chest", "A chest that can contain items", "resources/chest.png");
 		this.size = 0;
+	}
+	
+	@Override
+	public void use(Hero hero) {
+		// When using a chest, display its contents
+		displayItems();
 	}
 	
 	@Override

@@ -102,6 +102,7 @@ L'implémentation du support multilingue via ResourceBundle :
 
 #### Marco DUPRE
 - Architecture MVC
+- Interface utilisateur
 - Editeur de niveaux
 - Refactoring du code 
 - Correction de bug 
@@ -120,7 +121,7 @@ L'implémentation du support multilingue via ResourceBundle :
 #### Ruben COFFLARD
 - Création des boutons 
 - Correction de bugs
-- Gestion de l'inventaire
+- Gestion de l'inventaire, caméra (suivi du héro) 
 
 #### Tarik TAHOUNE
 - Déplacement en diagonale du personnage

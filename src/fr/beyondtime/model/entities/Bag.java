@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bag {
-	private List<String> items;
+	private final List<Item> items;
 
 	public Bag() {
 		items = new ArrayList<>();
 	}
 
-	public void addItem(String item) {
+	public void addItem(Item item) {
 		items.add(item);
 	}
 
-	public void removeItem(String item) {
+	public void removeItem(Item item) {
 		items.remove(item);
 	}
 
-	public List<String> getItems() {
+	public List<Item> getItems() {
 		return items;
 	}
 }

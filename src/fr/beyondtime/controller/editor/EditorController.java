@@ -239,9 +239,9 @@ public class EditorController {
              return;
          }
         List<String> choices = List.of(
-            "Niveau 1 - Préhistoire",
-            "Niveau 2 - Égypte Antique",
-            "Niveau 3 - 2nde Guerre Mondiale",
+            "Préhistoire",
+            "Égypte Antique",
+            "2nde Guerre Mondiale",
             "Custom Map" // Option to save as a generic custom map
         );
 

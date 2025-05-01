@@ -2,8 +2,6 @@ package fr.beyondtime.view.entities;
 
 import fr.beyondtime.util.ImageLoader;
 import javafx.scene.image.Image;
-import java.io.InputStream;
-import java.io.File;
 
 public class HeroView extends EntityView {
 	

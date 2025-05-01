@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import java.util.List;
 import java.io.InputStream;
 
@@ -22,6 +23,7 @@ public class HUDView extends AnchorPane {
     private HBox inventoryBar;
     private ImageView[] heartSlots;
     private int selectedSlot = -1; // Aucun slot sélectionné par défaut
+    private Text swordStatusText;
 
     // Chemins corrects des images de coeurs
     private static final String FULL_HEART_PATH = "/fr/beyondtime/resources/hearts/full.png";
@@ -72,6 +74,14 @@ public class HUDView extends AnchorPane {
         inventoryContainer.setAlignment(Pos.CENTER);
         inventoryContainer.setPrefHeight(60);
 
+        // Texte d'état de l'épée
+        swordStatusText = new Text("Épée non équipée");
+        swordStatusText.setFill(Color.WHITE);
+        swordStatusText.setStyle("-fx-font-size: 14px;");
+        HBox swordStatusContainer = new HBox(swordStatusText);
+        swordStatusContainer.setAlignment(Pos.CENTER);
+        swordStatusContainer.setPadding(new Insets(5));
+
         // Filler pour occuper l'espace restant entre le top et le bottom
         Region filler = new Region();
         VBox.setVgrow(filler, Priority.ALWAYS);
@@ -79,8 +89,10 @@ public class HUDView extends AnchorPane {
         // Utilisation d'un VBox pour empiler verticalement :
         // - La barre de vie en haut
         // - Le filler qui pousse l'inventaire vers le bas
+        // - Le texte d'état de l'épée
+        // - L'inventaire
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(healthContainer, filler, inventoryContainer);
+        vbox.getChildren().addAll(healthContainer, filler, swordStatusContainer, inventoryContainer);
 
         // Ancrer le VBox sur toute la surface du HUDView
         AnchorPane.setTopAnchor(vbox, 0.0);
@@ -181,5 +193,12 @@ public class HUDView extends AnchorPane {
         Rectangle currentBg = (Rectangle) currentSlot.getChildren().get(0);
         currentBg.setStroke(Color.BLUE);
         currentBg.setStrokeWidth(3); // Augmenter l'épaisseur de la bordure pour mieux voir la sélection
+    }
+
+    public void updateSwordStatus(boolean isEquipped) {
+        if (swordStatusText != null) {
+            swordStatusText.setText(isEquipped ? "Épée équipée" : "Épée non équipée");
+            swordStatusText.setFill(isEquipped ? Color.GREEN : Color.WHITE);
+        }
     }
 }

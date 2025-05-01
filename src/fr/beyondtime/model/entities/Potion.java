@@ -25,11 +25,13 @@ public class Potion extends Item {
 		int maxHealth = Hero.DEFAULT_HEALTH;
 		
 		if (currentHealth >= maxHealth) {
+			System.out.println("La potion n'a pas été utilisée car le héros a déjà toute sa vie");
 			return;
 		}
 		
 		int newHealth = Math.min(currentHealth + healthAmount, maxHealth);
 		hero.setHealth(newHealth);
+		System.out.println("Potion utilisée ! La vie du héros est maintenant de " + newHealth + "/" + maxHealth);
 	}
 
 	public int getHealthAmount() {

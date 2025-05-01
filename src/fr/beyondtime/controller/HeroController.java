@@ -2,6 +2,8 @@ package fr.beyondtime.controller;
 
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.entities.Item;
+import fr.beyondtime.model.entities.Potion;
+import fr.beyondtime.model.entities.Sword;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.components.HUDView;
 import fr.beyondtime.view.entities.HeroView;
@@ -11,14 +13,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.image.Image;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class HeroController {
     private Hero hero;
     private HeroView heroView;
     private Runnable onUpdateCallback;
     private HUDView hudView;
+    private int selectedSlot = -1; // Aucun slot sélectionné par défaut
 
     private double speed = 2;
 
@@ -68,25 +73,80 @@ public class HeroController {
         if (code == KeyCode.LEFT || code == KeyCode.Q) leftPressed = true;
         if (code == KeyCode.RIGHT || code == KeyCode.D) rightPressed = true;
 
-        if (code == KeyCode.DIGIT1) useInventoryItem(0);
-        if (code == KeyCode.DIGIT2) useInventoryItem(1);
-        if (code == KeyCode.DIGIT3) useInventoryItem(2);
-        if (code == KeyCode.DIGIT4) useInventoryItem(3);
-        if (code == KeyCode.DIGIT5) useInventoryItem(4);
+        // Sélection des slots avec les touches 1-5
+        if (code == KeyCode.DIGIT1) selectSlot(0);
+        if (code == KeyCode.DIGIT2) selectSlot(1);
+        if (code == KeyCode.DIGIT3) selectSlot(2);
+        if (code == KeyCode.DIGIT4) selectSlot(3);
+        if (code == KeyCode.DIGIT5) selectSlot(4);
+
+        // Utilisation de l'item sélectionné avec F
+        if (code == KeyCode.F) useSelectedItem();
     }
 
-    private void useInventoryItem(int index) {
-        if (hero != null && hero.getBag() != null) {
+    private void selectSlot(int index) {
+        if (index >= 0 && index < 5) {
+            selectedSlot = index;
+            if (hudView != null) {
+                hudView.selectSlot(index);
+            }
             List<Item> items = hero.getBag().getItems();
-            if (index >= 0 && index < items.size()) {
+            if (index < items.size()) {
                 Item item = items.get(index);
+                System.out.println("Slot " + (index + 1) + " sélectionné - Item: " + (item != null ? item.getName() : "vide"));
+            } else {
+                System.out.println("Slot " + (index + 1) + " sélectionné - vide");
+            }
+        }
+    }
+
+    private void useSelectedItem() {
+        if (selectedSlot >= 0 && hero != null && hero.getBag() != null) {
+            List<Item> items = hero.getBag().getItems();
+            System.out.println("Tentative d'utilisation du slot " + (selectedSlot + 1));
+            if (selectedSlot < items.size()) {
+                Item item = items.get(selectedSlot);
                 if (item != null) {
-                    item.use(hero);
-                    if (hudView != null) {
-                        hudView.selectSlot(index);
+                    System.out.println("Utilisation de l'item: " + item.getName());
+                    
+                    if (item instanceof Potion) {
+                        // Pour les potions, on les utilise et on les retire
+                        item.use(hero);
+                        hero.getBag().removeItem(item);
+                        System.out.println("Potion utilisée et retirée de l'inventaire");
+                        updateHUD();
+                    } else if (item instanceof Sword) {
+                        // Pour l'épée, on la sélectionne/désélectionne
+                        item.use(hero);
+                        // Mise à jour du HUD pour afficher l'état de sélection
+                        updateHUD();
+                        // Mise à jour du texte d'état de l'épée
+                        hudView.updateSwordStatus(((Sword) item).isSelected());
                     }
+                } else {
+                    System.out.println("Le slot " + (selectedSlot + 1) + " est vide");
+                }
+            } else {
+                System.out.println("Le slot " + (selectedSlot + 1) + " est hors limites");
+            }
+        } else {
+            System.out.println("Aucun slot sélectionné ou héros/inventaire non initialisé");
+        }
+    }
+
+    private void updateHUD() {
+        if (hudView != null) {
+            List<Item> items = hero.getBag().getItems();
+            List<Image> itemImages = new ArrayList<>();
+            for (Item item : items) {
+                try {
+                    Image image = new Image(item.getImagePath());
+                    itemImages.add(image);
+                } catch (Exception e) {
+                    System.out.println("Erreur lors du chargement de l'image pour " + item.getName());
                 }
             }
+            hudView.updateInventory(itemImages);
         }
     }
 

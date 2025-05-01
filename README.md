@@ -18,7 +18,7 @@ cd BeyondTime
 
 ## Exécution
 
-Il existe plusieurs façons d'exécuter le projet selon votre système d'exploitation :
+Il existe deux façons d'exécuter le projet :
 
 ### Méthode 1 : Utilisation de Maven (Recommandée, tous systèmes)
 
@@ -28,39 +28,16 @@ Cette méthode fonctionne sur tous les systèmes d'exploitation (Windows, macOS,
 mvn clean compile javafx:run
 ```
 
-### Méthode 2 : Utilisation des scripts
+### Méthode 2 : Exécution avec le script run_jar.sh (macOS/Linux)
 
-#### Pour Windows :
-```batch
-# Compilation et création du JAR
-build.bat
-
-# OU pour exécuter directement avec Maven
-run.bat
-```
-
-#### Pour macOS/Linux :
-```bash
-# Rendre les scripts exécutables
-chmod +x build.sh run.sh
-
-# Compilation et création du JAR
-./build.sh
-
-# OU pour exécuter directement avec Maven
-./run.sh
-```
-
-### Méthode 3 : Exécution du JAR (après compilation)
-
-Si vous avez déjà compilé le projet avec `build.bat` ou `build.sh` :
+Pour exécuter le JAR précompilé :
 
 ```bash
-# Windows
-java --module-path "chemin/vers/javafx/lib" --add-modules javafx.controls,javafx.fxml -jar bin/beyondtime.jar
+# Rendre le script exécutable
+chmod +x run_jar.sh
 
-# macOS/Linux
-java --module-path $JAVAFX_PATH --add-modules javafx.controls,javafx.fxml -jar bin/beyondtime.jar
+# Exécuter le jeu
+./run_jar.sh
 ```
 
 ## Structure du Projet

@@ -230,4 +230,18 @@ public class HeroController {
     public double getWorldY() {
         return hero.getY();
     }
+    
+    public void takeDamage(int amount) {
+        hero.removeHealth(amount);
+        double proportion = (double) hero.getHealth() / (double) Hero.DEFAULT_HEALTH;
+        double heartValue = proportion * 10; // car MAX_HEARTS_DISPLAY = 10
+        hudView.updateHealth(heartValue);
+    }
+    
+    public Hero getHero() {
+        return this.hero;
+    }
+
+
+    
 }

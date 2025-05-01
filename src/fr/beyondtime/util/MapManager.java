@@ -27,34 +27,47 @@ public class MapManager {
 
     public static void saveMap(GridPane grid, int rows, int columns, String levelName) {
         String[][] mapData = new String[rows][columns];
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 mapData[i][j] = "";
             }
         }
+
         for (Node node : grid.getChildren()) {
-            if (node instanceof StackPane) {
-                Integer col = GridPane.getColumnIndex(node);
-                Integer row = GridPane.getRowIndex(node);
+            if (node instanceof StackPane cell) {
+                Integer col = GridPane.getColumnIndex(cell);
+                Integer row = GridPane.getRowIndex(cell);
                 if (col == null) col = 0;
                 if (row == null) row = 0;
-                Object assetData = ((StackPane) node).getUserData();
+
+                // Chemin de l'asset
+                Object assetData = cell.getUserData();
                 String assetPath = assetData != null ? assetData.toString() : "";
-                Tile tile = (Tile) ((StackPane) node).getProperties().get("tile");
+
+                // Données de la tuile
+                Tile tile = (Tile) cell.getProperties().get("tile");
                 String tileData = (tile != null) ? (tile.isPassable() + ";" + tile.getSlowdownFactor()) : "true;1.0";
-                mapData[row][col] = assetPath + "|" + tileData;
+
+                // Spawner ?
+                boolean isSpawner = cell.getProperties().getOrDefault("isSpawner", false).equals(true);
+                String extra = isSpawner ? "|SPAWNER" : "";
+
+                mapData[row][col] = assetPath + "|" + tileData + extra;
             }
         }
+
         File saveDir = new File(SAVE_DIR);
         if (!saveDir.exists()) {
-            boolean created = saveDir.mkdirs();
-            if (!created) {
-                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier de sauvegarde: " + SAVE_DIR, Alert.AlertType.ERROR);
+            if (!saveDir.mkdirs()) {
+                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier : " + SAVE_DIR, Alert.AlertType.ERROR);
                 return;
             }
         }
+
         String fileName = levelName.replaceAll("\\s+", "_") + "_" + System.currentTimeMillis() + ".map";
         File saveFile = new File(saveDir, fileName);
+
         try (PrintWriter out = new PrintWriter(new FileWriter(saveFile))) {
             out.println(rows + "," + columns);
             for (String[] rowData : mapData) {
@@ -67,6 +80,7 @@ public class MapManager {
         }
     }
 
+
     public static GridPane loadMapFromFile(File file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String[] dims = reader.readLine().trim().split(",");
@@ -75,6 +89,7 @@ public class MapManager {
             GridPane grid = new GridPane();
             grid.setPadding(new Insets(0));
             int cellSize = 50;
+
             for (int row = 0; row < rows; row++) {
                 String[] cellData = reader.readLine().trim().split(",", -1);
                 for (int col = 0; col < cols; col++) {
@@ -83,11 +98,19 @@ public class MapManager {
                     Rectangle background = new Rectangle(cellSize, cellSize, Color.LIGHTGRAY);
                     background.setStroke(Color.BLACK);
                     cell.getChildren().add(background);
+
                     String[] parts = cellData[col].split("\\|");
                     String assetPath = parts.length > 0 ? parts[0] : "";
                     boolean passable = parts.length > 1 ? Boolean.parseBoolean(parts[1].split(";")[0]) : true;
                     double slowdown = parts.length > 1 ? Double.parseDouble(parts[1].split(";")[1]) : 1.0;
+
                     cell.getProperties().put("tile", new Tile(passable, slowdown));
+
+                    if (parts.length > 2 && parts[2].equals("SPAWNER")) {
+                        cell.getProperties().put("isSpawner", true);
+                    }
+
+
                     if (!assetPath.isEmpty()) {
                         try {
                             InputStream is = MapManager.class.getResourceAsStream("/fr/beyondtime/assets/" + assetPath);
@@ -106,6 +129,7 @@ public class MapManager {
                             e.printStackTrace();
                         }
                     }
+
                     grid.add(cell, col, row);
                 }
             }

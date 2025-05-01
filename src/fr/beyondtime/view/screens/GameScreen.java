@@ -1,6 +1,7 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.HeroController;
+import fr.beyondtime.controller.MonsterSpawnerController;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.entities.Item;
@@ -10,6 +11,7 @@ import fr.beyondtime.view.components.HUDView;
 import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -88,6 +90,10 @@ public class GameScreen {
         if (hero == null) return;
 
         heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE, hudView);
+        
+        MonsterSpawnerController spawnerController = new MonsterSpawnerController();
+        @SuppressWarnings("unused")
+		List<Node> monsterViews = spawnerController.spawnMonsters(mapGrid, cameraGroup, heroController, CELL_SIZE);
 
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);

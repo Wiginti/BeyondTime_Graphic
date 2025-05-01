@@ -1,27 +1,31 @@
 package fr.beyondtime.model.entities;
 
 public class Monster extends Entity {
-    private double x, y;
-    private double speed;
+    private final int spawnX;
+    private final int spawnY;
+    private final int damage;
     private boolean alive;
 
-    public Monster(String name, int health, double x, double y, double speed) {
-        super(health, name); // appel au constructeur de Entity
-        this.x = x;
-        this.y = y;
-        this.speed = speed;
+    public Monster(int spawnX, int spawnY, int health, int damage) {
+        super(health, "Monster");
+        this.spawnX = spawnX;
+        this.spawnY = spawnY;
+        this.damage = damage;
         this.alive = true;
     }
 
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public boolean isAlive() { return alive; }
-
-    public void setX(double x) { this.x = x; }
-    public void setY(double y) { this.y = y; }
-    public void kill() { this.alive = false; }
-
-    public void move() {
-        this.x -= speed;
+    public void die() {
+        this.alive = false;
     }
+
+    public void respawn() {
+        this.setHealth(super.getHealth());
+        this.alive = true;
+    }
+
+    public int getSpawnX() { return spawnX; }
+    public int getSpawnY() { return spawnY; }
+    public int getDamage() { return damage; }
+    public boolean isAlive() { return alive; }
+    public void setAlive(boolean alive) { this.alive = alive; }
 }

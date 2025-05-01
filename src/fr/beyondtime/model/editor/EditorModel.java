@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EditorModel {
     public enum TileType {
-        NORMAL, OBSTACLE, SLOW, POISON
+        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER
     }
 
     private GridPane mapGrid;
@@ -169,6 +169,11 @@ public class EditorModel {
         updateCellAppearance(cell, Color.GREEN, true, 1.0, 10);
     }
 
+    public void setCellAsSpawner(StackPane cell) {
+        updateCellAppearance(cell, Color.MEDIUMPURPLE, true, 1.0, 0);
+        cell.getProperties().put("spawner", true); // Marqueur spécifique pour SPAWNER
+    }
+
     private void updateCellAppearance(StackPane cell, Color color, boolean passable, double speed, int damage) {
         cell.getChildren().clear();
         Rectangle background = new Rectangle(cellSize, cellSize);
@@ -176,5 +181,18 @@ public class EditorModel {
         background.setStroke(Color.BLACK);
         cell.getChildren().add(background);
         cell.getProperties().put("tile", new Tile(passable, speed, damage));
+    }
+
+    public boolean isSpawnerCell(StackPane cell) {
+        Object prop = cell.getProperties().get("spawner");
+        return prop instanceof Boolean && (Boolean) prop;
+    }
+
+    public void markAsSpawner(StackPane cell) {
+        cell.getProperties().put("spawner", true);
+    }
+
+    public void unmarkSpawner(StackPane cell) {
+        cell.getProperties().remove("spawner");
     }
 }

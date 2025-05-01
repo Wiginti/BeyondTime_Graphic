@@ -28,6 +28,7 @@ public class EditorScreen extends VBox {
     private Button obstaclePropButton;
     private Button slowPropButton;
     private Button poisonPropButton;
+    private Button spawnerPropButton;
     private Button clearPropButton;
     private Button saveButton;
     private Button exitButton;
@@ -144,6 +145,9 @@ public class EditorScreen extends VBox {
 
         poisonPropButton = new Button("Poison");
         poisonPropButton.getStyleClass().add("classique-button");
+        
+        spawnerPropButton = new Button("Spawner à Monstre");
+        spawnerPropButton.getStyleClass().add("classique-button");
 
         clearPropButton = new Button("Mode Asset");
         clearPropButton.getStyleClass().add("classique-buttonn");
@@ -156,7 +160,7 @@ public class EditorScreen extends VBox {
 
         HBox box = new HBox(10);
         box.getChildren().addAll(clearButton, eraserButton,
-            normalPropButton, obstaclePropButton, slowPropButton, poisonPropButton, clearPropButton,
+            normalPropButton, obstaclePropButton, slowPropButton, poisonPropButton, spawnerPropButton, clearPropButton,
             saveButton, exitButton);
         box.setPadding(new Insets(10));
         
@@ -185,6 +189,7 @@ public class EditorScreen extends VBox {
     public Button getClearPropButton() { return clearPropButton; }
     public Button getSaveButton() { return saveButton; }
     public Button getExitButton() { return exitButton; }
+    public Button getSpawnerPropButton() { return spawnerPropButton; }
     
     public GridPane getMapGrid() {
         return mapGrid;

@@ -16,6 +16,9 @@ public class Hero extends Entity implements Fightable {
 		super(DEFAULT_HEALTH, "Hero");
 		this.damageAmount = DEFAULT_DAMAGE;
 		this.bag = new Bag();
+		System.out.println("Initialisation du héros avec un inventaire vide");
+		this.bag.addItem(new Potion());
+		System.out.println("Potion ajoutée à l'inventaire");
 		this.x = 0;
 		this.y = 0;
 	}

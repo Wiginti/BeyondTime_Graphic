@@ -3,10 +3,20 @@ package fr.beyondtime.view.screens;
 import fr.beyondtime.controller.HeroController;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
+<<<<<<< HEAD
+=======
+import fr.beyondtime.model.entities.Item;
+import fr.beyondtime.model.map.Tile;
+import fr.beyondtime.model.map.GameMap;
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.view.components.HUDView;
+<<<<<<< HEAD
 import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.AnimationTimer;
+=======
+import fr.beyondtime.util.ImageLoader;
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -19,12 +29,22 @@ import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 import java.net.URL;
+<<<<<<< HEAD
+=======
+import java.util.List;
+import java.util.ArrayList;
+import javafx.scene.image.Image;
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 
 public class GameScreen {
     private static final int CELL_SIZE = 50;
     private static final int MAX_HEARTS_DISPLAY = 10;
+<<<<<<< HEAD
     private static final int DEFAULT_INVENTORY_SLOTS = 8;
     private static final String CSS_PATH = "/fr/beyondtime/resources/style.css";
+=======
+    private static final int DEFAULT_INVENTORY_SLOTS = 5;
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 
     private Stage primaryStage;
     private GameState gameState;
@@ -54,10 +74,16 @@ public class GameScreen {
         heroView = new HeroView();
         cameraGroup.getChildren().add(heroView);
 
+<<<<<<< HEAD
         // Cercle de debug au centre logique du héros
         Circle centerDebug = new Circle(3, Color.MAGENTA);
         centerDebug.setMouseTransparent(true);
         cameraGroup.getChildren().add(centerDebug);
+=======
+        int inventorySlots = DEFAULT_INVENTORY_SLOTS;
+        hudView = new HUDView(MAX_HEARTS_DISPLAY, inventorySlots);
+        System.out.println("HUDView créé avec " + inventorySlots + " slots");
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
 
         hudView = new HUDView(MAX_HEARTS_DISPLAY, DEFAULT_INVENTORY_SLOTS);
         hudView.setMouseTransparent(true);
@@ -84,10 +110,21 @@ public class GameScreen {
         }
 
         Hero hero = gameState.getHero();
+<<<<<<< HEAD
         if (hero == null) return;
 
         heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE);
 
+=======
+        if (hero == null) {
+             System.err.println("FATAL ERROR: GameState provided a null hero!");
+             return; 
+        }
+        System.out.println("Création du HeroController avec le HUDView");
+        heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE, hudView);
+        heroController.setOnUpdate(this::update);
+        
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -119,13 +156,37 @@ public class GameScreen {
             }
         }.start();
 
+<<<<<<< HEAD
+=======
+    private void update() {
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
         updateHUD();
+        updateCamera();
     }
 
     private void updateHUD() {
         if (hudView == null || gameState == null || gameState.getHero() == null) return;
+<<<<<<< HEAD
         double healthProportion = (double) gameState.getHealth() / Hero.DEFAULT_HEALTH;
         double value = healthProportion * MAX_HEARTS_DISPLAY;
         hudView.updateHealth(value);
+=======
+
+        double healthProportion = (double) gameState.getHealth() / (double) Hero.DEFAULT_HEALTH;
+        double healthValueForHUD = healthProportion * MAX_HEARTS_DISPLAY;
+        hudView.updateHealth(healthValueForHUD);
+        
+        List<Item> items = gameState.getHero().getBag().getItems();
+        List<Image> itemImages = new ArrayList<>();
+        
+        for (Item item : items) {
+            Image itemImage = ImageLoader.loadImage(item.getImagePath());
+            if (itemImage != null) {
+                itemImages.add(itemImage);
+            }
+        }
+        
+        hudView.updateInventory(itemImages);
+>>>>>>> 793e9b7a269256777aa00a4b133bc73b76aa62cd
     }
 }

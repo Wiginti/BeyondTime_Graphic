@@ -4,7 +4,7 @@ public class Potion extends Item {
 	private int healthAmount;
 	private final static int DEFAULT_HEALTH_AMOUNT = 50;
 	private final static int MAX_HEALTH_AMOUNT = 100;
-	private final static String DEFAULT_IMAGE_PATH = "/fr/beyondtime/resources/potion.jpeg";
+	private final static String DEFAULT_IMAGE_PATH = "/fr/beyondtime/resources/potion.jpg";
 
 	public Potion(int healthAmount) {
 		super("Potion de vie", "Restaure " + healthAmount + " points de vie", DEFAULT_IMAGE_PATH);

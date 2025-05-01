@@ -21,6 +21,7 @@ public class HUDView extends AnchorPane {
     private HBox healthBar;
     private HBox inventoryBar;
     private ImageView[] heartSlots;
+    private int selectedSlot = -1; // Aucun slot sélectionné par défaut
 
     // Chemins corrects des images de coeurs
     private static final String FULL_HEART_PATH = "/fr/beyondtime/resources/hearts/full.png";
@@ -155,5 +156,30 @@ public class HUDView extends AnchorPane {
                 slot.getChildren().add(item);
             }
         }
+    }
+
+    public void selectSlot(int index) {
+        System.out.println("Tentative de sélection du slot " + index);
+        if (index < 0 || index >= inventorySlots) {
+            System.out.println("Index invalide : " + index);
+            return;
+        }
+        
+        // Réinitialiser la sélection précédente
+        if (selectedSlot >= 0) {
+            System.out.println("Réinitialisation de la sélection précédente du slot " + selectedSlot);
+            StackPane previousSlot = (StackPane) inventoryBar.getChildren().get(selectedSlot);
+            Rectangle previousBg = (Rectangle) previousSlot.getChildren().get(0);
+            previousBg.setStroke(Color.WHITE);
+            previousBg.setStrokeWidth(1);
+        }
+        
+        // Mettre à jour la nouvelle sélection
+        selectedSlot = index;
+        System.out.println("Nouvelle sélection du slot " + selectedSlot);
+        StackPane currentSlot = (StackPane) inventoryBar.getChildren().get(selectedSlot);
+        Rectangle currentBg = (Rectangle) currentSlot.getChildren().get(0);
+        currentBg.setStroke(Color.BLUE);
+        currentBg.setStrokeWidth(3); // Augmenter l'épaisseur de la bordure pour mieux voir la sélection
     }
 }

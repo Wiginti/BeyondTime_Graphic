@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
 import java.net.URL;
 import java.util.List;
 import javafx.scene.image.Image;
@@ -86,7 +87,14 @@ public class GameScreen {
         heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE);
         heroController.setOnUpdate(this::update);
         
-        scene.setOnKeyPressed(heroController::handleKeyPress);
+        scene.setOnKeyPressed(event -> {
+            heroController.handleKeyPress(event);
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Retourner au menu principal
+                MenuScreen menuScreen = new MenuScreen(stage);
+                stage.setScene(menuScreen.getMenuScene());
+            }
+        });
         scene.setOnKeyReleased(heroController::handleKeyRelease);
 
         stage.setScene(scene);

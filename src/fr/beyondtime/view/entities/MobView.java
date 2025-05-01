@@ -1,7 +1,6 @@
 package fr.beyondtime.view.entities;
 
 import javafx.scene.image.Image;
-import fr.beyondtime.util.ImageLoader; // Potentiellement utile
 
 public class MobView extends EntityView {
 

@@ -3,8 +3,6 @@ package fr.beyondtime.controller.game;
 import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.view.screens.GameScreen;
 import javafx.animation.AnimationTimer;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 /**
@@ -12,7 +10,8 @@ import javafx.stage.Stage;
  */
 public class GameController {
     private GameState gameState;
-    private GameScreen gameScreen;
+    @SuppressWarnings("unused")
+	private GameScreen gameScreen;
     private AnimationTimer gameLoop;
 
     /**

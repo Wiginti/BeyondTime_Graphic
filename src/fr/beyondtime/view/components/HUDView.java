@@ -15,7 +15,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import java.util.List;
-import java.io.InputStream;
 
 public class HUDView extends AnchorPane {
 

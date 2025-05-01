@@ -18,59 +18,50 @@ cd BeyondTime
 
 ## Exécution
 
-Il existe plusieurs façons d'exécuter le projet :
+Il existe plusieurs façons d'exécuter le projet selon votre système d'exploitation :
 
-### Méthode 1 : Utilisation de Maven (Recommandée)
+### Méthode 1 : Utilisation de Maven (Recommandée, tous systèmes)
 
 Cette méthode fonctionne sur tous les systèmes d'exploitation (Windows, macOS, Linux) :
 
-1. Compilation et exécution en une seule commande :
 ```bash
 mvn clean compile javafx:run
 ```
 
-Ou étape par étape :
+### Méthode 2 : Utilisation des scripts
 
-1. Compilation :
-```bash
-mvn clean compile
+#### Pour Windows :
+```batch
+# Compilation et création du JAR
+build.bat
+
+# OU pour exécuter directement avec Maven
+run.bat
 ```
 
-2. Exécution :
+#### Pour macOS/Linux :
 ```bash
-mvn javafx:run
-```
+# Rendre les scripts exécutables
+chmod +x build.sh run.sh
 
-### Méthode 2 : Utilisation du script shell (Linux/macOS)
+# Compilation et création du JAR
+./build.sh
 
-1. Rendez le script exécutable :
-```bash
-chmod +x run.sh
-```
-
-2. Exécutez le script :
-```bash
+# OU pour exécuter directement avec Maven
 ./run.sh
 ```
 
-### Méthode 3 : Exécution via JAR (Tous les systèmes)
+### Méthode 3 : Exécution du JAR (après compilation)
 
-1. Création du JAR :
+Si vous avez déjà compilé le projet avec `build.bat` ou `build.sh` :
+
 ```bash
-mvn clean package
-```
+# Windows
+java --module-path "chemin/vers/javafx/lib" --add-modules javafx.controls,javafx.fxml -jar bin/beyondtime.jar
 
-2. Exécution du JAR :
-- Windows :
-```cmd
-java --module-path "%PATH_TO_FX%" --add-modules javafx.controls,javafx.fxml -jar target/beyondtime-1.0.0.jar
+# macOS/Linux
+java --module-path $JAVAFX_PATH --add-modules javafx.controls,javafx.fxml -jar bin/beyondtime.jar
 ```
-- Linux/macOS :
-```bash
-java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar target/beyondtime-1.0.0.jar
-```
-
-Note : Remplacez `%PATH_TO_FX%` ou `$PATH_TO_FX` par le chemin vers votre installation JavaFX si vous n'utilisez pas les dépendances Maven.
 
 ## Structure du Projet
 
@@ -91,9 +82,7 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) :
 
 ## Documentation
 
-- La documentation technique complète est disponible dans le dossier `docs/`
-- La JavaDoc est générée dans `target/site/apidocs/`
-- Le manuel utilisateur se trouve dans `docs/user-manual.pdf`
+La documentation JavaDoc est générée automatiquement lors de la compilation avec les scripts `build.bat` ou `build.sh`. Vous pouvez la consulter en ouvrant `docs/javadoc/index.html` dans votre navigateur.
 
 ## Contribution
 

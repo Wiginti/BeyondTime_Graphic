@@ -6,6 +6,7 @@ BeyondTime est un jeu d'aventure en 2D développé en Java avec JavaFX, où le j
 
 - Java JDK 17 ou supérieur
 - Maven 3.8 ou supérieur
+- JavaFX (inclus dans les dépendances Maven)
 
 ## Installation
 
@@ -15,14 +16,28 @@ git clone https://github.com/votre-username/BeyondTime.git
 cd BeyondTime
 ```
 
-2. Compilez le projet avec Maven :
+## Exécution
+
+Il existe deux façons d'exécuter le projet :
+
+### Méthode 1 : Utilisation de Maven (Recommandée, tous systèmes)
+
+Cette méthode fonctionne sur tous les systèmes d'exploitation (Windows, macOS, Linux) :
+
 ```bash
-mvn clean install
+mvn clean compile javafx:run
 ```
 
-3. Exécutez le jeu :
+### Méthode 2 : Exécution avec le script run_jar.sh (macOS/Linux)
+
+Pour exécuter le JAR précompilé :
+
 ```bash
-java -jar target/beyondtime-1.0.0.jar
+# Rendre le script exécutable
+chmod +x run_jar.sh
+
+# Exécuter le jeu
+./run_jar.sh
 ```
 
 ## Structure du Projet
@@ -44,9 +59,7 @@ Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) :
 
 ## Documentation
 
-- La documentation technique complète est disponible dans le dossier `docs/`
-- La JavaDoc est générée dans `target/site/apidocs/`
-- Le manuel utilisateur se trouve dans `docs/user-manual.pdf`
+La documentation JavaDoc est générée automatiquement lors de la compilation avec les scripts `build.bat` ou `build.sh`. Vous pouvez la consulter en ouvrant `docs/javadoc/index.html` dans votre navigateur.
 
 ## Contribution
 

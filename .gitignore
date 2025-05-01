@@ -49,4 +49,11 @@ buildNumber.properties
 
 # Gradle
 .gradle
-build/ 
+build/
+
+# Build files
+docs/javadoc/
+
+# Scripts
+*.sh
+!run_jar.sh 

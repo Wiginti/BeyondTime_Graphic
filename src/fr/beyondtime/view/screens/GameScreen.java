@@ -17,8 +17,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
@@ -67,10 +65,6 @@ public class GameScreen {
         heroView = new HeroView();
         cameraGroup.getChildren().add(heroView);
 
-        Circle centerDebug = new Circle(3, Color.MAGENTA);
-        centerDebug.setMouseTransparent(true);
-        cameraGroup.getChildren().add(centerDebug);
-
         hudView = new HUDView(MAX_HEARTS_DISPLAY, DEFAULT_INVENTORY_SLOTS);
         hudView.setMouseTransparent(true);
 
@@ -78,13 +72,7 @@ public class GameScreen {
         gameLayer.setPrefSize(SCENE_WIDTH, SCENE_HEIGHT);
         cameraGroup.setManaged(false);
 
-        Line hLine = new Line(0, SCENE_HEIGHT / 2, SCENE_WIDTH, SCENE_HEIGHT / 2);
-        Line vLine = new Line(SCENE_WIDTH / 2, 0, SCENE_WIDTH / 2, SCENE_HEIGHT);
-        hLine.setStroke(Color.RED);
-        vLine.setStroke(Color.RED);
-        Group overlay = new Group(hLine, vLine);
-
-        StackPane root = new StackPane(gameLayer, overlay, hudView);
+        StackPane root = new StackPane(gameLayer, hudView);
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
         scene.setFill(Color.LIGHTGRAY);
 
@@ -120,8 +108,6 @@ public class GameScreen {
                 cameraGroup.setTranslateX(SCENE_WIDTH / 2.0 - heroX);
                 cameraGroup.setTranslateY(SCENE_HEIGHT / 2.0 - heroY);
 
-                centerDebug.setLayoutX(heroX);
-                centerDebug.setLayoutY(heroY);
             }
         }.start();
 

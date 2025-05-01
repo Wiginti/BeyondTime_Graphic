@@ -1,14 +1,17 @@
 package fr.beyondtime.controller;
 
 import fr.beyondtime.model.entities.Hero;
+import fr.beyondtime.model.entities.Item;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.entities.HeroView;
+import fr.beyondtime.view.components.HUDView;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import java.util.List;
 
 /**
  * Controls the Hero's movement, input handling, and collision detection.
@@ -17,6 +20,7 @@ public class HeroController {
     private Hero hero;
     private HeroView heroView;
     private Runnable onUpdateCallback;
+    private HUDView hudView;
 
     /** The hero's current X position in world coordinates. */
     private double worldX;
@@ -51,12 +55,14 @@ public class HeroController {
      * @param heroView The Hero visual representation.
      * @param mapGrid  The GridPane representing the map for collision checks.
      * @param cellSize The size of each cell in the mapGrid.
+     * @param hudView  The HUDView for updating the selected slot.
      */
-    public HeroController(Hero hero, HeroView heroView, GridPane mapGrid, int cellSize) {
+    public HeroController(Hero hero, HeroView heroView, GridPane mapGrid, int cellSize, HUDView hudView) {
         this.hero = hero;
         this.heroView = heroView;
         this.mapGrid = mapGrid;
         this.cellSize = cellSize;
+        this.hudView = hudView;
         
         // Initialiser la position du héros au centre de la carte
         int centerCol = mapGrid.getColumnCount() / 2;
@@ -95,10 +101,69 @@ public class HeroController {
      */
     public void handleKeyPress(KeyEvent event) {
         KeyCode code = event.getCode();
+        System.out.println("Touche pressée : " + code);
+        
         if (code == KeyCode.UP || code == KeyCode.Z) upPressed = true;
         if (code == KeyCode.DOWN || code == KeyCode.S) downPressed = true;
         if (code == KeyCode.LEFT || code == KeyCode.Q) leftPressed = true;
         if (code == KeyCode.RIGHT || code == KeyCode.D) rightPressed = true;
+        
+        // Gestion des touches numériques AZERTY pour l'inventaire
+        if (code == KeyCode.DIGIT1) {
+            System.out.println("Touche 1 (&) détectée");
+            useInventoryItem(0);
+        }
+        if (code == KeyCode.DIGIT2) {
+            System.out.println("Touche 2 (é) détectée");
+            useInventoryItem(1);
+        }
+        if (code == KeyCode.DIGIT3) {
+            System.out.println("Touche 3 (\") détectée");
+            useInventoryItem(2);
+        }
+        if (code == KeyCode.DIGIT4) {
+            System.out.println("Touche 4 (') détectée");
+            useInventoryItem(3);
+        }
+        if (code == KeyCode.DIGIT5) {
+            System.out.println("Touche 5 (() détectée");
+            useInventoryItem(4);
+        }
+    }
+
+    /**
+     * Utilise l'item à l'index spécifié dans l'inventaire du héros.
+     * @param index L'index de l'item à utiliser (0-4)
+     */
+    private void useInventoryItem(int index) {
+        System.out.println("Tentative d'utilisation du slot " + index);
+        if (hero != null && hero.getBag() != null) {
+            List<Item> items = hero.getBag().getItems();
+            System.out.println("Contenu de l'inventaire : " + items.size() + " items");
+            for (int i = 0; i < items.size(); i++) {
+                System.out.println("Slot " + i + " : " + (items.get(i) != null ? items.get(i).getName() : "vide"));
+            }
+            
+            if (index >= 0 && index < items.size()) {
+                Item item = items.get(index);
+                if (item != null) {
+                    System.out.println("Item trouvé dans le slot " + index + " : " + item.getName());
+                    item.use(hero);
+                    if (hudView != null) {
+                        System.out.println("Appel de selectSlot pour le slot " + index);
+                        hudView.selectSlot(index);
+                    } else {
+                        System.out.println("HUDView est null !");
+                    }
+                } else {
+                    System.out.println("Aucun item dans le slot " + index);
+                }
+            } else {
+                System.out.println("Index invalide ou pas d'items dans l'inventaire");
+            }
+        } else {
+            System.out.println("Hero ou Bag est null");
+        }
     }
 
     /**

@@ -31,7 +31,8 @@ public class GameScreen {
     private static final int DEFAULT_INVENTORY_SLOTS = 8;
     private static final String CSS_PATH = "/fr/beyondtime/resources/style.css";
 
-    private Stage primaryStage;
+    @SuppressWarnings("unused")
+	private Stage primaryStage;
     private GameState gameState;
     private HUDView hudView;
     private HeroController heroController;

@@ -1,8 +1,6 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.editor.EditorController;
-import fr.beyondtime.model.editor.EditorModel;
-import fr.beyondtime.model.editor.EditorModel.TileType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -10,7 +8,8 @@ import javafx.scene.layout.*;
 import java.io.File;
 
 public class EditorScreen extends VBox {
-    private EditorController controller;
+    @SuppressWarnings("unused")
+	private EditorController controller;
     private GridPane mapGrid;
     private ListView<AssetEntry> assetListView;
     private HBox toolsBox;

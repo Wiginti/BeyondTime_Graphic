@@ -32,9 +32,12 @@ Le menu principal propose les options suivantes :
 - **D** ou **→** : Droite
 
 ### Actions
-- **E** : Interagir
-- **ESPACE** : Attaquer
-- **I** : Inventaire
+- **F** : Utiliser
+- **1** : Slot 1 de l'inventaire
+- **2** : Slot 2 de l'inventaire
+- **3** : Slot 3 de l'inventaire
+- **4** : Slot 4 de l'inventaire
+- **5** : Slot 5 de l'inventaire
 - **ÉCHAP** : Menu pause
 
 ## Éditeur de Niveaux

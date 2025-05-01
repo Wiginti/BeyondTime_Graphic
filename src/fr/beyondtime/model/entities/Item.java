@@ -3,17 +3,11 @@ package fr.beyondtime.model.entities;
 public abstract class Item {
     private String name;
     private String description;
-    private boolean isUsable;
-    private boolean isStackable;
-    private int maxStackSize;
     private String imagePath;
 
     public Item(String name, String description, String imagePath) {
         this.name = name;
         this.description = description;
-        this.isUsable = isUsable;
-        this.isStackable = isStackable;
-        this.maxStackSize = maxStackSize;
         this.imagePath = imagePath;
     }
     // Getters
@@ -23,18 +17,6 @@ public abstract class Item {
 
     public String getDescription() {
         return description;
-    }
-
-    public boolean isUsable() {
-        return isUsable;
-    }
-
-    public boolean isStackable() {
-        return isStackable;
-    }
-
-    public int getMaxStackSize() {
-        return maxStackSize;
     }
 
     public String getImagePath() {

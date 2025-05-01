@@ -55,4 +55,6 @@ build/
 docs/javadoc/
 
 # Scripts
-*.sh 
+*.sh
+!run.sh
+!run_jar.sh 

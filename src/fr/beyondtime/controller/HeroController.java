@@ -136,6 +136,10 @@ public class HeroController {
 
     private void updateHUD() {
         if (hudView != null) {
+        	
+            double currentHealth = hero.getHealth();
+            hudView.updateHealth(currentHealth);
+        	
             List<Item> items = hero.getBag().getItems();
             List<Image> itemImages = new ArrayList<>();
             for (Item item : items) {

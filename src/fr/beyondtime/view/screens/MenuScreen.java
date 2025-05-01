@@ -35,7 +35,7 @@ public class MenuScreen extends VBox {
 
     private void setupUI() {
         setAlignment(Pos.CENTER);
-        setSpacing(20);
+        setSpacing(40);
 
         btnNiveau1 = new Button();
         btnNiveau2 = new Button();

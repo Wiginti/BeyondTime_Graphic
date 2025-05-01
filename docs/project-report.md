@@ -119,7 +119,8 @@ L'implémentation du support multilingue via ResourceBundle :
 
 #### Ruben COFFLARD
 - Création des boutons 
-- Correction de bugs 
+- Correction de bugs
+- Gestion de l'inventaire
 
 #### Tarik TAHOUNE
 - Déplacement en diagonale du personnage

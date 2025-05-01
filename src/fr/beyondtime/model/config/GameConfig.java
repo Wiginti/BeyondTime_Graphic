@@ -43,7 +43,7 @@ public class GameConfig {
     }
     
     private void loadConfig() {
-        String resString = prefs.get(PREF_RESOLUTION, "800x600");
+    	String resString = prefs.get(PREF_RESOLUTION, "1280x720");
         String[] res = resString.split("x");
         currentResolution = new Resolution(
             Integer.parseInt(res[0]),

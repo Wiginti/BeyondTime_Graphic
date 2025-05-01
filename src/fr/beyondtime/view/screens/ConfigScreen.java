@@ -4,12 +4,14 @@ import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.util.TranslationManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class ConfigScreen extends VBox {
@@ -56,9 +58,16 @@ public class ConfigScreen extends VBox {
         resolutionComboBox.setOnAction(e -> {
             GameConfig.Resolution selectedRes = resolutionComboBox.getValue();
             config.setCurrentResolution(selectedRes);
+
             stage.setWidth(selectedRes.getWidth());
             stage.setHeight(selectedRes.getHeight());
+
+            // Centrage de la fenêtre dans l'écran visible
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - selectedRes.getWidth()) / 2);
+            stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - selectedRes.getHeight()) / 2);
         });
+
 
         // Language settings
         languageLabel = new Label();

@@ -2,9 +2,10 @@ package fr.beyondtime.view.entities;
 
 import fr.beyondtime.util.ImageLoader;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class HeroView extends EntityView {
-	
+
     private static final String HERO_IMAGE_PATH = "/fr/beyondtime/resources/hero.png";
     private static Image heroImage;
 
@@ -12,17 +13,22 @@ public class HeroView extends EntityView {
         System.out.println("Static block HeroView: Loading image...");
         heroImage = ImageLoader.loadImage(HERO_IMAGE_PATH);
         if (heroImage == null) {
-             System.err.println("Hero image is null after static initialization! Check resource path and build configuration.");
+            System.err.println("Hero image is null! Check path: " + HERO_IMAGE_PATH);
         }
     }
 
-    // Le constructeur n'attend plus cellSize
     public HeroView() {
-        // Passe seulement l'image au constructeur parent
         super(heroImage);
         if (heroImage == null) {
-             System.err.println("HeroView Constructor: Attempting to use a null image!");
+            System.err.println("HeroView: null image used!");
+            return;
         }
-        System.out.println("HeroView created.");
+
+        // Décale l'image pour qu'elle soit centrée visuellement
+        ImageView iv = getImageView();
+        iv.setTranslateX(-heroImage.getWidth() / 2);
+        iv.setTranslateY(-heroImage.getHeight() / 2);
+
+        System.out.println("HeroView created with centered image.");
     }
 }

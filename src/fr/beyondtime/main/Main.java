@@ -1,43 +1,37 @@
 package fr.beyondtime.main;
 
+import fr.beyondtime.model.config.GameConfig;
+import fr.beyondtime.model.config.GameConfig.Resolution;
 import fr.beyondtime.view.screens.MenuScreen;
 import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
+
 import java.net.URL;
-import fr.beyondtime.util.ImageLoader;
 
 /**
  * The main entry point for the BeyondTime application.
- * Sets up the primary stage, loads the initial menu screen, and applies styling.
+ * Sets up the primary stage using resolution from GameConfig, loads the menu, and applies styling.
  */
 public class Main extends Application {
 
-    /**
-     * Starts the JavaFX application.
-     * Initializes the primary stage to fit the screen, creates the main menu,
-     * applies CSS styling, sets up fullscreen toggle (F11), and shows the stage.
-     *
-     * @param primaryStage The primary stage for this application.
-     */
     @Override
     public void start(Stage primaryStage) {
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        
-        primaryStage.setX(screenBounds.getMinX());
-        primaryStage.setY(screenBounds.getMinY());
-        primaryStage.setWidth(screenBounds.getWidth());
-        primaryStage.setHeight(screenBounds.getHeight());
+        // Récupère la résolution choisie par l'utilisateur (ou par défaut : 1280x720)
+        Resolution res = GameConfig.getInstance().getCurrentResolution();
+        int width = res.getWidth();
+        int height = res.getHeight();
+
         primaryStage.setTitle("BeyondTime");
+        primaryStage.setWidth(width);
+        primaryStage.setHeight(height);
+        primaryStage.setResizable(false); // Empêche le redimensionnement manuel
 
         MenuScreen menuScreen = new MenuScreen(primaryStage);
         Scene scene = menuScreen.getMenuScene();
-        
-        final String cssPath = "/fr/beyondtime/resources/style.css"; 
+
+        final String cssPath = "/fr/beyondtime/resources/style.css";
         try {
             URL cssUrl = getClass().getResource(cssPath);
             if (cssUrl == null) {
@@ -62,11 +56,6 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    /**
-     * The main method, launching the JavaFX application.
-     *
-     * @param args Command line arguments (not used).
-     */
     public static void main(String[] args) {
         launch(args);
     }

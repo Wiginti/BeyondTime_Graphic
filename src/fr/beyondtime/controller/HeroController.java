@@ -10,67 +10,48 @@ import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
-/**
- * Controls the Hero's movement, input handling, and collision detection.
- */
 public class HeroController {
-    private Hero hero;
-    private HeroView heroView;
-    private Runnable onUpdateCallback;
+    private Hero hero; // Modèle du héros
+    private HeroView heroView; // Vue graphique du héros
+    private Runnable onUpdateCallback; // Callback pour notifier la vue après un déplacement
 
-    /** The hero's current X position in world coordinates. */
-    private double worldX;
-    /** The hero's current Y position in world coordinates. */
-    private double worldY;
-    /** The movement speed of the hero in pixels per update. */
-    private double speed = 2;
+    private double speed = 2; // Vitesse de déplacement en pixels
 
-    /** The width of the hero's visual representation and collision box. */
     public static final int HERO_WIDTH = 32;
-    /** The height of the hero's visual representation and collision box. */
     public static final int HERO_HEIGHT = 32;
 
-    /** Flag indicating if the up movement key is pressed. */
+    // États des touches directionnelles
     private boolean upPressed = false;
-    /** Flag indicating if the down movement key is pressed. */
     private boolean downPressed = false;
-    /** Flag indicating if the left movement key is pressed. */
     private boolean leftPressed = false;
-    /** Flag indicating if the right movement key is pressed. */
     private boolean rightPressed = false;
 
-    /** The visual grid representing the game map. */
+    // Carte et taille des cellules pour les collisions
     private GridPane mapGrid;
-    /** The size (width and height) of each cell in the map grid. */
     private int cellSize;
 
     /**
-     * Constructs a HeroController.
-     *
-     * @param hero     The Hero data model.
-     * @param heroView The Hero visual representation.
-     * @param mapGrid  The GridPane representing the map for collision checks.
-     * @param cellSize The size of each cell in the mapGrid.
+     * Constructeur du contrôleur du héros
      */
     public HeroController(Hero hero, HeroView heroView, GridPane mapGrid, int cellSize) {
         this.hero = hero;
         this.heroView = heroView;
         this.mapGrid = mapGrid;
         this.cellSize = cellSize;
-        
-        // Initialiser la position du héros au centre de la carte
+
+        // Position initiale du héros : centre de la carte
         int centerCol = mapGrid.getColumnCount() / 2;
         int centerRow = mapGrid.getRowCount() / 2;
-        
-        // Convertir la position de la grille en position du monde
-        this.worldX = centerCol * cellSize;
-        this.worldY = centerRow * cellSize;
-        
-        updateViewPosition();
-        
-        System.out.println("HeroController: Initial position - Col: " + centerCol + ", Row: " + centerRow);
-        System.out.println("HeroController: World position - X: " + worldX + ", Y: " + worldY);
+        double startX = centerCol * cellSize;
+        double startY = centerRow * cellSize;
 
+        hero.setPosition(startX, startY);
+        heroView.setPosition(startX, startY);
+
+        System.out.println("HeroController: Initial position - Col: " + centerCol + ", Row: " + centerRow);
+        System.out.println("HeroController: World position - X: " + startX + ", Y: " + startY);
+
+        // Boucle d'animation continue pour mise à jour du mouvement
         new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -79,20 +60,12 @@ public class HeroController {
         }.start();
     }
 
-    /**
-     * Sets a callback function to be executed after the hero's position is updated.
-     *
-     * @param callback The Runnable to execute on update.
-     */
+    // Enregistre une fonction de rappel pour les mises à jour (ex : caméra)
     public void setOnUpdate(Runnable callback) {
         this.onUpdateCallback = callback;
     }
 
-    /**
-     * Handles key press events to set movement flags.
-     *
-     * @param event The KeyEvent triggered.
-     */
+    // Gère l'appui des touches directionnelles
     public void handleKeyPress(KeyEvent event) {
         KeyCode code = event.getCode();
         if (code == KeyCode.UP || code == KeyCode.Z) upPressed = true;
@@ -101,11 +74,7 @@ public class HeroController {
         if (code == KeyCode.RIGHT || code == KeyCode.D) rightPressed = true;
     }
 
-    /**
-     * Handles key release events to unset movement flags.
-     *
-     * @param event The KeyEvent triggered.
-     */
+    // Gère le relâchement des touches directionnelles
     public void handleKeyRelease(KeyEvent event) {
         KeyCode code = event.getCode();
         if (code == KeyCode.UP || code == KeyCode.Z) upPressed = false;
@@ -115,12 +84,11 @@ public class HeroController {
     }
 
     /**
-     * Updates the hero's position based on pressed keys and checks for collisions.
-     * Called by the AnimationTimer loop.
+     * Met à jour la position du héros selon les touches appuyées et les collisions
      */
     private void updateMovement() {
-        double nextWorldX = worldX;
-        double nextWorldY = worldY;
+        double nextWorldX = hero.getX();
+        double nextWorldY = hero.getY();
 
         if (upPressed) nextWorldY -= speed;
         if (downPressed) nextWorldY += speed;
@@ -128,70 +96,51 @@ public class HeroController {
         if (rightPressed) nextWorldX += speed;
 
         if (!checkCollision(nextWorldX, nextWorldY)) {
-            worldX = nextWorldX;
-            worldY = nextWorldY;
-            updateViewPosition();
-            
+            hero.setPosition(nextWorldX, nextWorldY);     // mise à jour modèle
+            heroView.setPosition(nextWorldX, nextWorldY); // mise à jour vue
+
             if (onUpdateCallback != null) {
-                onUpdateCallback.run();
+                onUpdateCallback.run(); // déclenche par exemple une mise à jour de caméra
             }
         }
     }
 
     /**
-     * Checks for collisions at the potential next world coordinates.
-     * Considers map boundaries and impassable tiles.
-     *
-     * @param nextWorldX The potential next X coordinate.
-     * @param nextWorldY The potential next Y coordinate.
-     * @return true if a collision is detected, false otherwise.
+     * Vérifie s'il y a une collision à la position donnée (bords + tuiles bloquantes)
      */
     private boolean checkCollision(double nextWorldX, double nextWorldY) {
-        // Calculer les limites de la carte en pixels
         double mapWidth = mapGrid.getColumnCount() * cellSize;
         double mapHeight = mapGrid.getRowCount() * cellSize;
-        
-        // Vérifier les limites de la carte. Utiliser les constantes HERO_WIDTH/HEIGHT
+
         if (nextWorldX < 0 || nextWorldX + HERO_WIDTH >= mapWidth ||
             nextWorldY < 0 || nextWorldY + HERO_HEIGHT >= mapHeight) {
             System.out.println("Collision avec limite map: nextX=" + nextWorldX + ", nextY=" + nextWorldY);
             return true;
         }
-        
-        // Calculer les cellules occupées par le héros
-        // Soustraire une petite valeur (epsilon) pour éviter les problèmes d'arrondi aux limites
+
+        // Calcul des cellules occupées par le héros
         double epsilon = 0.0001;
         int leftCol = (int) (nextWorldX / cellSize);
-        // Utiliser HERO_WIDTH
         int rightCol = (int) ((nextWorldX + HERO_WIDTH - epsilon) / cellSize);
         int topRow = (int) (nextWorldY / cellSize);
-        // Utiliser HERO_HEIGHT
         int bottomRow = (int) ((nextWorldY + HERO_HEIGHT - epsilon) / cellSize);
-        
-        // Vérifier les collisions avec les tuiles
+
         for (int row = topRow; row <= bottomRow; row++) {
             for (int col = leftCol; col <= rightCol; col++) {
-                // Vérifier si les indices sont valides (sécurité supplémentaire)
-                if (col >= 0 && col < mapGrid.getColumnCount() && 
+                if (col >= 0 && col < mapGrid.getColumnCount() &&
                     row >= 0 && row < mapGrid.getRowCount()) {
                     if (isTileBlocked(col, row)) {
-                         System.out.println("Collision avec tuile bloquante: col=" + col + ", row=" + row);
+                        System.out.println("Collision avec tuile bloquante: col=" + col + ", row=" + row);
                         return true;
                     }
                 }
             }
         }
-        
+
         return false;
     }
 
-    /**
-     * Checks if the tile at the given grid coordinates is blocked (impassable).
-     *
-     * @param col The column index of the tile.
-     * @param row The row index of the tile.
-     * @return true if the tile is blocked, false otherwise.
-     */
+    // Indique si une tuile est bloquante
     private boolean isTileBlocked(int col, int row) {
         Node node = getCellNodeAt(mapGrid, row, col);
         if (node instanceof StackPane) {
@@ -204,21 +153,7 @@ public class HeroController {
         return false;
     }
 
-    /**
-     * Updates the visual position of the HeroView.
-     */
-    private void updateViewPosition() {
-        heroView.setPosition(worldX, worldY);
-    }
-
-    /**
-     * Retrieves the Node (expected to be a StackPane) at a specific row and column in a GridPane.
-     *
-     * @param grid The GridPane to search within.
-     * @param row  The row index.
-     * @param col  The column index.
-     * @return The Node at the specified location, or null if not found.
-     */
+    // Récupère la cellule de la grille aux coordonnées spécifiées
     private Node getCellNodeAt(GridPane grid, int row, int col) {
         for (Node node : grid.getChildren()) {
             Integer nodeRow = GridPane.getRowIndex(node);
@@ -232,21 +167,13 @@ public class HeroController {
         return null;
     }
 
-    /**
-     * Gets the current world X coordinate of the hero.
-     *
-     * @return The world X coordinate.
-     */
+    // Expose la position X du modèle pour la caméra
     public double getWorldX() {
-        return worldX;
+        return hero.getX();
     }
 
-    /**
-     * Gets the current world Y coordinate of the hero.
-     *
-     * @return The world Y coordinate.
-     */
+    // Expose la position Y du modèle pour la caméra
     public double getWorldY() {
-        return worldY;
+        return hero.getY();
     }
 }

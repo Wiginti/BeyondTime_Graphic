@@ -35,14 +35,17 @@ public class TranslationManager {
      */
     public void setLocale(Locale locale) {
         try {
-            bundle = ResourceBundle.getBundle(BUNDLE_PATH, locale);
+            // Utiliser le classloader de la classe pour charger les ressources
+            ClassLoader classLoader = TranslationManager.class.getClassLoader();
+            bundle = ResourceBundle.getBundle(BUNDLE_PATH, locale, classLoader);
             currentLocale.set(locale);
             System.out.println("Langue changée pour : " + locale.getDisplayLanguage());
         } catch (MissingResourceException e) {
             System.err.println("Erreur lors du chargement des traductions pour " + locale);
             e.printStackTrace();
             // Fallback to default locale
-            bundle = ResourceBundle.getBundle(BUNDLE_PATH, Locale.ENGLISH);
+            ClassLoader classLoader = TranslationManager.class.getClassLoader();
+            bundle = ResourceBundle.getBundle(BUNDLE_PATH, Locale.ENGLISH, classLoader);
             currentLocale.set(Locale.ENGLISH);
         }
     }

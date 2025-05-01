@@ -2,11 +2,13 @@ package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.HeroController;
 import fr.beyondtime.model.entities.Hero;
+import fr.beyondtime.model.entities.Item;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.model.map.GameMap;
 import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.view.entities.HeroView;
 import fr.beyondtime.view.components.HUDView;
+import fr.beyondtime.util.ImageLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -15,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.scene.input.KeyCode;
 import java.net.URL;
 import java.util.List;
+import java.util.ArrayList;
 import javafx.scene.image.Image;
 
 public class GameScreen {
@@ -105,8 +108,8 @@ public class GameScreen {
     }
 
     private void update() {
-        updateCamera();
         updateHUD();
+        updateCamera();
     }
 
     private void updateHUD() {
@@ -115,6 +118,18 @@ public class GameScreen {
         double healthProportion = (double) gameState.getHealth() / (double) Hero.DEFAULT_HEALTH;
         double healthValueForHUD = healthProportion * MAX_HEARTS_DISPLAY;
         hudView.updateHealth(healthValueForHUD);
+        
+        List<Item> items = gameState.getHero().getBag().getItems();
+        List<Image> itemImages = new ArrayList<>();
+        
+        for (Item item : items) {
+            Image itemImage = ImageLoader.loadImage(item.getImagePath());
+            if (itemImage != null) {
+                itemImages.add(itemImage);
+            }
+        }
+        
+        hudView.updateInventory(itemImages);
     }
 
     private void updateCamera() {

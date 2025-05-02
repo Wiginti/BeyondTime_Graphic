@@ -56,8 +56,4 @@ docs/javadoc/
 
 # Scripts
 *.sh
-!run_jar.sh 
-
-# Game files
-game_saves/
-saved_map/*.map 
+!run_jar.sh

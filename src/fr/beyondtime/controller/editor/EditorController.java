@@ -363,29 +363,12 @@ public class EditorController {
 
     /** Met à jour l'affichage d'une cellule en fonction du modèle. */
     private void updateCell(StackPane cell) {
-        if (model.getCurrentTileType() == null) {
-            clearCell(cell);
-            return;
-        }
-
-        // Supprimer l'ancien point de départ si on en place un nouveau
-        if (model.getCurrentTileType() == TileType.START) {
-            for (Node node : model.getMapGrid().getChildren()) {
-                if (node instanceof StackPane existingCell) {
-                    Object tileObj = existingCell.getProperties().get("tile");
-                    if (tileObj instanceof Tile && ((Tile) tileObj).isStart()) {
-                        clearCell(existingCell);
-                    }
-                }
-            }
-        }
-        // Effacer la cellule pour la remettre à l'état de base
+        // Nettoyer la cellule d'abord
         clearCell(cell);
 
-        // Asset d'abord (pour tous les types de tuiles)
-        if (selectedAsset != null) {
-            Image img = new Image(selectedAsset.toURI().toString(), model.getCellSize(), model.getCellSize(), true, true);
-            ImageView iv = new ImageView(img);
+        // Ajouter l'asset sélectionné s'il existe
+        if (selectedAsset != null && selectedAsset.isFile()) {
+            ImageView iv = new ImageView(new Image(selectedAsset.toURI().toString()));
             iv.setFitWidth(model.getCellSize());
             iv.setFitHeight(model.getCellSize());
             cell.getChildren().add(iv);
@@ -393,15 +376,15 @@ public class EditorController {
             cell.setUserData(relativePath);
         }
 
-<<<<<<< HEAD
         // Puis overlay transparent
         if (model.getCurrentTileType() != null) {
-        	// Appliquer l'overlay coloré selon le type de tuile
+            // Appliquer l'overlay coloré selon le type de tuile
             Rectangle overlay = new Rectangle(model.getCellSize(), model.getCellSize());
             overlay.setFill(getOverlayColor(model.getCurrentTileType()));
             overlay.setOpacity(0.4);
             cell.getChildren().add(overlay);
 
+            // Appliquer les propriétés de la tuile
             switch (model.getCurrentTileType()) {
                 case NORMAL -> model.setCellAsNormal(cell);
                 case OBSTACLE -> model.setCellAsObstacle(cell);
@@ -419,25 +402,6 @@ public class EditorController {
                     model.setCellAsStart(cell);
                     cell.getProperties().put("isStart", true);
                 }
-=======
-        // Appliquer les propriétés de la tuile
-        switch (model.getCurrentTileType()) {
-            case NORMAL -> model.setCellAsNormal(cell);
-            case OBSTACLE -> model.setCellAsObstacle(cell);
-            case SLOW -> model.setCellAsSlowZone(cell);
-            case POISON -> model.setCellAsPoison(cell);
-            case SPAWNER -> {
-                model.setCellAsSpawner(cell);
-                cell.getProperties().put("isSpawner", true);
->>>>>>> 1fc08a2950cd1a5f9ff4b16c17d0d5daa8334d57
-            }
-            case EXIT -> {
-                model.setCellAsExit(cell);
-                cell.getProperties().put("isExit", true);
-            }
-            case START -> {
-                model.setCellAsStart(cell);
-                cell.getProperties().put("isStart", true);
             }
         }
 

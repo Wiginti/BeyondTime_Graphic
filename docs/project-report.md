@@ -117,7 +117,8 @@ L'implémentation du support multilingue via ResourceBundle :
 
 #### Marco DUPRE
 - Architecture MVC 
-- Interface utilisateur 
+- Interface utilisateur
+- Refactoring de code
 - Éditeur de niveaux 
 - Système de combat 
 - Gestion des monstres 

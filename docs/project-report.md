@@ -141,13 +141,13 @@ L'implémentation du support multilingue via ResourceBundle :
 
 #### Ruben COFFLARD
 - Développement global du projet 
-- Système d'inventaire 
+- Système d'inventaire et HUD
 - Gestion de la caméra 
 - Interface utilisateur 
 - Effets visuels 
 - Tests d'intégration
 - Gestion de la traduction
-- Maps
+- Map Seconde Guerre Mondiale
 
 #### Tarik TAHOUNE
 - Déplacement du personnage en diagonale 

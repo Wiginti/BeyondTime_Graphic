@@ -105,7 +105,10 @@ L'implémentation du support multilingue via ResourceBundle :
 - Interface utilisateur
 - Editeur de niveaux
 - Refactoring du code 
-- Correction de bug 
+- Correction de bugs
+- Monstres dans le jeu
+- Combat
+- HUD 
 - Rapport 
 
 

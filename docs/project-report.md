@@ -118,7 +118,7 @@ L'implémentation du support multilingue via ResourceBundle :
 - Éditeur de niveaux
 - Correction de bug 
 - Documentation et rapport 
-- Fichier de configuration Maven, script build.sh 
+- Fichier de configuration Maven, script de compilation
 - Recherche des assets 
 
 #### Ruben COFFLARD

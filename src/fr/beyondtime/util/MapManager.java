@@ -179,6 +179,24 @@ public class MapManager {
                         slowOverlay.setOpacity(0.3);
                         cell.getChildren().add(slowOverlay);
                     }
+                    if (isExit) {  // Case de sortie
+                        Rectangle exitOverlay = new Rectangle(50, 50);
+                        exitOverlay.setFill(Color.GREEN);
+                        exitOverlay.setOpacity(0.3);
+                        cell.getChildren().add(exitOverlay);
+                        
+                        // Ajouter un symbole de portail/sortie
+                        try {
+                            Image exitImage = new Image("file:assets/portail.png");
+                            ImageView exitView = new ImageView(exitImage);
+                            exitView.setFitWidth(40);  // Un peu plus petit que la case
+                            exitView.setFitHeight(40);
+                            exitView.setPreserveRatio(true);
+                            cell.getChildren().add(exitView);
+                        } catch (Exception e) {
+                            System.err.println("Impossible de charger l'image du portail");
+                        }
+                    }
                     if (isSpawner) {
                         cell.getProperties().put("isSpawner", true);
                     }

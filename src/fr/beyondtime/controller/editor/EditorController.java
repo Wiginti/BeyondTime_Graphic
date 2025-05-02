@@ -7,6 +7,7 @@ import fr.beyondtime.util.MapManager;
 import fr.beyondtime.view.screens.EditorScreen;
 import fr.beyondtime.view.screens.MenuScreen;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -27,6 +28,7 @@ public class EditorController {
     private final Stage stage;
     private File currentAssetFolder = new File("assets");
     private File selectedAsset = null;
+    private File currentMapFile = null;  // Pour suivre le fichier de la carte en cours d'édition
 
     public EditorController(Stage stage) {
         this.stage = stage;
@@ -142,9 +144,6 @@ public class EditorController {
                 case EXIT -> {
                     model.setCellAsExit(cell);
                     cell.getProperties().put("isExit", true);
-                    System.out.println("Case de sortie créée à la position: " + GridPane.getColumnIndex(cell) + "," + GridPane.getRowIndex(cell));
-                    Tile tile = (Tile) cell.getProperties().get("tile");
-                    System.out.println("Propriété isExit de la tuile: " + tile.isExit());
                 }
             }
         }
@@ -188,20 +187,35 @@ public class EditorController {
             return;
         }
 
-        List<String> choices = List.of("Préhistoire", "Égypte Antique", "2nde Guerre Mondiale", "Custom Map");
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
-        dialog.setTitle("Sauvegarde de la Map");
-        dialog.setHeaderText("Choisissez le niveau classique ou nommez votre carte");
-        dialog.setContentText("Niveau/Nom :");
+        if (currentMapFile != null) {
+            // Si on modifie une carte existante, on la met à jour
+            MapManager.saveMap(model.getMapGrid(), model.getGridRows(), model.getGridColumns(), currentMapFile);
+            view.showAlert("Succès", "La carte a été mise à jour avec succès.");
+        } else {
+            // Nouvelle carte
+            List<String> choices = List.of("Préhistoire", "Égypte Antique", "2nde Guerre Mondiale", "Custom Map");
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            dialog.setTitle("Sauvegarde de la Map");
+            dialog.setHeaderText("Choisissez le niveau classique ou nommez votre carte");
+            dialog.setContentText("Niveau/Nom :");
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(chosenLevel -> {
-            MapManager.saveMap(model.getMapGrid(), model.getGridRows(), model.getGridColumns(), chosenLevel);
-        });
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(chosenLevel -> {
+                currentMapFile = MapManager.saveMap(model.getMapGrid(), model.getGridRows(), model.getGridColumns(), chosenLevel);
+                if (currentMapFile != null) {
+                    view.showAlert("Succès", "Nouvelle carte sauvegardée avec succès.");
+                }
+            });
+        }
     }
 
     public void handleModifyMap() {
         File saveDir = new File("saved_map");
+        if (!saveDir.exists() || !saveDir.isDirectory()) {
+            view.showAlert("Modification", "Dossier de sauvegarde introuvable.");
+            return;
+        }
+
         File[] files = saveDir.listFiles((dir, name) -> name.endsWith(".map"));
         if (files == null || files.length == 0) {
             view.showAlert("Modification", "Aucune carte existante à modifier.");
@@ -221,17 +235,22 @@ public class EditorController {
                     .findFirst()
                     .orElse(null);
             if (file != null) {
+                currentMapFile = file;  // Sauvegarder la référence au fichier en cours d'édition
                 GridPane loadedGrid = MapManager.loadMapFromFile(file);
                 if (loadedGrid != null) {
                     model.setMapGrid(loadedGrid);
                     model.setGridRows((int) loadedGrid.getRowCount());
                     model.setGridColumns((int) loadedGrid.getColumnCount());
+                    
+                    // Ajouter les overlays pour les effets spéciaux
+                    loadExistingGrid(loadedGrid);
+                    
                     view.buildEditorUI(loadedGrid, model.getGridRows(), model.getGridColumns());
                     setupEditorUIEventHandlers();
+                    loadAssetList();
                 }
             }
         });
-        loadAssetList();
     }
 
     public void loadAssetList() {
@@ -305,5 +324,41 @@ public class EditorController {
     private boolean isImageFile(File file) {
         String name = file.getName().toLowerCase();
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif");
+    }
+
+    public void loadExistingGrid(GridPane grid) {
+        // Parcourir toutes les cellules et ajouter les overlays appropriés
+        for (Node node : grid.getChildren()) {
+            if (node instanceof StackPane cell) {
+                Object tileObj = cell.getProperties().get("tile");
+                if (tileObj instanceof Tile tile) {
+                    // Ajouter les overlays en fonction des propriétés de la tuile
+                    if (!tile.isPassable()) {
+                        addOverlay(cell, Color.BLACK);
+                    } else if (tile.getSlowdownFactor() < 1.0) {
+                        addOverlay(cell, Color.BLUE);
+                    } else if (tile.getDamage() > 0) {
+                        addOverlay(cell, Color.PURPLE);
+                    } else if (tile.isExit()) {
+                        addOverlay(cell, Color.GREEN);
+                    }
+                }
+                
+                // Vérifier les spawners
+                if (cell.getProperties().get("isSpawner") != null) {
+                    addOverlay(cell, Color.RED);
+                }
+                
+                // Ajouter le gestionnaire d'événements pour l'édition
+                cell.setOnMouseClicked(event -> handleCellClick(cell));
+            }
+        }
+    }
+
+    private void addOverlay(StackPane cell, Color color) {
+        Rectangle overlay = new Rectangle(model.getCellSize(), model.getCellSize());
+        overlay.setFill(color);
+        overlay.setOpacity(0.4);
+        cell.getChildren().add(overlay);
     }
 }

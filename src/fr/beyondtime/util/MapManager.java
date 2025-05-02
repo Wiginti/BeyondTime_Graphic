@@ -26,61 +26,71 @@ public class MapManager {
 
     private static final String SAVE_DIR = "saved_map";
 
-    public static void saveMap(GridPane grid, int rows, int columns, String levelName) {
-        try {
-            File saveDir = new File(SAVE_DIR);
-            if (!saveDir.exists()) {
-                saveDir.mkdirs();
-            }
+    public static File saveMap(GridPane grid, int rows, int columns, String levelName) {
+        File saveDir = new File(SAVE_DIR);
+        if (!saveDir.exists()) {
+            saveDir.mkdirs();
+        }
 
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String fileName = levelName + "_" + timestamp + ".map";
-            File file = new File(saveDir, fileName);
+        String fileName = levelName + "_" + System.currentTimeMillis() + ".map";
+        File saveFile = new File(saveDir, fileName);
+        return saveMap(grid, rows, columns, saveFile);
+    }
 
-            try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
-                writer.println(rows + "," + columns);
-
-                for (int row = 0; row < rows; row++) {
-                    StringBuilder line = new StringBuilder();
-                    for (int col = 0; col < columns; col++) {
-                        StackPane cell = null;
-                        for (Node node : grid.getChildren()) {
-                            Integer nodeRow = GridPane.getRowIndex(node);
-                            Integer nodeCol = GridPane.getColumnIndex(node);
-                            if (nodeRow == null) nodeRow = 0;
-                            if (nodeCol == null) nodeCol = 0;
-                            if (nodeRow == row && nodeCol == col && node instanceof StackPane) {
-                                cell = (StackPane) node;
-                                break;
-                            }
-                        }
-
-                        if (cell != null) {
-                            Tile tile = (Tile) cell.getProperties().get("tile");
-                            String imagePath = (String) cell.getUserData();
-                            boolean isSpawner = cell.getProperties().get("isSpawner") != null && (boolean) cell.getProperties().get("isSpawner");
-                            boolean isExit = cell.getProperties().get("isExit") != null && (boolean) cell.getProperties().get("isExit");
-                            
-                            line.append("|").append(tile.isPassable()).append(";")
-                                .append(tile.getSlowdownFactor()).append(";")
-                                .append(isSpawner).append(";")
-                                .append(isExit);
-                            
-                            if (imagePath != null) {
-                                line.append(";").append(imagePath);
-                            }
-                        } else {
-                            line.append("|true;1.0;false;false"); // Valeurs par défaut
+    public static File saveMap(GridPane grid, int rows, int columns, File saveFile) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(saveFile))) {
+            writer.println(rows + "," + columns);
+            
+            System.out.println("[DEBUG] Sauvegarde de la carte: " + saveFile.getName());
+            System.out.println("[DEBUG] Dimensions: " + rows + "x" + columns);
+            
+            for (int row = 0; row < rows; row++) {
+                writer.print("|");
+                for (int col = 0; col < columns; col++) {
+                    StackPane cell = null;
+                    for (Node node : grid.getChildren()) {
+                        Integer nodeRow = GridPane.getRowIndex(node);
+                        Integer nodeCol = GridPane.getColumnIndex(node);
+                        if (nodeRow == null) nodeRow = 0;
+                        if (nodeCol == null) nodeCol = 0;
+                        if (nodeRow == row && nodeCol == col && node instanceof StackPane) {
+                            cell = (StackPane) node;
+                            break;
                         }
                     }
-                    writer.println(line.toString());
+                    
+                    if (cell != null) {
+                        Tile tile = (Tile) cell.getProperties().get("tile");
+                        boolean isPassable = tile != null && tile.isPassable();
+                        double slowdown = tile != null ? tile.getSlowdownFactor() : 1.0;
+                        int damage = tile != null ? tile.getDamage() : 0;
+                        boolean isSpawner = cell.getProperties().get("isSpawner") != null;
+                        boolean isExit = tile != null && tile.isExit();
+                        
+                        // Debug pour les cases avec des dégâts
+                        if (damage > 0) {
+                            System.out.println("[DEBUG] Sauvegarde case poison - Position: (" + row + "," + col + 
+                                            "), Dégâts: " + damage + 
+                                            ", Slowdown: " + slowdown);
+                        }
+                        
+                        // Récupérer le chemin de l'image s'il existe
+                        String imagePath = (String) cell.getUserData();
+                        
+                        writer.print(isPassable + ";" + slowdown + ";" + damage + ";" + isSpawner + ";" + isExit + 
+                            (imagePath != null ? ";" + imagePath : ""));
+                    } else {
+                        writer.print("true;1.0;0;false;false");
+                    }
+                    writer.print("|");
                 }
+                writer.println();
             }
-
-            System.out.println("Carte sauvegardée avec succès dans : " + file.getAbsolutePath());
+            System.out.println("Carte sauvegardée avec succès dans : " + saveFile.getAbsolutePath());
+            return saveFile;
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Erreur lors de la sauvegarde de la carte : " + e.getMessage());
+            return null;
         }
     }
 
@@ -92,6 +102,9 @@ public class MapManager {
             String[] dimensions = lines.get(0).split(",");
             int rows = Integer.parseInt(dimensions[0]);
             int columns = Integer.parseInt(dimensions[1]);
+            
+            System.out.println("[DEBUG] Chargement de la carte: " + file.getName());
+            System.out.println("[DEBUG] Dimensions: " + rows + "x" + columns);
 
             GridPane grid = new GridPane();
             grid.setHgap(0);
@@ -104,9 +117,10 @@ public class MapManager {
                         String[] properties = cells[col + 1].split(";");
                         boolean passable = Boolean.parseBoolean(properties[0]);
                         double slowdown = Double.parseDouble(properties[1]);
-                        boolean isSpawner = properties.length > 2 && Boolean.parseBoolean(properties[2]);
-                        boolean isExit = properties.length > 3 && Boolean.parseBoolean(properties[3]);
-                        String imagePath = properties.length > 4 ? properties[4] : null;
+                        int damage = Integer.parseInt(properties[2]);
+                        boolean isSpawner = properties.length > 3 && Boolean.parseBoolean(properties[3]);
+                        boolean isExit = properties.length > 4 && Boolean.parseBoolean(properties[4]);
+                        String imagePath = properties.length > 5 ? properties[5] : null;
 
                         StackPane cell = new StackPane();
                         cell.setPrefSize(50, 50);
@@ -116,20 +130,40 @@ public class MapManager {
                         background.setStroke(Color.BLACK);
                         cell.getChildren().add(background);
 
+                        // Garder l'overlay violet pour les cases poison
+                        if (damage > 0) {
+                            Rectangle overlay = new Rectangle(50, 50);
+                            overlay.setFill(Color.PURPLE);
+                            overlay.setOpacity(0.4);
+                            cell.getChildren().add(overlay);
+                        }
+
                         if (imagePath != null) {
                             try {
-                                Image image = new Image(imagePath);
-                                ImageView imageView = new ImageView(image);
-                                imageView.setFitWidth(50);
-                                imageView.setFitHeight(50);
-                                cell.getChildren().add(imageView);
-                                cell.setUserData(imagePath);
+                                Image image = null;
+                                File localFile = new File("assets/" + imagePath);
+                                
+                                if (localFile.exists()) {
+                                    image = new Image(localFile.toURI().toString());
+                                } else {
+                                    String resourcePath = "/fr/beyondtime/resources/" + imagePath;
+                                    image = new Image(MapManager.class.getResourceAsStream(resourcePath));
+                                }
+                                
+                                if (image != null && !image.isError()) {
+                                    ImageView imageView = new ImageView(image);
+                                    imageView.setFitWidth(50);
+                                    imageView.setFitHeight(50);
+                                    cell.getChildren().add(imageView);
+                                    cell.setUserData(imagePath);
+                                }
                             } catch (Exception e) {
                                 System.err.println("Erreur lors du chargement de l'image : " + imagePath);
+                                System.err.println("Exception : " + e.getMessage());
                             }
                         }
 
-                        Tile tile = new Tile(passable, slowdown, 0, isExit);
+                        Tile tile = new Tile(passable, slowdown, damage, isExit);
                         cell.getProperties().put("tile", tile);
                         
                         if (isSpawner) {
@@ -139,6 +173,12 @@ public class MapManager {
                         if (isExit) {
                             cell.getProperties().put("isExit", true);
                         }
+
+                        cell.setOnMouseClicked(event -> {
+                            if (event.getSource() instanceof StackPane clickedCell) {
+                                clickedCell.fireEvent(event);
+                            }
+                        });
 
                         grid.add(cell, col, row);
                     }

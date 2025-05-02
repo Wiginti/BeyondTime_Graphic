@@ -7,6 +7,7 @@ import javafx.animation.Timeline;
 import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import fr.beyondtime.view.effects.DamagePopup;
 
 import java.util.Random;
 
@@ -15,6 +16,7 @@ public class MonsterController {
     private Monster monster;
     private final MonsterView monsterView;
     private final HeroController heroController;
+    private final Group cameraGroup;
     
     private double randomDx = 0;
     private double randomDy = 0;
@@ -33,6 +35,7 @@ public class MonsterController {
         this.heroController = heroController;
         this.mapRows = mapRows;
         this.mapCols = mapCols;
+        this.cameraGroup = (Group) monsterView.getParent();
 
         attackLoop = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             if (monster.isAlive() && isHeroNearby()) {
@@ -55,7 +58,8 @@ public class MonsterController {
                 monster = new Monster(monster.getSpawnX(), monster.getSpawnY(), 50, monster.getDamage());
                 monster.setAlive(true);
                 monsterView.show();
-                monsterView.updatePosition(monster.getSpawnX(), monster.getSpawnY());
+                monsterView.updatePosition(monster.getSpawnX() * 50, monster.getSpawnY() * 50);
+                attackLoop.play();
             }
         }));
         respawn.setCycleCount(1);
@@ -63,22 +67,32 @@ public class MonsterController {
     }
 
     private boolean isHeroNearby() {
-        double mx = monster.getX(); // plus spawnX * 50
+        double mx = monster.getX();
         double my = monster.getY();
         double dx = mx - heroController.getWorldX();
         double dy = my - heroController.getWorldY();
         double distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < 60; // ou ajuste selon besoin
+        return distance < 45; // Réduit la portée d'attaque du monstre (était 60 avant)
     }
     
     public void takeDamage(int damage) {
         monster.setHealth(monster.getHealth() - damage);
+        
+        // Créer et ajouter le popup de dégâts
+        DamagePopup popup = new DamagePopup(damage, monster.getX(), monster.getY());
+        cameraGroup.getChildren().add(popup);
+        
         if (monster.getHealth() <= 0) {
             // Le monstre est mort
+            monster.setAlive(false);
             monsterView.setVisible(false);
+            attackLoop.stop();
             if (heroController != null && heroController.getGameController() != null) {
                 heroController.getGameController().incrementMonstersKilled();
             }
+        } else {
+            // Effet visuel quand le monstre prend des dégâts mais ne meurt pas
+            monsterView.playHitEffect();
         }
     }
     

@@ -9,12 +9,15 @@ import fr.beyondtime.view.components.HUDView;
 import fr.beyondtime.view.entities.HeroView;
 import fr.beyondtime.controller.game.GameController;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.image.Image;
+import javafx.util.Duration;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -41,6 +44,12 @@ public class HeroController {
     private GridPane mapGrid;
     private int cellSize;
 
+    private boolean isInvincible = false;
+    private static final long INVINCIBILITY_DURATION = 1000; // 1 seconde d'invincibilité
+    
+    private Timeline poisonDamageLoop;
+    private Tile currentPoisonTile;
+
     public HeroController(Hero hero, HeroView heroView, GridPane mapGrid, int cellSize, HUDView hudView) {
         this.hero = hero;
         this.heroView = heroView;
@@ -56,6 +65,14 @@ public class HeroController {
 
         hero.setPosition(startX, startY);
         heroView.setPosition(startX, startY);
+
+        // Initialiser la boucle de dégâts de poison avec un intervalle plus court
+        poisonDamageLoop = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            if (currentPoisonTile != null && !isInvincible) {
+                takeDamage(currentPoisonTile.getDamage() / 2); // Diviser les dégâts par 2 car l'intervalle est plus court
+            }
+        }));
+        poisonDamageLoop.setCycleCount(Timeline.INDEFINITE);
 
         new AnimationTimer() {
             @Override
@@ -170,20 +187,65 @@ public class HeroController {
         double nextWorldX = hero.getX();
         double nextWorldY = hero.getY();
 
+        // Vérifier les effets de la case actuelle
+        int currentCol = (int) (hero.getX() / cellSize);
+        int currentRow = (int) (hero.getY() / cellSize);
+        Node currentNode = getCellNodeAt(mapGrid, currentRow, currentCol);
+        
+        // Vitesse de base
+        double currentSpeed = speed;
+        
+        // Appliquer les effets de la case actuelle
+        if (currentNode instanceof StackPane) {
+            StackPane cell = (StackPane) currentNode;
+            Object tileObj = cell.getProperties().get("tile");
+            if (tileObj instanceof Tile) {
+                Tile currentTile = (Tile) tileObj;
+                
+                // Effet de ralentissement
+                currentSpeed *= currentTile.getSlowdownFactor();
+                
+                // Effet de poison
+                if (currentTile.getDamage() > 0) {
+                    // Si on entre sur une nouvelle case de poison ou si on est sur une case de poison différente
+                    if (currentPoisonTile == null || currentPoisonTile != currentTile) {
+                        if (currentPoisonTile == null) {
+                            poisonDamageLoop.play();
+                        }
+                        currentPoisonTile = currentTile;
+                        // Appliquer les dégâts immédiatement
+                        takeDamage(currentTile.getDamage());
+                    }
+                } else {
+                    // Si on quitte une case de poison
+                    if (currentPoisonTile != null) {
+                        currentPoisonTile = null;
+                        poisonDamageLoop.stop();
+                    }
+                }
+            } else {
+                // Si on quitte une case de poison
+                if (currentPoisonTile != null) {
+                    currentPoisonTile = null;
+                    poisonDamageLoop.stop();
+                }
+            }
+        }
+
         if (upPressed) {
-            nextWorldY -= speed;
+            nextWorldY -= currentSpeed;
             heroView.updateSprite("up");
         }
         if (downPressed) {
-            nextWorldY += speed;
+            nextWorldY += currentSpeed;
             heroView.updateSprite("down");
         }
         if (leftPressed) {
-            nextWorldX -= speed;
+            nextWorldX -= currentSpeed;
             heroView.updateSprite("left");
         }
         if (rightPressed) {
-            nextWorldX += speed;
+            nextWorldX += currentSpeed;
             heroView.updateSprite("right");
         }
 
@@ -252,11 +314,24 @@ public class HeroController {
     }
     
     public void takeDamage(int amount) {
-        hero.removeHealth(amount);
-        double proportion = (double) hero.getHealth() / (double) Hero.DEFAULT_HEALTH;
-        double heartValue = proportion * 10; // car MAX_HEARTS_DISPLAY = 10
-        hudView.updateHealth(heartValue);
-        heroView.playHitEffect();
+        if (!isInvincible) {
+            hero.removeHealth(amount);
+            double proportion = (double) hero.getHealth() / (double) Hero.DEFAULT_HEALTH;
+            double heartValue = proportion * 10; // car MAX_HEARTS_DISPLAY = 10
+            hudView.updateHealth(heartValue);
+            heroView.playHitEffect();
+            
+            // Activer l'invincibilité
+            isInvincible = true;
+            new Thread(() -> {
+                try {
+                    Thread.sleep(INVINCIBILITY_DURATION);
+                    isInvincible = false;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+        }
     }
     
     public Hero getHero() {

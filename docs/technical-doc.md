@@ -186,6 +186,6 @@ Le code est conçu pour faciliter l'ajout de :
 - Nouveaux types d'entités
 - Nouvelles époques/niveaux
 - Nouveaux comportements d'IA
-- Nouvelles langues
+- Nouvelles langues 
 - Nouveaux effets visuels
 - Nouveaux types de tuiles 

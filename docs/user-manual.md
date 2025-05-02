@@ -108,9 +108,9 @@ Le menu principal propose les options suivantes :
 
 ### Affichage
 - Résolutions disponibles :
-  - 800x600
-  - 1280x720
-  - 1920x1080
+- 800x600
+- 1280x720
+- 1920x1080
 - Plein écran / Fenêtré
 
 ### Langue

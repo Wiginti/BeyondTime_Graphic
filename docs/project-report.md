@@ -144,6 +144,7 @@ L'implémentation du support multilingue via ResourceBundle :
 - Effets visuels 
 - Tests d'intégration
 - Gestion de la traduction
+- Maps
 
 #### Tarik TAHOUNE
 - Déplacement du personnage en diagonale 

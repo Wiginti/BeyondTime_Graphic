@@ -5,7 +5,7 @@ import fr.beyondtime.model.interfaces.Fightable;
 public class Hero extends Entity implements Fightable {
 
 	private int damageAmount;
-	private Bag bag;
+	final private Bag bag;
 	private double x;
 	private double y;
 
@@ -38,11 +38,6 @@ public class Hero extends Entity implements Fightable {
 
 	public void addDamage(int amount) {
 		this.damageAmount += amount;
-	}
-
-	// Ajout de la méthode addHealth pour augmenter la santé du héros
-	public void addHealth(int amount) {
-		setHealth(getHealth() + amount);
 	}
 
 	@Override

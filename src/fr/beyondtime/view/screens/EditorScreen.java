@@ -1,21 +1,21 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.editor.EditorController;
+import fr.beyondtime.util.TranslationManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import java.io.File;
-import java.util.ResourceBundle;
 
 public class EditorScreen extends VBox {
     @SuppressWarnings("unused")
-	private EditorController controller;
+    private EditorController controller;
     private GridPane mapGrid;
     private ListView<AssetEntry> assetListView;
     private HBox toolsBox;
-    private ResourceBundle translator;
+    private TranslationManager translator;
 
     private TextField rowsField;
     private TextField columnsField;
@@ -43,7 +43,7 @@ public class EditorScreen extends VBox {
     private Spinner<Integer> columnsSpinner;
 
     public EditorScreen() {
-        this.translator = ResourceBundle.getBundle("fr.beyondtime.resources.strings");
+        this.translator = TranslationManager.getInstance();
         setupInitialUI();
     }
 
@@ -59,7 +59,7 @@ public class EditorScreen extends VBox {
             -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
             """);
 
-        Text titleText = new Text(translator.getString("editor.new.title"));
+        Text titleText = new Text(translator.get("editor.title"));
         titleText.setStyle("""
             -fx-fill: #e0e0e0;
             -fx-font-size: 28;
@@ -82,7 +82,7 @@ public class EditorScreen extends VBox {
         // Configuration des lignes
         HBox rowsBox = new HBox(15);
         rowsBox.setAlignment(Pos.CENTER);
-        Text rowsLabel = new Text(translator.getString("editor.rows"));
+        Text rowsLabel = new Text(translator.get("editor.rows"));
         rowsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
         rowsSpinner = new Spinner<>(5, 50, 10);
         styleSpinner(rowsSpinner);
@@ -91,7 +91,7 @@ public class EditorScreen extends VBox {
         // Configuration des colonnes
         HBox colsBox = new HBox(15);
         colsBox.setAlignment(Pos.CENTER);
-        Text colsLabel = new Text(translator.getString("editor.columns"));
+        Text colsLabel = new Text(translator.get("editor.columns"));
         colsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
         columnsSpinner = new Spinner<>(5, 50, 10);
         styleSpinner(columnsSpinner);
@@ -101,64 +101,24 @@ public class EditorScreen extends VBox {
         HBox buttonsBox = new HBox(20);
         buttonsBox.setAlignment(Pos.CENTER);
 
-        startButton = createStyledButton(translator.getString("editor.create"));
-        modifyButton = createStyledButton(translator.getString("editor.modify.select"));
-        returnButton = createStyledButton(translator.getString("editor.back"));
+        startButton = createStyledButton(translator.get("editor.new"));
+        modifyButton = createStyledButton(translator.get("editor.modify.select"));
+        returnButton = createStyledButton(translator.get("editor.back"));
 
-        buttonsBox.getChildren().addAll(startButton, modifyButton, returnButton);
-
+        buttonsBox.getChildren().addAll(startButton, returnButton);
         configBox.getChildren().addAll(rowsBox, colsBox, buttonsBox);
         getChildren().addAll(titleText, configBox);
     }
 
     private void styleSpinner(Spinner<Integer> spinner) {
         spinner.setEditable(true);
-        spinner.setPrefWidth(120);
-        spinner.setStyle("""
-            -fx-background-color: #2a3a4d;
-            -fx-text-fill: #e0e0e0;
-            -fx-font-size: 16;
-            """);
-        
-        // Style pour la zone de texte du spinner
-        spinner.getEditor().setStyle("""
-            -fx-background-color: #3a4a5d;
-            -fx-text-fill: #e0e0e0;
-            -fx-font-size: 16;
-            """);
-
-        // Style pour les boutons du spinner
-        spinner.getStyleClass().add("spinner-modern");
+        spinner.setPrefWidth(100);
+        spinner.getStyleClass().add("spinner-styled");
     }
 
     private Button createStyledButton(String text) {
         Button button = new Button(text);
-        
-        final String baseStyle = """
-            -fx-background-color: #2a3a4d;
-            -fx-text-fill: #e0e0e0;
-            -fx-font-size: 18;
-            -fx-padding: 10 30;
-            -fx-min-width: 150;
-            -fx-background-radius: 8;
-            -fx-border-radius: 8;
-            -fx-border-width: 2;
-            -fx-border-color: #4a5a6d;
-            -fx-cursor: hand;
-            -fx-effect: dropshadow(gaussian, #000000, 8, 0.4, 0, 0);
-            """;
-
-        final String hoverStyle = baseStyle + """
-            -fx-scale-x: 1.03;
-            -fx-scale-y: 1.03;
-            -fx-effect: dropshadow(gaussian, #000000, 15, 0.6, 0, 0);
-            -fx-background-color: #3a4a5d;
-            """;
-
-        button.setStyle(baseStyle);
-        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
-        button.setOnMouseExited(e -> button.setStyle(baseStyle));
-
+        button.getStyleClass().add("editor-button");
         return button;
     }
 

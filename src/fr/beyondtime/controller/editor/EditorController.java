@@ -46,7 +46,7 @@ public class EditorController {
         Stage choiceStage = new Stage();
         choiceStage.initModality(Modality.APPLICATION_MODAL);
         choiceStage.initOwner(stage);
-        choiceStage.setTitle(translator.get("editor.title"));
+        choiceStage.setTitle(translator.get("menu.editor"));
 
         VBox layout = new VBox(30);
         layout.setAlignment(Pos.CENTER);
@@ -59,7 +59,7 @@ public class EditorController {
             -fx-border-width: 2;
             """);
 
-        Text titleText = new Text(translator.get("editor.choose"));
+        Text titleText = new Text(translator.get("menu.editor"));
         titleText.setStyle("""
             -fx-fill: #e0e0e0;
             -fx-font-size: 28;
@@ -106,6 +106,7 @@ public class EditorController {
     }
 
     private void showNewMapDialog() {
+        stage.setTitle(translator.get("editor.new.title"));
         this.stage.setScene(new Scene(view));
     }
 
@@ -126,7 +127,7 @@ public class EditorController {
         Stage mapSelectStage = new Stage();
         mapSelectStage.initModality(Modality.APPLICATION_MODAL);
         mapSelectStage.initOwner(stage);
-        mapSelectStage.setTitle(translator.get("editor.modify.title"));
+        mapSelectStage.setTitle(translator.get("editor.modify"));
 
         VBox layout = new VBox(30);
         layout.setAlignment(Pos.CENTER);

@@ -67,7 +67,20 @@ public class ConfigScreen extends VBox {
             GameConfig.Language selectedLang = languageComboBox.getValue();
             config.setCurrentLanguage(selectedLang);
             translator.setLocale(selectedLang.getLocale());
-            updateTranslations();
+            config.saveConfig();
+            
+            // Forcer un rafraîchissement complet de l'interface
+            MenuScreen refreshedMenu = new MenuScreen(stage);
+            Scene newScene = refreshedMenu.getMenuScene();
+            newScene.getStylesheets().add(getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm());
+
+            // Recréer l'écran de configuration avec la nouvelle langue
+            ConfigScreen refreshedConfig = new ConfigScreen(stage, newScene);
+            Scene refreshedConfigScene = new Scene(refreshedConfig);
+            refreshedConfigScene.getStylesheets().add(getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm());
+            
+            // Appliquer la nouvelle scène
+            stage.setScene(refreshedConfigScene);
         });
 
         settingsGrid.add(resolutionLabel, 0, 0);

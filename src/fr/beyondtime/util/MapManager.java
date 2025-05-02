@@ -321,7 +321,26 @@ public class MapManager {
         File saveDir = new File("saved_map");
         if (!saveDir.exists()) return new File[0];
         
-        String prefix = levelName;
+        String prefix;
+        switch (levelName.toLowerCase()) {
+            case "préhistoire":
+            case "prehistoric":
+            case "prehistoric era":
+                prefix = "Préhistoire";
+                break;
+            case "égypte antique":
+            case "ancient egypt":
+            case "egypt":
+                prefix = "Égypte Antique";
+                break;
+            case "2nde guerre mondiale":
+            case "world war 2":
+            case "ww2":
+                prefix = "2nde Guerre Mondiale";
+                break;
+            default:
+                prefix = levelName;
+        }
         
         File[] matchingFiles = saveDir.listFiles((dir, name) -> name.startsWith(prefix));
         if (matchingFiles == null) return new File[0];

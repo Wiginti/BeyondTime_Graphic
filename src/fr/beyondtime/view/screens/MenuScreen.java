@@ -110,25 +110,25 @@ public class MenuScreen extends VBox {
         levelsBox.setPadding(new Insets(20, 0, 20, 0));
         levelsBox.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
 
+        final String LEVEL1_NAME = "Préhistoire";
+        final String LEVEL2_NAME = "Égypte Antique";
+        final String LEVEL3_NAME = "2nde Guerre Mondiale";
+
         Button btnNiveau1 = createLevelButton(translator.get("menu.level1"), "prehistoric-theme");
         Button btnNiveau2 = createLevelButton(translator.get("menu.level2"), "egypt-theme");
         Button btnNiveau3 = createLevelButton(translator.get("menu.level3"), "ww2-theme");
 
-        final String level1Name = translator.get("menu.level1");
-        final String level2Name = translator.get("menu.level2");
-        final String level3Name = translator.get("menu.level3");
-
         btnNiveau1.setOnAction(e -> {
             levelStage.close();
-            MapManager.selectAndLoadMap(stage, level1Name);
+            MapManager.selectAndLoadMap(stage, LEVEL1_NAME);
         });
         btnNiveau2.setOnAction(e -> {
             levelStage.close();
-            MapManager.selectAndLoadMap(stage, level2Name);
+            MapManager.selectAndLoadMap(stage, LEVEL2_NAME);
         });
         btnNiveau3.setOnAction(e -> {
             levelStage.close();
-            MapManager.selectAndLoadMap(stage, level3Name);
+            MapManager.selectAndLoadMap(stage, LEVEL3_NAME);
         });
 
         levelsBox.getChildren().addAll(btnNiveau1, btnNiveau2, btnNiveau3);
@@ -156,10 +156,9 @@ public class MenuScreen extends VBox {
 
         levelLayout.getChildren().addAll(levelTitle, levelsBox, closeButton);
 
-        Scene levelScene = new Scene(levelLayout, 500, 600);
-        levelScene.setFill(null);
-        levelStage.setScene(levelScene);
-        levelStage.show();
+        Scene scene = new Scene(levelLayout);
+        levelStage.setScene(scene);
+        levelStage.showAndWait();
     }
 
     private Button createLevelButton(String text, String theme) {

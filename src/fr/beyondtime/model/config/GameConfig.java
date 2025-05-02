@@ -54,7 +54,7 @@ public class GameConfig {
             Integer.parseInt(res[1])
         );
 
-        String lang = prefs.get(PREF_LANGUAGE, "en");
+        String lang = prefs.get(PREF_LANGUAGE, "fr");
         currentLanguage = findLanguageByCode(lang);
     }
 

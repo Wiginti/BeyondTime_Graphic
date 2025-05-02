@@ -9,7 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -25,7 +24,6 @@ import javafx.scene.text.Text;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.nio.file.Files;
 
 public class MapManager {

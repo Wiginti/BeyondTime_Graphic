@@ -3,7 +3,6 @@ package fr.beyondtime.controller.game;
 import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.map.Tile;
-import fr.beyondtime.view.screens.GameScreen;
 import fr.beyondtime.view.screens.MenuScreen;
 import fr.beyondtime.view.screens.VictoryScreen;
 import fr.beyondtime.view.screens.GameOverScreen;
@@ -11,7 +10,6 @@ import fr.beyondtime.util.MapManager;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 

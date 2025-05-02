@@ -30,7 +30,8 @@ public class HeroController {
     private HUDView hudView;
     private int selectedSlot = -1; // Aucun slot sélectionné par défaut
     private GameController gameController;
-
+    
+    private long lastRegenTime = 0;
     private double speed;
     private long lastUpdate = 0;
     private static final double BASE_SPEED = 120.0; // Vitesse en pixels par seconde
@@ -124,6 +125,7 @@ public class HeroController {
                 
                 updateMovement(deltaTime);
                 updateStamina(deltaTime);
+                regenHealth();
             }
         }.start();
     }
@@ -400,6 +402,32 @@ public class HeroController {
             }).start();
         }
     }
+
+    public void regenHealth() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Vérifie si 30 secondes se sont écoulées depuis la dernière regen
+        if (lastRegenTime == 0 || currentTime - lastRegenTime >= 30_000) {
+            // Vérifie si le héros a pris des dégâts récemment
+        	if (currentTime - hero.getLastDamageTime() >= 30_000) {
+        	    int currentHealth = hero.getHealth();
+        	    int maxHealth = 100;
+        	    if (currentHealth < maxHealth) {
+        	    	int newHealth = Math.min(currentHealth + 5, maxHealth);
+                    hero.setHealth(newHealth);
+                    
+        	        double proportion = (double) newHealth / (double) Hero.DEFAULT_HEALTH;
+        	        double heartValue = proportion * 10;
+        	        hudView.updateHealth(heartValue);
+
+        	    }
+        	    // On met à jour la dernière tentative de regen, peu importe le résultat
+        	    lastRegenTime = currentTime;
+        	}
+
+        }
+    }
+
     
     public Hero getHero() {
         return this.hero;

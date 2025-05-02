@@ -8,6 +8,7 @@ public class Hero extends Entity implements Fightable {
 	final private Bag bag;
 	private double x;
 	private double y;
+	private long lastDamageTime = 0;
 
 	public static final int DEFAULT_HEALTH = 100;
 	public static final int DEFAULT_DAMAGE = 20;
@@ -86,4 +87,15 @@ public class Hero extends Entity implements Fightable {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public long getLastDamageTime() {
+	    return lastDamageTime;
+	}
+	
+	@Override
+	public void removeHealth(int amount) {
+		super.removeHealth(amount);
+		lastDamageTime = System.currentTimeMillis();
+	}
+	
 }

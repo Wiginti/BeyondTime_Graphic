@@ -1,13 +1,13 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.editor.EditorController;
+import fr.beyondtime.util.TranslationManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import java.io.File;
-import java.util.ResourceBundle;
 
 public class EditorScreen extends VBox {
     @SuppressWarnings("unused")
@@ -15,7 +15,7 @@ public class EditorScreen extends VBox {
     private GridPane mapGrid;
     private ListView<AssetEntry> assetListView;
     private HBox toolsBox;
-    private ResourceBundle translator;
+    private TranslationManager translator;
 
     private TextField rowsField;
     private TextField columnsField;
@@ -43,7 +43,7 @@ public class EditorScreen extends VBox {
     private Spinner<Integer> columnsSpinner;
 
     public EditorScreen() {
-        this.translator = ResourceBundle.getBundle("fr.beyondtime.resources.strings");
+        this.translator = TranslationManager.getInstance();
         setupInitialUI();
     }
 
@@ -59,13 +59,12 @@ public class EditorScreen extends VBox {
             -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
             """);
 
-        Text titleText = new Text(translator.getString("editor.new.title"));
-        titleText.setStyle("""
-            -fx-fill: #e0e0e0;
-            -fx-font-size: 28;
-            -fx-font-weight: bold;
-            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
-            """);
+        VBox titleBox = new VBox(10);
+        titleBox.setAlignment(Pos.CENTER);
+        titleBox.setPadding(new Insets(20));
+        Text titleText = new Text(translator.get("editor.new.title"));
+        titleText.setStyle("-fx-font-size: 24px; -fx-fill: white;");
+        titleBox.getChildren().add(titleText);
 
         VBox configBox = new VBox(20);
         configBox.setAlignment(Pos.CENTER);
@@ -82,8 +81,8 @@ public class EditorScreen extends VBox {
         // Configuration des lignes
         HBox rowsBox = new HBox(15);
         rowsBox.setAlignment(Pos.CENTER);
-        Text rowsLabel = new Text(translator.getString("editor.rows"));
-        rowsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
+        Text rowsLabel = new Text(translator.get("editor.rows"));
+        rowsLabel.setStyle("-fx-font-size: 16px; -fx-fill: white;");
         rowsSpinner = new Spinner<>(5, 50, 10);
         styleSpinner(rowsSpinner);
         rowsBox.getChildren().addAll(rowsLabel, rowsSpinner);
@@ -91,8 +90,8 @@ public class EditorScreen extends VBox {
         // Configuration des colonnes
         HBox colsBox = new HBox(15);
         colsBox.setAlignment(Pos.CENTER);
-        Text colsLabel = new Text(translator.getString("editor.columns"));
-        colsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
+        Text colsLabel = new Text(translator.get("editor.columns"));
+        colsLabel.setStyle("-fx-font-size: 16px; -fx-fill: white;");
         columnsSpinner = new Spinner<>(5, 50, 10);
         styleSpinner(columnsSpinner);
         colsBox.getChildren().addAll(colsLabel, columnsSpinner);
@@ -101,14 +100,14 @@ public class EditorScreen extends VBox {
         HBox buttonsBox = new HBox(20);
         buttonsBox.setAlignment(Pos.CENTER);
 
-        startButton = createStyledButton(translator.getString("editor.create"));
-        modifyButton = createStyledButton(translator.getString("editor.modify.select"));
-        returnButton = createStyledButton(translator.getString("editor.back"));
+        startButton = createStyledButton(translator.get("editor.create"));
+        modifyButton = createStyledButton(translator.get("editor.modify.select"));
+        returnButton = createStyledButton(translator.get("editor.back"));
 
         buttonsBox.getChildren().addAll(startButton, modifyButton, returnButton);
 
         configBox.getChildren().addAll(rowsBox, colsBox, buttonsBox);
-        getChildren().addAll(titleText, configBox);
+        getChildren().addAll(titleBox, configBox);
     }
 
     private void styleSpinner(Spinner<Integer> spinner) {

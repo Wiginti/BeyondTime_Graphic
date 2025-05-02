@@ -1,53 +1,48 @@
-# BeyondTime
+# Beyond Time
 
-BeyondTime est un jeu d'aventure en 2D développé en Java avec JavaFX, où le joueur voyage à travers différentes époques historiques.
+Un jeu d'aventure à travers différentes époques historiques.
 
 ## Prérequis
 
-- Java JDK 17 ou supérieur
-- Maven 3.8 ou supérieur
-- JavaFX (inclus dans les dépendances Maven)
+- Java 17 ou supérieur
+- Maven
+- Git
 
 ## Installation
 
-1. Clonez le dépôt :
+1. Cloner le projet :
 ```bash
-git clone https://github.com/votre-username/BeyondTime.git
-cd BeyondTime
+git clone https://github.com/Wiginti/BeyondTime_Graphic.git
+cd BeyondTime_Graphic
 ```
 
-## Exécution
+2. Compiler et exécuter le jeu :
 
-Il existe deux façons d'exécuter le projet :
-
-### Méthode 1 : Utilisation de Maven (Recommandée, tous systèmes)
-
-Cette méthode fonctionne sur tous les systèmes d'exploitation (Windows, macOS, Linux) :
-
+### Sur Unix (Linux/macOS) :
 ```bash
-mvn clean compile javafx:run
-```
-
-### Méthode 2 : Exécution avec le script run_jar.sh (macOS/Linux)
-
-Pour exécuter le JAR précompilé :
-
-```bash
-# Rendre le script exécutable
 chmod +x run_jar.sh
-
-# Exécuter le jeu
 ./run_jar.sh
 ```
 
-## Structure du Projet
+### Sur Windows :
+```bash
+mvn clean package
+java --add-opens java.base/java.lang=ALL-UNNAMED --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --module-path %USERPROFILE%\.m2\repository\org\openjfx --add-modules javafx.controls,javafx.fxml -jar target/beyondtime-1.0.0.jar
+```
 
-Le projet suit une architecture MVC (Modèle-Vue-Contrôleur) :
+## Résolution des problèmes courants
 
-- `model/` : Classes de données et logique métier
-- `view/` : Interface utilisateur JavaFX
-- `controller/` : Gestion des interactions utilisateur
-- `resources/` : Assets du jeu (images, traductions)
+### Erreur "JavaFX runtime components are missing"
+Cette erreur signifie que les composants JavaFX ne sont pas correctement configurés. Le script `run_jar.sh` gère automatiquement cette configuration. Sur Windows, assurez-vous d'utiliser la commande complète avec les options du module JavaFX.
+
+### Erreur "Maven is not recognized"
+Assurez-vous que Maven est installé et ajouté à votre PATH système.
+
+## Structure du projet
+
+- `src/` : Code source du jeu
+- `assets/` : Ressources graphiques
+- `saved_map/` : Cartes sauvegardées
 
 ## Fonctionnalités
 

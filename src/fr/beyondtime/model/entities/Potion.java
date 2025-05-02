@@ -1,6 +1,10 @@
 package fr.beyondtime.model.entities;
 
+/**
+ * Classe représentant un objet consommable (potion).
+ */
 public class Potion extends Item {
+	/** Effet de soin de la potion. */
 	private int healthAmount;
 	private final static int DEFAULT_HEALTH_AMOUNT = 50;
 	private final static int MAX_HEALTH_AMOUNT = 100;
@@ -10,11 +14,12 @@ public class Potion extends Item {
 		super("Potion de vie", "Restaure " + healthAmount + " points de vie", DEFAULT_IMAGE_PATH);
 		this.healthAmount = Math.min(Math.max(healthAmount, 0), MAX_HEALTH_AMOUNT);
 	}
-
+	/** Constructeur de la potion. */
 	public Potion() {
 		this(DEFAULT_HEALTH_AMOUNT);
 	}
-
+	
+	/** Utilise la potion sur le héro. */
 	@Override
 	public void use(Hero hero) {
 		if (hero == null) {
@@ -34,10 +39,18 @@ public class Potion extends Item {
 		System.out.println("Potion utilisée ! La vie du héros est maintenant de " + newHealth + "/" + maxHealth);
 	}
 
+	/**
+	 * 
+	 * @return healthAmount
+	 */
 	public int getHealthAmount() {
 		return this.healthAmount;
 	}
 
+	/**
+	 * 
+	 * @param healthAmount
+	 */
 	public void setHealthAmount(int healthAmount) {
 		this.healthAmount = Math.min(Math.max(healthAmount, 0), MAX_HEALTH_AMOUNT);
 	}

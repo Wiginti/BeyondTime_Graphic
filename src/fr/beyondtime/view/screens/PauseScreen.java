@@ -11,12 +11,9 @@ import javafx.stage.StageStyle;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.scene.text.TextAlignment;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.util.SaveGameManager;
-import fr.beyondtime.util.TranslationManager;
 import javafx.scene.control.TextInputDialog;
 
 import java.nio.file.Path;
@@ -25,9 +22,12 @@ import java.util.Optional;
 
 public class PauseScreen {
     private Stage stage;
-    private Runnable onResumeClick;
-    private Runnable onQuitClick;
-    private Runnable onConfigClick;
+    @SuppressWarnings("unused")
+	private Runnable onResumeClick;
+    @SuppressWarnings("unused")
+	private Runnable onQuitClick;
+    @SuppressWarnings("unused")
+	private Runnable onConfigClick;
     private GameState gameState;
 
     public PauseScreen(Stage parentStage, GameState gameState, Runnable onResumeClick, Runnable onQuitClick, Runnable onConfigClick) {

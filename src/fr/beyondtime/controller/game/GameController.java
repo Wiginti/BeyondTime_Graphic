@@ -14,20 +14,25 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
 /**
- * Controls the main game flow, including the game loop and state management.
+ * Contrôleur gérant l'état et la logique principale du jeu.
  */
 public class GameController {
-    private GameState gameState;
-    private Stage stage;
+    /** État de jeu actuel. */
+    private final GameState gameState;
+    /** Fenêtre principale du jeu. */
+    private final Stage stage;
+    /** boucle du jeu */
     private AnimationTimer gameLoop;
+    /** Le jeu est-t-il en pause */
     private boolean isPaused;
+    /** Nombre de monstres tués */ 
     private int monstersKilled;
 
+    /** Constructeur du contrôleur de jeu. */
     /**
-     * Constructs a GameController.
-     *
-     * @param stage The primary stage of the application.
-     * @param gameState The existing game state.
+     * 
+     * @param stage
+     * @param gameState
      */
     public GameController(Stage stage, GameState gameState) {
         this.stage = stage;
@@ -46,10 +51,7 @@ public class GameController {
         };
     }
 
-    /**
-     * Updates the game state.
-     * Currently checks for game over condition based on hero health.
-     */
+    /** Actualiser l'état du jeu */
     private void update() {
         if (gameState.getHealth() <= 0) {
             gameState.setGameOver(true);
@@ -145,43 +147,29 @@ public class GameController {
         gameOverScreen.show();
     }
 
-    /**
-     * Starts the game loop.
-     */
+    /** Démarre le jeu et affiche l'écran de jeu. */
     public void startGame() {
-        System.out.println("GameController: Starting game loop...");
         gameLoop.start();
     }
 
-    /**
-     * Pauses the game loop.
-     */
+    /** Mettre le jeu en pause */
     public void pauseGame() {
-        System.out.println("GameController: Pausing game loop...");
         isPaused = true;
     }
 
-    /**
-     * Resumes the game loop if it was paused.
-     */
+    /** Reprendre le jeu */
     public void resumeGame() {
-        System.out.println("GameController: Resuming game loop...");
         isPaused = false;
         gameLoop.start();
     }
 
-    /**
-     * Stops the game loop and sets the game state to game over.
-     */
+    /** Termine le jeu et affiche l'écran de fin (Game Over). */
     public void stopGame() {
-        System.out.println("GameController: Stopping game loop...");
         gameLoop.stop();
         gameState.setGameOver(true);
     }
 
-    /**
-     * Increments the monster kill count.
-     */
+    /** Incrémenter le nombre de monstres tués */
     public void incrementMonstersKilled() {
         monstersKilled++;
     }

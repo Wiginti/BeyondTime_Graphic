@@ -59,6 +59,15 @@ public class HeroController {
     private Timeline poisonDamageLoop;
     private Tile currentPoisonTile;
 
+    /** Constructeur du contrôleur de héros. */
+    /**
+     * 
+     * @param hero
+     * @param heroView
+     * @param mapGrid
+     * @param cellSize
+     * @param hudView
+     */
     public HeroController(Hero hero, HeroView heroView, GridPane mapGrid, int cellSize, HUDView hudView) {
         this.hero = hero;
         this.heroView = heroView;
@@ -130,10 +139,12 @@ public class HeroController {
         }.start();
     }
 
+    /** A chaque update */
     public void setOnUpdate(Runnable callback) {
         this.onUpdateCallback = callback;
     }
-
+    
+    /** Lorsque qu'une touche est préssée */
     public void handleKeyPress(KeyEvent event) {
         KeyCode code = event.getCode();
 
@@ -153,7 +164,8 @@ public class HeroController {
         // Utilisation de l'item sélectionné avec F
         if (code == KeyCode.F) useSelectedItem();
     }
-
+    
+    /** Selection d'un slot */
     private void selectSlot(int index) {
         if (index >= 0 && index < 5) {
             selectedSlot = index;
@@ -170,6 +182,7 @@ public class HeroController {
         }
     }
 
+    /** Utilise l'item selectioné */
     private void useSelectedItem() {
         if (selectedSlot >= 0 && hero != null && hero.getBag() != null) {
             List<Item> items = hero.getBag().getItems();
@@ -204,6 +217,7 @@ public class HeroController {
         }
     }
 
+    /** Mettre à jour le HUD */
     private void updateHUD() {
         if (hudView != null) {
         	
@@ -224,6 +238,7 @@ public class HeroController {
         }
     }
 
+    /** Touche relachée */
     public void handleKeyRelease(KeyEvent event) {
         KeyCode code = event.getCode();
         if (code == KeyCode.UP || code == KeyCode.Z) upPressed = false;
@@ -233,6 +248,7 @@ public class HeroController {
         if (code == KeyCode.SHIFT) isSprinting = false;
     }
 
+    /** Mettre à jour la Stamina */
     private void updateStamina(double deltaTime) {
         boolean isMoving = upPressed || downPressed || leftPressed || rightPressed;
         
@@ -248,6 +264,7 @@ public class HeroController {
         hudView.updateStamina(currentStamina / MAX_STAMINA);
     }
 
+    /** Mettre à jour le mouvement */
     private void updateMovement(double deltaTime) {
         double nextWorldX = hero.getX();
         double nextWorldY = hero.getY();
@@ -325,6 +342,7 @@ public class HeroController {
         }
     }
 
+    /** Vérifier les collisions */
     private boolean checkCollision(double nextWorldX, double nextWorldY) {
         double mapWidth = mapGrid.getColumnCount() * cellSize;
         double mapHeight = mapGrid.getRowCount() * cellSize;
@@ -351,6 +369,7 @@ public class HeroController {
         return false;
     }
 
+    
     private boolean isTileBlocked(int col, int row) {
         Node node = getCellNodeAt(mapGrid, row, col);
         if (node instanceof StackPane) {
@@ -374,14 +393,17 @@ public class HeroController {
         return null;
     }
 
+    /** Cordonnée X du héro */
     public double getWorldX() {
         return hero.getX();
     }
-
+    
+    /** Cordonnée Y du héro */
     public double getWorldY() {
         return hero.getY();
     }
     
+    /** Lorsque le héro prendre un damage */
     public void takeDamage(int amount) {
         if (!isInvincible) {
             hero.removeHealth(amount);
@@ -403,6 +425,7 @@ public class HeroController {
         }
     }
 
+    /** Regénération automatique de la vie */
     public void regenHealth() {
         long currentTime = System.currentTimeMillis();
         
@@ -428,15 +451,20 @@ public class HeroController {
         }
     }
 
-    
+    /** Retourne l'objet héro */
     public Hero getHero() {
         return this.hero;
     }
     
+    /**	
+     * 
+     * @param monsters
+     */
     public void setMonsters(List<MonsterController> monsters) {
         this.monsters = monsters;
     }
 
+    /** Attaquer si un monstre est proche */
     public void attackNearbyMonsters() {
         for (MonsterController monsterController : monsters) {
             double dx = monsterController.getX() - hero.getX();
@@ -449,14 +477,26 @@ public class HeroController {
         }
     }
     
+    /**
+     * 
+     * @param gameController
+     */
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
     }
 
+    /**
+     * 
+     * @return gamecontroller
+     */
     public GameController getGameController() {
         return gameController;
     }
-
+    
+    /**
+     * 
+     * @return mapgrid
+     */
     public GridPane getMapGrid() {
         return mapGrid;
     }

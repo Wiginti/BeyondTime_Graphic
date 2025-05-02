@@ -17,8 +17,10 @@ public class EditorScreen extends VBox {
     private HBox toolsBox;
     private TranslationManager translator;
 
-    private TextField rowsField;
-    private TextField columnsField;
+    @SuppressWarnings("unused")
+	private TextField rowsField;
+    @SuppressWarnings("unused")
+	private TextField columnsField;
     private Button startButton;
     private Button modifyButton;
     private Button returnButton;

@@ -56,7 +56,8 @@ public class MonsterController {
         attackLoop.setCycleCount(Timeline.INDEFINITE);
         attackLoop.play();
     }
-
+    
+    /** Timer du respawn du monstre */
     public void startRespawnTimer(StackPane spawnCell, Group cameraGroup) {
         int delayMinutes = 1 + random.nextInt(15);
         int delayMillis = delayMinutes * 60 * 1000;
@@ -74,6 +75,7 @@ public class MonsterController {
         respawn.play();
     }
 
+    /** Le héro est-t-il proche du monstre ? */
     private boolean isHeroNearby() {
         double mx = monster.getX();
         double my = monster.getY();
@@ -83,6 +85,7 @@ public class MonsterController {
         return distance < 45; // Réduit la portée d'attaque du monstre (était 60 avant)
     }
     
+    /** Lorsque le monstre prend des dégâts */
     public void takeDamage(int damage) {
         monster.setHealth(monster.getHealth() - damage);
         
@@ -152,6 +155,7 @@ public class MonsterController {
         return 1.0; // Pas de ralentissement par défaut
     }
     
+    /** Met à jour l'état des monstres */
     public void update() {
         if (!monster.isAlive()) return;
 
@@ -200,11 +204,24 @@ public class MonsterController {
         }
     }
 
+    /**	
+     * 
+     * @return monster
+     */
     public Monster getMonster() { return monster; }
+    
+    /**
+     * 
+     * @return X
+     */
     public double getX() {
         return monster.getX();
     }
-
+    
+    /**
+     * 
+     * @return Y
+     */
     public double getY() {
         return monster.getY();
     }

@@ -1,11 +1,16 @@
 package fr.beyondtime.model.entities;
 
+/**
+ * Classe représentant une arme (épée).
+ */
 public class Sword extends Item {
+	/** Points d'attaque de l'épée. */
     private int damageBoost;
     private boolean isSelected;
     private final static int DEFAULT_DAMAGE_BOOST = 10;
     private final static String DEFAULT_IMAGE_PATH = "/fr/beyondtime/resources/sword.jpg";
 
+    /** Constructeur de l'épée avec les dégâts infligés. */
     public Sword(int damageBoost) {
         super("Épée", "Augmente les dégâts de " + damageBoost + " points", DEFAULT_IMAGE_PATH);
         this.damageBoost = Math.max(damageBoost, 0);
@@ -16,6 +21,7 @@ public class Sword extends Item {
         this(DEFAULT_DAMAGE_BOOST);
     }
 
+    /** Utilise l'épée sur le héro. */
     @Override
     public void use(Hero hero) {
         if (hero == null) {
@@ -32,15 +38,28 @@ public class Sword extends Item {
             System.out.println("L'épée a été désélectionnée ! Les dégâts du héros ont été réduits de " + damageBoost + " points.");
         }
     }
-
+    
+    /**
+     * 
+     * @return damageBoost
+     */
     public int getDamageBoost() {
         return this.damageBoost;
     }
-
+    
+    /** Fixer les dégâts de l'épée
+    /**
+     * 
+     * @param damageBoost
+     */
     public void setDamageBoost(int damageBoost) {
         this.damageBoost = Math.max(damageBoost, 0);
     }
 
+    /**
+     * 
+     * @return isSelected
+     */
     public boolean isSelected() {
         return isSelected;
     }

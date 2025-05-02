@@ -142,7 +142,8 @@ L'implémentation du support multilingue via ResourceBundle :
 - Gestion de la caméra 
 - Interface utilisateur 
 - Effets visuels 
-- Tests d'intégration 
+- Tests d'intégration
+- Gestion de la traduction
 
 #### Tarik TAHOUNE
 - Déplacement du personnage en diagonale 

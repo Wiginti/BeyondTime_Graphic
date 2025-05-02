@@ -10,8 +10,15 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class DamagePopup extends Group {
+    private static final int MAX_POPUPS = 5; // Limite le nombre de popups simultanés
+    private static int activePopups = 0;
     
     public DamagePopup(int damage, double x, double y) {
+        // Vérifier si on peut créer un nouveau popup
+        if (activePopups >= MAX_POPUPS) {
+            return;
+        }
+        
         Text text = new Text(String.valueOf(damage));
         text.setFont(Font.font("Arial Bold", 20));
         text.setFill(Color.RED);
@@ -41,8 +48,14 @@ public class DamagePopup extends Group {
         ParallelTransition animation = new ParallelTransition(rise, fade);
         animation.setOnFinished(event -> {
             // Supprimer le popup une fois l'animation terminée
-            ((Group) getParent()).getChildren().remove(this);
+            if (getParent() instanceof Group) {
+                ((Group) getParent()).getChildren().remove(this);
+                activePopups--;
+            }
         });
+        
+        // Incrémenter le compteur de popups actifs
+        activePopups++;
         
         // Démarrer l'animation
         animation.play();

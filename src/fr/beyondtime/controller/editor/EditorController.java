@@ -393,6 +393,7 @@ public class EditorController {
             cell.setUserData(relativePath);
         }
 
+<<<<<<< HEAD
         // Puis overlay transparent
         if (model.getCurrentTileType() != null) {
         	// Appliquer l'overlay coloré selon le type de tuile
@@ -418,7 +419,35 @@ public class EditorController {
                     model.setCellAsStart(cell);
                     cell.getProperties().put("isStart", true);
                 }
+=======
+        // Appliquer les propriétés de la tuile
+        switch (model.getCurrentTileType()) {
+            case NORMAL -> model.setCellAsNormal(cell);
+            case OBSTACLE -> model.setCellAsObstacle(cell);
+            case SLOW -> model.setCellAsSlowZone(cell);
+            case POISON -> model.setCellAsPoison(cell);
+            case SPAWNER -> {
+                model.setCellAsSpawner(cell);
+                cell.getProperties().put("isSpawner", true);
+>>>>>>> 1fc08a2950cd1a5f9ff4b16c17d0d5daa8334d57
             }
+            case EXIT -> {
+                model.setCellAsExit(cell);
+                cell.getProperties().put("isExit", true);
+            }
+            case START -> {
+                model.setCellAsStart(cell);
+                cell.getProperties().put("isStart", true);
+            }
+        }
+
+        // Ajouter l'overlay de couleur uniquement en mode éditeur
+        Object tileObj = cell.getProperties().get("tile");
+        if (tileObj instanceof Tile tile) {
+            Rectangle colorOverlay = new Rectangle(model.getCellSize(), model.getCellSize());
+            colorOverlay.setFill(tile.getEditorColor());
+            colorOverlay.setOpacity(0.4);
+            cell.getChildren().add(colorOverlay);
         }
     }
 

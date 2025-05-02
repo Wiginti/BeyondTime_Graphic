@@ -137,14 +137,6 @@ public class MapManager {
                         background.setStroke(Color.BLACK);
                         cell.getChildren().add(background);
 
-                        // Ajouter les overlays appropriés
-                        if (damage > 0) {
-                            addOverlay(cell, Color.PURPLE);
-                        }
-                        if (isExit) {
-                            addOverlay(cell, Color.GREEN);
-                        }
-
                         if (imagePath != null) {
                             try {
                                 Image image = null;

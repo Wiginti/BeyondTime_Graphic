@@ -120,9 +120,11 @@ public class GameScreen {
 
         heroController = new HeroController(hero, heroView, mapGrid, CELL_SIZE, hudView);
         
+        // Réinitialiser les mobs
+        System.out.println("[DEBUG] Initialisation des mobs...");
         MonsterSpawnerController spawnerController = new MonsterSpawnerController();
-        @SuppressWarnings("unused")
-		List<Node> monsterViews = spawnerController.spawnMonsters(mapGrid, cameraGroup, heroController, CELL_SIZE);
+        List<Node> monsterViews = spawnerController.spawnMonsters(mapGrid, cameraGroup, heroController, CELL_SIZE);
+        System.out.println("[DEBUG] " + monsterViews.size() + " mobs créés");
         
         monsterControllers = spawnerController.getActiveControllers();
         heroController.setMonsters(monsterControllers);

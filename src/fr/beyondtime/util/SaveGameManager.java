@@ -8,6 +8,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -100,14 +102,15 @@ public class SaveGameManager {
                             boolean isSpawner = cell.getProperties().get("isSpawner") != null;
                             boolean isExit = tile != null && tile.isExit();
                             boolean isStart = tile != null && tile.isStart();
-                            
+                            String imagePath = (String) cell.getUserData();
                             writer.println(row + "," + col + ":" + 
                                          isPassable + ";" + 
                                          slowdown + ";" + 
                                          damage + ";" + 
                                          isSpawner + ";" + 
                                          isExit + ";" + 
-                                         isStart);
+                                         isStart + ";" +
+                                         (imagePath != null ? imagePath : ""));
                         }
                     }
                 }
@@ -204,61 +207,89 @@ public class SaveGameManager {
 
                 String[] parts = line.split(":");
                 String[] coords = parts[0].split(",");
-                String[] tileData = parts[1].split(";");
+                String[] tileProperties = parts[1].split(";");
 
                 int row = Integer.parseInt(coords[0]);
                 int col = Integer.parseInt(coords[1]);
-                boolean isPassable = Boolean.parseBoolean(tileData[0]);
-                double slowdown = Double.parseDouble(tileData[1]);
-                int damage = Integer.parseInt(tileData[2]);
-                boolean isSpawner = Boolean.parseBoolean(tileData[3]);
-                boolean isExit = Boolean.parseBoolean(tileData[4]);
-                boolean isStart = Boolean.parseBoolean(tileData[5]);
 
-                // Create and configure the tile
-                Tile tile = new Tile(isPassable, slowdown, damage, isExit, isStart);
+                boolean isPassable = Boolean.parseBoolean(tileProperties[0]);
+                double slowdown = Double.parseDouble(tileProperties[1]);
+                int damage = Integer.parseInt(tileProperties[2]);
+                boolean isSpawner = Boolean.parseBoolean(tileProperties[3]);
+                boolean isExit = Boolean.parseBoolean(tileProperties[4]);
+                boolean isStart = Boolean.parseBoolean(tileProperties[5]);
+                String imagePath = tileProperties.length > 6 ? tileProperties[6] : null;
+
                 StackPane cell = new StackPane();
                 cell.setPrefSize(50, 50);
-                
-                // Add visual representation
+
+                // Fond de base
                 Rectangle background = new Rectangle(50, 50);
                 background.setFill(Color.LIGHTGRAY);
                 background.setStroke(Color.BLACK);
                 cell.getChildren().add(background);
 
-                // Add visual indicators for special tiles
-                if (!isPassable) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(0, 0, 0, 0.5)); // Semi-transparent black for obstacles
-                    cell.getChildren().add(overlay);
-                }
-                if (slowdown < 1.0) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(0, 0, 255, 0.3)); // Semi-transparent blue for slowdown
-                    cell.getChildren().add(overlay);
-                }
-                if (damage > 0) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(255, 0, 0, 0.3)); // Semi-transparent red for damage
-                    cell.getChildren().add(overlay);
-                }
-                if (isSpawner) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(255, 165, 0, 0.3)); // Semi-transparent orange for spawners
-                    cell.getChildren().add(overlay);
-                }
-                if (isExit) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(0, 255, 0, 0.3)); // Semi-transparent green for exit
-                    cell.getChildren().add(overlay);
-                }
-                if (isStart) {
-                    Rectangle overlay = new Rectangle(50, 50);
-                    overlay.setFill(Color.rgb(255, 255, 0, 0.3)); // Semi-transparent yellow for start
-                    cell.getChildren().add(overlay);
+                // Créer la tuile
+                Tile tile = new Tile(isPassable, slowdown, damage, isExit, isStart);
+                cell.getProperties().put("tile", tile);
+
+                // Charger l'image si elle existe
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    try {
+                        Image img = null;
+                        File localFile = new File("assets/" + imagePath);
+                        
+                        if (localFile.exists()) {
+                            img = new Image(localFile.toURI().toString());
+                        } else {
+                            String resourcePath = "/fr/beyondtime/resources/" + imagePath;
+                            img = new Image(SaveGameManager.class.getResourceAsStream(resourcePath));
+                        }
+                        
+                        if (img != null && !img.isError()) {
+                            ImageView iv = new ImageView(img);
+                            iv.setFitWidth(50);
+                            iv.setFitHeight(50);
+                            cell.getChildren().add(iv);
+                            cell.setUserData(imagePath);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erreur lors du chargement de l'image: " + imagePath);
+                        e.printStackTrace();
+                    }
                 }
 
-                cell.getProperties().put("tile", tile);
+                // Ajouter des overlays visuels
+                if (damage > 0) {
+                    Rectangle poisonOverlay = new Rectangle(50, 50);
+                    poisonOverlay.setFill(Color.PURPLE);
+                    poisonOverlay.setOpacity(0.3);
+                    cell.getChildren().add(poisonOverlay);
+                }
+                if (slowdown < 1.0) {
+                    Rectangle slowOverlay = new Rectangle(50, 50);
+                    slowOverlay.setFill(Color.BLUE);
+                    slowOverlay.setOpacity(0.3);
+                    cell.getChildren().add(slowOverlay);
+                }
+                if (isExit) {
+                    Rectangle exitOverlay = new Rectangle(50, 50);
+                    exitOverlay.setFill(Color.GREEN);
+                    exitOverlay.setOpacity(0.3);
+                    cell.getChildren().add(exitOverlay);
+                    
+                    try {
+                        Image exitImage = new Image("file:assets/portail.png");
+                        ImageView exitView = new ImageView(exitImage);
+                        exitView.setFitWidth(40);
+                        exitView.setFitHeight(40);
+                        exitView.setPreserveRatio(true);
+                        cell.getChildren().add(exitView);
+                    } catch (Exception e) {
+                        System.err.println("Impossible de charger l'image du portail");
+                    }
+                }
+
                 if (isSpawner) {
                     cell.getProperties().put("isSpawner", true);
                 }
@@ -270,6 +301,10 @@ public class SaveGameManager {
 
             gameState.setMap(map);
             System.out.println("[DEBUG] Carte associée au GameState");
+
+            // Note: Les mobs seront réinitialisés dans GameScreen lors de l'initialisation
+            System.out.println("[DEBUG] Note: Les mobs seront réinitialisés lors de l'initialisation de GameScreen");
+
             System.out.println("[DEBUG] Chargement terminé avec succès!");
             
             return gameState;

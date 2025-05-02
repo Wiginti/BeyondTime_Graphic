@@ -22,6 +22,7 @@ public class HeroController {
     private Hero hero;
     private HeroView heroView;
     private Runnable onUpdateCallback;
+    private List<MonsterController> monsters;
     private HUDView hudView;
     private int selectedSlot = -1; // Aucun slot sélectionné par défaut
 
@@ -240,12 +241,27 @@ public class HeroController {
         double proportion = (double) hero.getHealth() / (double) Hero.DEFAULT_HEALTH;
         double heartValue = proportion * 10; // car MAX_HEARTS_DISPLAY = 10
         hudView.updateHealth(heartValue);
+        heroView.playHitEffect();
     }
     
     public Hero getHero() {
         return this.hero;
     }
+    
+    public void setMonsters(List<MonsterController> monsters) {
+        this.monsters = monsters;
+    }
 
-
+    public void attackNearbyMonsters() {
+        for (MonsterController monsterController : monsters) {
+            double dx = monsterController.getX() - hero.getX();
+            double dy = monsterController.getY() - hero.getY();
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 60) {
+                int damage = hero.getDamage(); // ou plus si épée équipée
+                monsterController.takeDamage(damage);
+            }
+        }
+    }
     
 }

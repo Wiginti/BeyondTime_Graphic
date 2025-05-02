@@ -41,6 +41,11 @@ public class MonsterSpawnerController {
 
                     activeControllers.add(controller);
                     views.add(view);
+                    
+                    monster.setPosition(col * cellSize, row * cellSize);
+                    view.updatePosition(col * cellSize, row * cellSize);
+
+
                 }
             }
         }

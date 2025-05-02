@@ -1,6 +1,7 @@
 package fr.beyondtime.view.screens;
 
 import fr.beyondtime.controller.HeroController;
+import fr.beyondtime.controller.MonsterController;
 import fr.beyondtime.controller.MonsterSpawnerController;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
@@ -94,6 +95,10 @@ public class GameScreen {
         MonsterSpawnerController spawnerController = new MonsterSpawnerController();
         @SuppressWarnings("unused")
 		List<Node> monsterViews = spawnerController.spawnMonsters(mapGrid, cameraGroup, heroController, CELL_SIZE);
+        
+        List<MonsterController> monsterControllers = spawnerController.getActiveControllers();
+        heroController.setMonsters(monsterControllers);
+
 
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);
@@ -101,6 +106,14 @@ public class GameScreen {
                 stage.setScene(new MenuScreen(stage).getMenuScene());
             }
         });
+        
+        scene.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown()) {
+                heroController.attackNearbyMonsters();
+            }
+        });
+
+        
         scene.setOnKeyReleased(heroController::handleKeyRelease);
 
         stage.setScene(scene);
@@ -114,6 +127,11 @@ public class GameScreen {
 
                 cameraGroup.setTranslateX(SCENE_WIDTH / 2.0 - heroX);
                 cameraGroup.setTranslateY(SCENE_HEIGHT / 2.0 - heroY);
+                
+                for (MonsterController mc : monsterControllers) {
+                    mc.update();
+                }
+
 
             }
         }.start();

@@ -57,11 +57,64 @@ public class MonsterController {
     }
 
     private boolean isHeroNearby() {
-        double mx = monster.getSpawnX() * 50;
-        double my = monster.getSpawnY() * 50;
-        double dx = mx - heroController.getHero().getX();
-        double dy = my - heroController.getHero().getY();
+        double mx = monster.getX(); // plus spawnX * 50
+        double my = monster.getY();
+        double dx = mx - heroController.getWorldX();
+        double dy = my - heroController.getWorldY();
         double distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < 60;
+        return distance < 60; // ou ajuste selon besoin
     }
+    
+    public void takeDamage(int amount) {
+        if (!monster.isAlive()) return;
+
+        int newHealth = monster.getHealth() - amount;
+        if (newHealth <= 0) {
+            monster.die();
+            monsterView.hide();
+        } else {
+            monster.setHealth(newHealth);
+            monsterView.playHitEffect();
+        }
+    }
+    
+    public void update() {
+        if (!monster.isAlive()) return;
+
+        double monsterX = monster.getX();
+        double monsterY = monster.getY();
+        double heroX = heroController.getWorldX();
+        double heroY = heroController.getWorldY();
+
+        double dx = heroX - monsterX;
+        double dy = heroY - monsterY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 200) {
+            double step = 1.0;
+            dx /= distance;
+            dy /= distance;
+
+            monsterX += dx * step;
+            monsterY += dy * step;
+
+            monster.setPosition(monsterX, monsterY);
+            monsterView.updatePosition(monsterX, monsterY);
+
+        }
+    }
+
+
+
+    
+    public Monster getMonster() { return monster; }
+    public double getX() {
+        return monster.getX();
+    }
+
+    public double getY() {
+        return monster.getY();
+    }
+
+    
 }

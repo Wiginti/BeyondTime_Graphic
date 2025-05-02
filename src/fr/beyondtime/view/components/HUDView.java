@@ -1,21 +1,16 @@
 package fr.beyondtime.view.components;
 
 import fr.beyondtime.util.ImageLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import java.util.List;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
 public class HUDView extends AnchorPane {

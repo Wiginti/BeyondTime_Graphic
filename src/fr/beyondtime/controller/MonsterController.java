@@ -75,16 +75,14 @@ public class MonsterController {
         return distance < 60; // ou ajuste selon besoin
     }
     
-    public void takeDamage(int amount) {
-        if (!monster.isAlive()) return;
-
-        int newHealth = monster.getHealth() - amount;
-        if (newHealth <= 0) {
-            monster.die();
-            monsterView.hide();
-        } else {
-            monster.setHealth(newHealth);
-            monsterView.playHitEffect();
+    public void takeDamage(int damage) {
+        monster.setHealth(monster.getHealth() - damage);
+        if (monster.getHealth() <= 0) {
+            // Le monstre est mort
+            monsterView.setVisible(false);
+            if (heroController != null && heroController.getGameController() != null) {
+                heroController.getGameController().incrementMonstersKilled();
+            }
         }
     }
     

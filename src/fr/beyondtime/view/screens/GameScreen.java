@@ -3,6 +3,7 @@ package fr.beyondtime.view.screens;
 import fr.beyondtime.controller.HeroController;
 import fr.beyondtime.controller.MonsterController;
 import fr.beyondtime.controller.MonsterSpawnerController;
+import fr.beyondtime.controller.game.GameController;
 import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.entities.Item;
@@ -42,11 +43,24 @@ public class GameScreen {
     private HeroView heroView;
     private Group cameraGroup;
     private GridPane mapGrid;
+    private GameController gameController;
 
     public GameScreen(Stage stage, GameState gameState) {
         this.primaryStage = stage;
         this.gameState = gameState;
+        
         initializeScreen(stage);
+        
+        // Créer le GameController après l'initialisation de l'écran
+        this.gameController = new GameController(stage, gameState);
+        
+        // Lier le GameController au HeroController
+        if (heroController != null) {
+            heroController.setGameController(gameController);
+        }
+        
+        this.gameController.startGame();
+        System.out.println("GameScreen: Game loop started");
     }
 
     private void initializeScreen(Stage stage) {

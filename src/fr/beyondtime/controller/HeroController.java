@@ -7,6 +7,7 @@ import fr.beyondtime.model.entities.Sword;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.components.HUDView;
 import fr.beyondtime.view.entities.HeroView;
+import fr.beyondtime.controller.game.GameController;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
@@ -25,6 +26,7 @@ public class HeroController {
     private List<MonsterController> monsters;
     private HUDView hudView;
     private int selectedSlot = -1; // Aucun slot sélectionné par défaut
+    private GameController gameController;
 
     private double speed = 2;
 
@@ -45,6 +47,7 @@ public class HeroController {
         this.mapGrid = mapGrid;
         this.cellSize = cellSize;
         this.hudView = hudView;
+        this.monsters = new ArrayList<>();
 
         int centerCol = mapGrid.getColumnCount() / 2;
         int centerRow = mapGrid.getRowCount() / 2;
@@ -264,4 +267,11 @@ public class HeroController {
         }
     }
     
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
+    public GameController getGameController() {
+        return gameController;
+    }
 }

@@ -136,7 +136,7 @@ L'implémentation du support multilingue via ResourceBundle :
 - Documentation
 - Rapport 
 - Gestion de la traduction, transition entre les niveaux...
-- Création map Egypte
+- Création map Egypte et préhistoire 
 
 
 #### Ruben COFFLARD

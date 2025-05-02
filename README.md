@@ -2,6 +2,10 @@
 
 Un jeu d'aventure à travers différentes époques historiques.
 
+## Note importante sur les assets
+
+⚠️ Les assets utilisés dans le niveau "Préhistoire" ne sont pas représentatifs du thème souhaité. En raison de contraintes techniques liées à la consommation de mémoire vive (problème de OutOfMemoryError lors du chargement), nous avons dû utiliser des assets plus légers pour garantir la stabilité du jeu. Les textures initialement prévues étaient trop lourdes et causaient des crashs au lancement de la partie.
+
 ## Prérequis
 
 - Java 17 ou supérieur

@@ -6,6 +6,7 @@ import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.screens.GameScreen;
 import fr.beyondtime.view.screens.MenuScreen;
 import fr.beyondtime.view.screens.VictoryScreen;
+import fr.beyondtime.view.screens.GameOverScreen;
 import fr.beyondtime.util.MapManager;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
@@ -55,7 +56,7 @@ public class GameController {
         if (gameState.getHealth() <= 0) {
             gameState.setGameOver(true);
             stopGame();
-            System.out.println("Game Over!");
+            showGameOverScreen();
             return;
         }
 
@@ -69,8 +70,6 @@ public class GameController {
             // Calculer les indices de la grille
             int heroX = (int) Math.floor(exactX / 50); // 50 est la taille d'une case
             int heroY = (int) Math.floor(exactY / 50);
-            
-            System.out.println("Position du héros: " + exactX + "," + exactY + " (case: " + heroX + "," + heroY + ")");
             
             GridPane mapGrid = gameState.getMap().getMapGrid();
             for (Node node : mapGrid.getChildren()) {
@@ -134,6 +133,18 @@ public class GameController {
             onNextLevelClick
         );
         victoryScreen.show();
+    }
+
+    private void showGameOverScreen() {
+        // Créer et afficher l'écran de game over avec le callback pour retourner au menu
+        GameOverScreen gameOverScreen = new GameOverScreen(
+            stage,
+            monstersKilled,
+            () -> {
+                stage.setScene(new MenuScreen(stage).getMenuScene());
+            }
+        );
+        gameOverScreen.show();
     }
 
     /**

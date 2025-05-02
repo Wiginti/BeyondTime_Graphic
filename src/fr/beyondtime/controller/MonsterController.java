@@ -37,9 +37,7 @@ public class MonsterController {
         attackLoop = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             if (monster.isAlive() && isHeroNearby()) {
                 heroController.takeDamage(monster.getDamage());
-                System.out.println(monster.getName() + " attaque le héros ! Vie : " + heroController.getHero().getHealth());
                 if (heroController.getHero().getHealth() <= 0) {
-                    System.out.println("Le héros est mort.");
                     attackLoop.stop();
                 }
             }
@@ -58,8 +56,6 @@ public class MonsterController {
                 monster.setAlive(true);
                 monsterView.show();
                 monsterView.updatePosition(monster.getSpawnX(), monster.getSpawnY());
-
-                System.out.println("Monstre réapparu en (" + monster.getSpawnX() + ", " + monster.getSpawnY() + ")");
             }
         }));
         respawn.setCycleCount(1);

@@ -11,6 +11,9 @@ import javafx.stage.StageStyle;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.scene.text.TextAlignment;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import fr.beyondtime.model.config.GameConfig;
 
 public class PauseScreen {
     private Stage stage;
@@ -46,9 +49,7 @@ public class PauseScreen {
         });
 
         Button configButton = createButton("Configuration");
-        configButton.setOnAction(e -> {
-            if (onConfigClick != null) onConfigClick.run();
-        });
+        configButton.setOnAction(e -> showConfigWindow());
 
         Button helpButton = createButton("Aide");
         helpButton.setOnAction(e -> showHelpWindow());
@@ -137,6 +138,95 @@ public class PauseScreen {
         helpScene.setFill(null);
         helpStage.setScene(helpScene);
         helpStage.show();
+    }
+
+    private void showConfigWindow() {
+        Stage configStage = new Stage();
+        configStage.initModality(Modality.APPLICATION_MODAL);
+        configStage.initOwner(stage);
+        configStage.setTitle("Configuration");
+
+        VBox configLayout = new VBox(10);
+        configLayout.setAlignment(Pos.CENTER);
+        configLayout.setPadding(new Insets(20));
+        configLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: white; -fx-border-width: 2;");
+
+        Text configTitle = new Text("Configuration du jeu");
+        configTitle.setStyle("-fx-fill: white; -fx-font-size: 20;");
+        configTitle.setTextAlignment(TextAlignment.CENTER);
+
+        // Créer les contrôles de configuration
+        VBox settingsBox = new VBox(15);
+        settingsBox.setAlignment(Pos.CENTER);
+
+        // Volume de la musique
+        HBox musicBox = new HBox(10);
+        musicBox.setAlignment(Pos.CENTER);
+        Text musicLabel = new Text("Volume de la musique:");
+        musicLabel.setStyle("-fx-fill: white;");
+        javafx.scene.control.Slider musicSlider = new javafx.scene.control.Slider(0, 100, 50);
+        musicBox.getChildren().addAll(musicLabel, musicSlider);
+
+        // Volume des effets sonores
+        HBox sfxBox = new HBox(10);
+        sfxBox.setAlignment(Pos.CENTER);
+        Text sfxLabel = new Text("Volume des effets:");
+        sfxLabel.setStyle("-fx-fill: white;");
+        javafx.scene.control.Slider sfxSlider = new javafx.scene.control.Slider(0, 100, 50);
+        sfxBox.getChildren().addAll(sfxLabel, sfxSlider);
+
+        // Résolution
+        HBox resolutionBox = new HBox(10);
+        resolutionBox.setAlignment(Pos.CENTER);
+        Text resolutionLabel = new Text("Résolution:");
+        resolutionLabel.setStyle("-fx-fill: white;");
+        javafx.scene.control.ComboBox<String> resolutionCombo = new javafx.scene.control.ComboBox<>();
+        resolutionCombo.getItems().addAll("1920x1080", "1600x900", "1280x720");
+        
+        // Définir la résolution actuelle
+        String currentResolution = GameConfig.getInstance().getCurrentResolution().getWidth() + "x" + 
+                                 GameConfig.getInstance().getCurrentResolution().getHeight();
+        resolutionCombo.setValue(currentResolution);
+        
+        resolutionBox.getChildren().addAll(resolutionLabel, resolutionCombo);
+
+        settingsBox.getChildren().addAll(musicBox, sfxBox, resolutionBox);
+
+        // Boutons
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        Button saveButton = createButton("Appliquer");
+        saveButton.setOnAction(e -> {
+            // Appliquer les changements de résolution
+            String selectedResolution = resolutionCombo.getValue();
+            String[] dimensions = selectedResolution.split("x");
+            int width = Integer.parseInt(dimensions[0]);
+            int height = Integer.parseInt(dimensions[1]);
+            
+            // Créer un nouvel objet Resolution et l'appliquer
+            GameConfig.Resolution newResolution = new GameConfig.Resolution(width, height);
+            GameConfig.getInstance().setCurrentResolution(newResolution);
+            
+            // Mettre à jour la taille de la fenêtre principale
+            Stage mainStage = (Stage) stage.getOwner();
+            GameConfig.getInstance().applySafeResolutionToStage(mainStage);
+            
+            // Fermer la fenêtre de configuration
+            configStage.close();
+        });
+        
+        Button cancelButton = createButton("Annuler");
+        cancelButton.setOnAction(e -> configStage.close());
+        
+        buttonBox.getChildren().addAll(saveButton, cancelButton);
+
+        configLayout.getChildren().addAll(configTitle, settingsBox, buttonBox);
+
+        Scene configScene = new Scene(configLayout, 400, 500);
+        configScene.setFill(null);
+        configStage.setScene(configScene);
+        configStage.show();
     }
 
     public void show() {

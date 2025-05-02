@@ -117,21 +117,7 @@ public class GameScreen {
             heroController.handleKeyPress(event);
             if (event.getCode() == KeyCode.ESCAPE) {
                 // Créer et afficher la fenêtre de pause
-                PauseScreen pauseScreen = new PauseScreen(
-                    stage,
-                    () -> {}, // Reprendre (rien à faire, la fenêtre se ferme automatiquement)
-                    () -> stage.setScene(new MenuScreen(stage).getMenuScene()), // Quitter vers le menu
-                    () -> {
-                        // Fermer la fenêtre de pause avant d'ouvrir la configuration
-                        pauseScreen.close();
-                        // Ouvrir la configuration
-                        ConfigScreen configScreen = new ConfigScreen(stage, scene);
-                        Scene configScene = new Scene(configScreen);
-                        configScene.getStylesheets().add(getClass().getResource(CSS_PATH).toExternalForm());
-                        stage.setScene(configScene);
-                    }
-                );
-                pauseScreen.show();
+                showPauseScreen(stage, scene);
             }
         });
         
@@ -183,5 +169,16 @@ public class GameScreen {
         }
 
         hudView.updateInventory(itemImages);
+    }
+
+    private void showPauseScreen(Stage stage, Scene gameScene) {
+        final PauseScreen[] pauseScreenRef = new PauseScreen[1];
+        pauseScreenRef[0] = new PauseScreen(
+            stage,
+            () -> {}, // Reprendre (rien à faire, la fenêtre se ferme automatiquement)
+            () -> stage.setScene(new MenuScreen(stage).getMenuScene()), // Quitter vers le menu
+            null  // La configuration est maintenant gérée directement dans PauseScreen
+        );
+        pauseScreenRef[0].show();
     }
 }

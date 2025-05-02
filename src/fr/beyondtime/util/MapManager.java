@@ -80,7 +80,6 @@ public class MapManager {
         }
     }
 
-
     public static GridPane loadMapFromFile(File file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String[] dims = reader.readLine().trim().split(",");
@@ -110,23 +109,15 @@ public class MapManager {
                         cell.getProperties().put("isSpawner", true);
                     }
 
-
                     if (!assetPath.isEmpty()) {
-                        try {
-                            InputStream is = MapManager.class.getResourceAsStream("/fr/beyondtime/assets/" + assetPath);
-                            if (is != null) {
-                                ImageView assetView = new ImageView(new Image(is));
-                                assetView.setFitWidth(cellSize);
-                                assetView.setFitHeight(cellSize);
-                                assetView.setPreserveRatio(true);
-                                cell.getChildren().add(assetView);
-                                cell.setUserData(assetPath);
-                            } else {
-                                System.err.println("Could not find asset resource: /fr/beyondtime/assets/" + assetPath);
-                            }
-                        } catch (Exception e) {
-                            System.err.println("Error loading asset image: " + assetPath);
-                            e.printStackTrace();
+                        File imgFile = new File("assets", assetPath);
+                        if (imgFile.exists()) {
+                            ImageView assetView = new ImageView(new Image(imgFile.toURI().toString()));
+                            assetView.setFitWidth(cellSize);
+                            assetView.setFitHeight(cellSize);
+                            assetView.setPreserveRatio(true);
+                            cell.getChildren().add(assetView);
+                            cell.setUserData(assetPath);
                         }
                     }
 
@@ -152,8 +143,12 @@ public class MapManager {
         dialog.setTitle("Sélection de map");
         dialog.setHeaderText("Choisissez la map à ouvrir pour " + levelName);
         dialog.setContentText("Map :");
+
         dialog.showAndWait().ifPresent(selectedFileName -> {
-            File selectedFile = Arrays.stream(maps).filter(file -> file.getName().equals(selectedFileName)).findFirst().orElse(null);
+            File selectedFile = Arrays.stream(maps)
+                .filter(file -> file.getName().equals(selectedFileName))
+                .findFirst()
+                .orElse(null);
             if (selectedFile != null) {
                 GridPane grid = loadMapFromFile(selectedFile);
                 if (grid != null) {
@@ -165,17 +160,20 @@ public class MapManager {
             }
         });
     }
-
+    
     private static File[] getMapFilesForLevel(String levelName) {
-        File saveDir = new File(SAVE_DIR);
+        File saveDir = new File("saved_map");
         if (!saveDir.exists()) return new File[0];
+        
         String prefix = levelName.replaceAll("\\s+", "_");
+        
         File[] matchingFiles = saveDir.listFiles((dir, name) -> name.startsWith(prefix));
         if (matchingFiles == null) return new File[0];
+        
         Arrays.sort(matchingFiles, (f1, f2) -> Long.compare(extractTimestamp(f2.getName()), extractTimestamp(f1.getName())));
         return matchingFiles;
     }
-
+    
     private static long extractTimestamp(String fileName) {
         try {
             int underscoreIndex = fileName.lastIndexOf('_');
@@ -194,4 +192,4 @@ public class MapManager {
         alert.setContentText(content);
         alert.showAndWait();
     }
-}
+} 

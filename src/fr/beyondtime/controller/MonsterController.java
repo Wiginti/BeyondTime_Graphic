@@ -15,14 +15,24 @@ public class MonsterController {
     private Monster monster;
     private final MonsterView monsterView;
     private final HeroController heroController;
+    
+    private double randomDx = 0;
+    private double randomDy = 0;
+    private long lastDirectionChange = 0;
+    private static final long DIRECTION_CHANGE_INTERVAL = 2000; // en ms
+    
+    private final int mapRows;
+    private final int mapCols;
 
     private Timeline attackLoop;
     private final Random random = new Random();
 
-    public MonsterController(Monster monster, MonsterView monsterView, HeroController heroController) {
+    public MonsterController(Monster monster, MonsterView monsterView, HeroController heroController, int mapRows, int mapCols) {
         this.monster = monster;
         this.monsterView = monsterView;
         this.heroController = heroController;
+        this.mapRows = mapRows;
+        this.mapCols = mapCols;
 
         attackLoop = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             if (monster.isAlive() && isHeroNearby()) {
@@ -81,7 +91,7 @@ public class MonsterController {
     public void update() {
         if (!monster.isAlive()) return;
 
-        double monsterX = monster.getX();
+        double monsterX = monster.getX(); // position réelle
         double monsterY = monster.getY();
         double heroX = heroController.getWorldX();
         double heroY = heroController.getWorldY();
@@ -91,17 +101,34 @@ public class MonsterController {
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < 200) {
-            double step = 1.0;
+            // Suivre le héros
+            double step = 0.8;
             dx /= distance;
             dy /= distance;
-
             monsterX += dx * step;
             monsterY += dy * step;
-
-            monster.setPosition(monsterX, monsterY);
-            monsterView.updatePosition(monsterX, monsterY);
-
+        } else {
+            // Mouvement aléatoire
+            long now = System.currentTimeMillis();
+            if (now - lastDirectionChange > DIRECTION_CHANGE_INTERVAL) {
+                double angle = Math.random() * 2 * Math.PI;
+                randomDx = Math.cos(angle);
+                randomDy = Math.sin(angle);
+                lastDirectionChange = now;
+            }
+            double step = 0.5;
+            monsterX += randomDx * step;
+            monsterY += randomDy * step;
         }
+        
+        double maxX = (mapCols - 1) * 50;
+        double maxY = (mapRows - 1) * 50;
+
+        monsterX = Math.max(0, Math.min(monsterX, maxX));
+        monsterY = Math.max(0, Math.min(monsterY, maxY));
+
+        monster.setPosition(monsterX, monsterY); // mise à jour du modèle
+        monsterView.updatePosition(monsterX, monsterY); // mise à jour du sprite
     }
 
 

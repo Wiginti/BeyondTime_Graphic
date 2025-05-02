@@ -36,7 +36,7 @@ public class MonsterSpawnerController {
 
                     cameraGroup.getChildren().add(view);
 
-                    MonsterController controller = new MonsterController(monster, view, heroController);
+                    MonsterController controller = new MonsterController(monster, view, heroController, mapGrid.getRowCount(), mapGrid.getColumnCount());
                     controller.startRespawnTimer(cell, cameraGroup);
 
                     activeControllers.add(controller);

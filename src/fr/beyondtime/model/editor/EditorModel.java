@@ -4,13 +4,8 @@ import fr.beyondtime.model.map.Tile;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +28,7 @@ public class EditorModel {
     private List<String> savedMaps = new ArrayList<>();
 
     public EditorModel() {
-        // Initialisation du répertoire des assets (use relative path)
-        rootAssets = new File("src/fr/beyondtime/assets").getAbsoluteFile();
+        rootAssets = new File("assets").getAbsoluteFile();
         currentDirectory = rootAssets;
         if (!rootAssets.exists() || !rootAssets.isDirectory()) {
             System.err.println("Warning: Root assets directory not found at: " + rootAssets.getPath());
@@ -117,70 +111,52 @@ public class EditorModel {
         return savedMaps;
     }
 
-    // Method to load image from an absolute asset path
-    public Image loadImageFromAssetPath(String absolutePath) throws IOException {
-         File imgFile = new File(absolutePath);
-         if (!imgFile.exists() || !imgFile.isFile()) {
-             System.err.println("Image file not found: " + absolutePath);
-             return null;
-         }
-         try (InputStream is = new FileInputStream(imgFile)) {
-             return new Image(is);
-         } catch (IOException e) {
-              System.err.println("IOException loading image: " + absolutePath);
-              throw e; // Re-throw exception to be caught by caller
-         }
-     }
-    
-     // Method to get asset path relative to the rootAssets directory
-     public String getRelativeAssetPath(File assetFile) {
-         String rootPath = rootAssets.getPath();
-         String filePath = assetFile.getPath();
-         if (filePath.startsWith(rootPath)) {
-             String relative = filePath.substring(rootPath.length());
-             // Ensure consistent separator
-             relative = relative.replace(File.separatorChar, '/'); 
-             // Remove leading separator if present
-             if (relative.startsWith("/")) {
-                 relative = relative.substring(1);
-             }
-             return relative;
-         } else {
-             // File is not within the root asset directory - this shouldn't happen
-             System.err.println("Warning: Asset file " + filePath + " is not within root " + rootPath);
-             return assetFile.getName(); // Fallback to just the name
-         }
-     }
+    public String getRelativeAssetPath(File assetFile) {
+        try {
+            String rootPath = rootAssets.getCanonicalPath(); // chemin absolu normalisé
+            String filePath = assetFile.getCanonicalPath(); // idem pour le fichier
+            if (filePath.startsWith(rootPath)) {
+                String relative = filePath.substring(rootPath.length());
+                relative = relative.replace(File.separatorChar, '/'); // unifie les séparateurs
+                if (relative.startsWith("/")) {
+                    relative = relative.substring(1);
+                }
+                return relative;
+            } else {
+                System.err.println("⚠️ Asset file not in root: " + filePath + " vs root: " + rootPath);
+                return assetFile.getName(); // fallback
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la résolution du chemin relatif : " + e.getMessage());
+            return assetFile.getName();
+        }
+    }
 
-    // Méthodes pour modifier les cellules
+
     public void setCellAsNormal(StackPane cell) {
-        updateCellAppearance(cell, Color.LIGHTGRAY, true, 1.0, 0);
+        updateTileProperty(cell, true, 1.0, 0);
     }
 
     public void setCellAsObstacle(StackPane cell) {
-        updateCellAppearance(cell, Color.DARKGRAY, false, 1.0, 0);
+        updateTileProperty(cell, false, 1.0, 0);
     }
 
     public void setCellAsSlowZone(StackPane cell) {
-        updateCellAppearance(cell, Color.YELLOW, true, 0.5, 0);
+        updateTileProperty(cell, true, 0.5, 0);
     }
 
     public void setCellAsPoison(StackPane cell) {
-        updateCellAppearance(cell, Color.GREEN, true, 1.0, 10);
+        updateTileProperty(cell, true, 1.0, 10);
     }
 
     public void setCellAsSpawner(StackPane cell) {
-        updateCellAppearance(cell, Color.MEDIUMPURPLE, true, 1.0, 0);
-        cell.getProperties().put("spawner", true); // Marqueur spécifique pour SPAWNER
+        updateTileProperty(cell, true, 1.0, 0);
+        cell.getProperties().put("spawner", true);
     }
 
-    private void updateCellAppearance(StackPane cell, Color color, boolean passable, double speed, int damage) {
-        cell.getChildren().clear();
-        Rectangle background = new Rectangle(cellSize, cellSize);
-        background.setFill(color);
-        background.setStroke(Color.BLACK);
-        cell.getChildren().add(background);
-        cell.getProperties().put("tile", new Tile(passable, speed, damage));
+    private void updateTileProperty(StackPane cell, boolean passable, double speed, int damage) {
+        Tile tile = new Tile(passable, speed, damage);
+        cell.getProperties().put("tile", tile);
     }
 
     public boolean isSpawnerCell(StackPane cell) {

@@ -170,10 +170,22 @@ public class HeroController {
         double nextWorldX = hero.getX();
         double nextWorldY = hero.getY();
 
-        if (upPressed) nextWorldY -= speed;
-        if (downPressed) nextWorldY += speed;
-        if (leftPressed) nextWorldX -= speed;
-        if (rightPressed) nextWorldX += speed;
+        if (upPressed) {
+            nextWorldY -= speed;
+            heroView.updateSprite("up");
+        }
+        if (downPressed) {
+            nextWorldY += speed;
+            heroView.updateSprite("down");
+        }
+        if (leftPressed) {
+            nextWorldX -= speed;
+            heroView.updateSprite("left");
+        }
+        if (rightPressed) {
+            nextWorldX += speed;
+            heroView.updateSprite("right");
+        }
 
         if (!checkCollision(nextWorldX, nextWorldY)) {
             hero.setPosition(nextWorldX, nextWorldY);

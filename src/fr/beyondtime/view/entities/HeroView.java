@@ -10,35 +10,68 @@ import javafx.util.Duration;
 
 public class HeroView extends EntityView {
 
-    private static final String HERO_IMAGE_PATH = "/fr/beyondtime/resources/hero.png";
-    private static Image heroImage;
+    private static final String HERO_DOWN_PATH = "/fr/beyondtime/resources/hero.png";
+    private static final String HERO_LEFT_PATH = "/fr/beyondtime/resources/hero_left.png";
+    private static final String HERO_RIGHT_PATH = "/fr/beyondtime/resources/hero_right.png";
+    private static final String HERO_UP_PATH = "/fr/beyondtime/resources/hero_up.png";
+    
+    private static Image heroDownImage;
+    private static Image heroLeftImage;
+    private static Image heroRightImage;
+    private static Image heroUpImage;
     private ImageView imageView;
 
     static {
-        System.out.println("Static block HeroView: Loading image...");
-        heroImage = ImageLoader.loadImage(HERO_IMAGE_PATH);
-        if (heroImage == null) {
-            System.err.println("Hero image is null! Check path: " + HERO_IMAGE_PATH);
+        System.out.println("Static block HeroView: Loading images...");
+        heroDownImage = ImageLoader.loadImage(HERO_DOWN_PATH);
+        heroLeftImage = ImageLoader.loadImage(HERO_LEFT_PATH);
+        heroRightImage = ImageLoader.loadImage(HERO_RIGHT_PATH);
+        heroUpImage = ImageLoader.loadImage(HERO_UP_PATH);
+        
+        if (heroDownImage == null) {
+            System.err.println("Hero down image is null! Check path: " + HERO_DOWN_PATH);
+        }
+        if (heroLeftImage == null) {
+            System.err.println("Hero left image is null! Check path: " + HERO_LEFT_PATH);
+        }
+        if (heroRightImage == null) {
+            System.err.println("Hero right image is null! Check path: " + HERO_RIGHT_PATH);
+        }
+        if (heroUpImage == null) {
+            System.err.println("Hero up image is null! Check path: " + HERO_UP_PATH);
         }
     }
 
     public HeroView() {
-        super(heroImage);
-        if (heroImage == null) {
+        super(heroDownImage); // Start with down-facing sprite
+        if (heroDownImage == null) {
             System.err.println("HeroView: null image used!");
             return;
         }
 
         // Centrage de l'image
         imageView = getImageView();
-        imageView.setTranslateX(-heroImage.getWidth() / 2);
-        imageView.setTranslateY(-heroImage.getHeight() / 2);
+        imageView.setTranslateX(-heroDownImage.getWidth() / 2);
+        imageView.setTranslateY(-heroDownImage.getHeight() / 2);
 
         // Réduction d'échelle (50%)
         this.setScaleX(0.5);
         this.setScaleY(0.5);
 
         System.out.println("HeroView created with centered and scaled image.");
+    }
+    
+    public void updateSprite(String direction) {
+        Image newImage = switch (direction.toLowerCase()) {
+            case "left" -> heroLeftImage;
+            case "right" -> heroRightImage;
+            case "up" -> heroUpImage;
+            default -> heroDownImage;
+        };
+        
+        if (newImage != null) {
+            imageView.setImage(newImage);
+        }
     }
     
     public void playHitEffect() {
@@ -58,5 +91,4 @@ public class HeroView extends EntityView {
         pause.setOnFinished(e -> imageView.setEffect(null));
         pause.play();
     }
-
 }

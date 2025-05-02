@@ -122,8 +122,10 @@ public class GameScreen {
                     () -> {}, // Reprendre (rien à faire, la fenêtre se ferme automatiquement)
                     () -> stage.setScene(new MenuScreen(stage).getMenuScene()), // Quitter vers le menu
                     () -> {
+                        // Fermer la fenêtre de pause avant d'ouvrir la configuration
+                        pauseScreen.close();
                         // Ouvrir la configuration
-                        ConfigScreen configScreen = new ConfigScreen(stage, stage.getScene());
+                        ConfigScreen configScreen = new ConfigScreen(stage, scene);
                         Scene configScene = new Scene(configScreen);
                         configScene.getStylesheets().add(getClass().getResource(CSS_PATH).toExternalForm());
                         stage.setScene(configScene);

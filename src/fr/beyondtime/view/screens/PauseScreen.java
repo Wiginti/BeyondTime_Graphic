@@ -142,4 +142,8 @@ public class PauseScreen {
     public void show() {
         stage.show();
     }
+
+    public void close() {
+        stage.close();
+    }
 } 

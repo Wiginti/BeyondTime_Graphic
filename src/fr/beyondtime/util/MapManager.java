@@ -20,119 +20,135 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
 
 public class MapManager {
 
     private static final String SAVE_DIR = "saved_map";
 
     public static void saveMap(GridPane grid, int rows, int columns, String levelName) {
-        String[][] mapData = new String[rows][columns];
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                mapData[i][j] = "";
+        try {
+            File saveDir = new File(SAVE_DIR);
+            if (!saveDir.exists()) {
+                saveDir.mkdirs();
             }
-        }
 
-        for (Node node : grid.getChildren()) {
-            if (node instanceof StackPane cell) {
-                Integer col = GridPane.getColumnIndex(cell);
-                Integer row = GridPane.getRowIndex(cell);
-                if (col == null) col = 0;
-                if (row == null) row = 0;
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String fileName = levelName + "_" + timestamp + ".map";
+            File file = new File(saveDir, fileName);
 
-                // Chemin de l'asset
-                Object assetData = cell.getUserData();
-                String assetPath = assetData != null ? assetData.toString() : "";
+            try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+                writer.println(rows + "," + columns);
 
-                // Données de la tuile
-                Tile tile = (Tile) cell.getProperties().get("tile");
-                String tileData = (tile != null) ? (tile.isPassable() + ";" + tile.getSlowdownFactor() + ";" + tile.isExit()) : "true;1.0;false";
+                for (int row = 0; row < rows; row++) {
+                    StringBuilder line = new StringBuilder();
+                    for (int col = 0; col < columns; col++) {
+                        StackPane cell = null;
+                        for (Node node : grid.getChildren()) {
+                            Integer nodeRow = GridPane.getRowIndex(node);
+                            Integer nodeCol = GridPane.getColumnIndex(node);
+                            if (nodeRow == null) nodeRow = 0;
+                            if (nodeCol == null) nodeCol = 0;
+                            if (nodeRow == row && nodeCol == col && node instanceof StackPane) {
+                                cell = (StackPane) node;
+                                break;
+                            }
+                        }
 
-                // Spawner ?
-                boolean isSpawner = cell.getProperties().getOrDefault("isSpawner", false).equals(true);
-                String extra = isSpawner ? "|SPAWNER" : "";
-
-                mapData[row][col] = assetPath + "|" + tileData + extra;
+                        if (cell != null) {
+                            Tile tile = (Tile) cell.getProperties().get("tile");
+                            String imagePath = (String) cell.getUserData();
+                            boolean isSpawner = cell.getProperties().get("isSpawner") != null && (boolean) cell.getProperties().get("isSpawner");
+                            boolean isExit = cell.getProperties().get("isExit") != null && (boolean) cell.getProperties().get("isExit");
+                            
+                            line.append("|").append(tile.isPassable()).append(";")
+                                .append(tile.getSlowdownFactor()).append(";")
+                                .append(isSpawner).append(";")
+                                .append(isExit);
+                            
+                            if (imagePath != null) {
+                                line.append(";").append(imagePath);
+                            }
+                        } else {
+                            line.append("|true;1.0;false;false"); // Valeurs par défaut
+                        }
+                    }
+                    writer.println(line.toString());
+                }
             }
-        }
 
-        File saveDir = new File(SAVE_DIR);
-        if (!saveDir.exists()) {
-            if (!saveDir.mkdirs()) {
-                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier de sauvegarde.", Alert.AlertType.ERROR);
-                return;
-            }
-        }
-
-        String fileName = levelName.replaceAll("\\s+", "_") + "_" + System.currentTimeMillis() + ".map";
-        File saveFile = new File(saveDir, fileName);
-
-        try (PrintWriter out = new PrintWriter(new FileWriter(saveFile))) {
-            out.println(rows + "," + columns);
-            for (String[] rowData : mapData) {
-                out.println(String.join(",", rowData));
-            }
-            showAlert("Sauvegarde réussie", "Map sauvegardée dans : " + saveFile.getAbsolutePath(), Alert.AlertType.INFORMATION);
+            System.out.println("Carte sauvegardée avec succès dans : " + file.getAbsolutePath());
         } catch (IOException e) {
-            showAlert("Erreur de sauvegarde", "Impossible de sauvegarder la map.", Alert.AlertType.ERROR);
             e.printStackTrace();
+            System.err.println("Erreur lors de la sauvegarde de la carte : " + e.getMessage());
         }
     }
 
     public static GridPane loadMapFromFile(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String[] dims = reader.readLine().trim().split(",");
-            int rows = Integer.parseInt(dims[0].trim());
-            int cols = Integer.parseInt(dims[1].trim());
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            if (lines.isEmpty()) return null;
+
+            String[] dimensions = lines.get(0).split(",");
+            int rows = Integer.parseInt(dimensions[0]);
+            int columns = Integer.parseInt(dimensions[1]);
+
             GridPane grid = new GridPane();
-            grid.setPadding(new Insets(0));
-            int cellSize = 50;
+            grid.setHgap(0);
+            grid.setVgap(0);
 
             for (int row = 0; row < rows; row++) {
-                String[] cellData = reader.readLine().trim().split(",", -1);
-                for (int col = 0; col < cols; col++) {
-                    StackPane cell = new StackPane();
-                    cell.setPrefSize(cellSize, cellSize);
-                    Rectangle background = new Rectangle(cellSize, cellSize, Color.LIGHTGRAY);
-                    background.setStroke(Color.BLACK);
-                    cell.getChildren().add(background);
+                String[] cells = lines.get(row + 1).split("\\|");
+                for (int col = 0; col < columns; col++) {
+                    if (col + 1 < cells.length) {
+                        String[] properties = cells[col + 1].split(";");
+                        boolean passable = Boolean.parseBoolean(properties[0]);
+                        double slowdown = Double.parseDouble(properties[1]);
+                        boolean isSpawner = properties.length > 2 && Boolean.parseBoolean(properties[2]);
+                        boolean isExit = properties.length > 3 && Boolean.parseBoolean(properties[3]);
+                        String imagePath = properties.length > 4 ? properties[4] : null;
 
-                    String[] parts = cellData[col].split("\\|");
-                    String assetPath = parts.length > 0 ? parts[0] : "";
-                    boolean passable = parts.length > 1 ? Boolean.parseBoolean(parts[1].split(";")[0]) : true;
-                    double slowdown = parts.length > 1 ? Double.parseDouble(parts[1].split(";")[1]) : 1.0;
-                    boolean isExit = parts.length > 1 ? Boolean.parseBoolean(parts[1].split(";")[2]) : false;
+                        StackPane cell = new StackPane();
+                        cell.setPrefSize(50, 50);
 
-                    cell.getProperties().put("tile", new Tile(passable, slowdown, 0, isExit));
+                        Rectangle background = new Rectangle(50, 50);
+                        background.setFill(Color.LIGHTGRAY);
+                        background.setStroke(Color.BLACK);
+                        cell.getChildren().add(background);
 
-                    if (parts.length > 2) {
-                        for (int i = 2; i < parts.length; i++) {
-                            if (parts[i].equals("SPAWNER")) {
-                                cell.getProperties().put("isSpawner", true);
+                        if (imagePath != null) {
+                            try {
+                                Image image = new Image(imagePath);
+                                ImageView imageView = new ImageView(image);
+                                imageView.setFitWidth(50);
+                                imageView.setFitHeight(50);
+                                cell.getChildren().add(imageView);
+                                cell.setUserData(imagePath);
+                            } catch (Exception e) {
+                                System.err.println("Erreur lors du chargement de l'image : " + imagePath);
                             }
                         }
-                    }
 
-                    if (!assetPath.isEmpty()) {
-                        File imgFile = new File("assets", assetPath);
-                        if (imgFile.exists()) {
-                            ImageView assetView = new ImageView(new Image(imgFile.toURI().toString()));
-                            assetView.setFitWidth(cellSize);
-                            assetView.setFitHeight(cellSize);
-                            assetView.setPreserveRatio(true);
-                            cell.getChildren().add(assetView);
-                            cell.setUserData(assetPath);
+                        Tile tile = new Tile(passable, slowdown, 0, isExit);
+                        cell.getProperties().put("tile", tile);
+                        
+                        if (isSpawner) {
+                            cell.getProperties().put("isSpawner", true);
                         }
-                    }
+                        
+                        if (isExit) {
+                            cell.getProperties().put("isExit", true);
+                        }
 
-                    grid.add(cell, col, row);
+                        grid.add(cell, col, row);
+                    }
                 }
             }
+
             return grid;
-        } catch (IOException | NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            showAlert("Erreur", "Erreur lors du chargement de la map: " + e.getMessage(), Alert.AlertType.ERROR);
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
+            System.err.println("Erreur lors du chargement de la carte : " + e.getMessage());
             return null;
         }
     }
@@ -170,7 +186,7 @@ public class MapManager {
         File saveDir = new File("saved_map");
         if (!saveDir.exists()) return new File[0];
         
-        String prefix = levelName.replaceAll("\\s+", "_");
+        String prefix = levelName;
         
         File[] matchingFiles = saveDir.listFiles((dir, name) -> name.startsWith(prefix));
         if (matchingFiles == null) return new File[0];

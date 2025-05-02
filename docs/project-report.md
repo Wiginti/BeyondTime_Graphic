@@ -104,7 +104,7 @@ L'implémentation du support multilingue via ResourceBundle :
 - Éditeur de niveaux : 90% ✓
 - Système de jeu : 85% ✓
 - Documentation : 80% ✓
-- Tests et débogage : 75% ✓
+- Tests et débogage : 0% 
 
 ### Prochaines Étapes
 1. Finalisation des tests unitaires
@@ -116,6 +116,7 @@ L'implémentation du support multilingue via ResourceBundle :
 ### Répartition des Tâches
 
 #### Marco DUPRE
+- Développement global du projet 
 - Architecture MVC 
 - Interface utilisateur
 - Refactoring de code
@@ -126,18 +127,20 @@ L'implémentation du support multilingue via ResourceBundle :
 - Documentation 
 
 #### Nicolas MOREAU
+- Développement global du projet 
 - Architecture MVC 
 - Éditeur de niveaux 
 - Inferface utilisateur
 - Système de sauvegarde 
 - Configuration Maven et script de compil 
-- Tests unitaires (en cours soucis gestion avec Maven)
 - Documentation
 - Rapport 
-- Gestion de la traduction, transition entre les niveaux... 
+- Gestion de la traduction, transition entre les niveaux...
+- Création map Egypte
 
 
 #### Ruben COFFLARD
+- Développement global du projet 
 - Système d'inventaire 
 - Gestion de la caméra 
 - Interface utilisateur 

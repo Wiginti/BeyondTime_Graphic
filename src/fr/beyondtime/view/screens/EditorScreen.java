@@ -34,6 +34,7 @@ public class EditorScreen extends VBox {
     private Button startPropButton;
     private ComboBox<String> itemTypeComboBox;
     private Button exitPropButton;
+    private Button undoButton;
 
     public EditorScreen() {
         showConfigPane();
@@ -108,10 +109,14 @@ public class EditorScreen extends VBox {
 
     private HBox createToolsBox() {
         HBox toolsBox = new HBox(10);
-        toolsBox.setAlignment(Pos.CENTER);
         toolsBox.setPadding(new Insets(10));
+        toolsBox.setAlignment(Pos.CENTER_LEFT);
 
-        clearButton = new Button("Effacer");
+        undoButton = new Button("Annuler");
+        undoButton.setTooltip(new Tooltip("Annuler la dernière action"));
+        undoButton.setDisable(true);
+
+        clearButton = new Button("Tout effacer");
         eraserButton = new Button("Gomme");
         normalPropButton = createPropertyButton("Normal", "normal-button");
         obstaclePropButton = createPropertyButton("Obstacle", "obstacle-button");
@@ -121,7 +126,7 @@ public class EditorScreen extends VBox {
         itemPropButton = new Button("Item");
         clearPropButton = createPropertyButton("Clear", "clear-button");
         saveButton = new Button("Sauvegarder");
-        exitButton = new Button("Quitter");
+        exitButton = new Button("Retour au menu");
         exitPropButton = createPropertyButton("Sortie", "exit-button");
         startPropButton = new Button("Départ");
 
@@ -130,10 +135,20 @@ public class EditorScreen extends VBox {
         itemTypeComboBox.setVisible(false);
 
         toolsBox.getChildren().addAll(
-            clearButton, eraserButton, normalPropButton,
-            obstaclePropButton, slowPropButton, poisonPropButton,
-            spawnerPropButton, itemPropButton, clearPropButton,
-            itemTypeComboBox, saveButton, exitButton, exitPropButton,
+            undoButton,
+            clearButton,
+            eraserButton,
+            normalPropButton,
+            obstaclePropButton,
+            slowPropButton,
+            poisonPropButton,
+            spawnerPropButton,
+            itemPropButton,
+            clearPropButton,
+            itemTypeComboBox,
+            saveButton,
+            exitButton,
+            exitPropButton,
             startPropButton
         );
 
@@ -171,6 +186,7 @@ public class EditorScreen extends VBox {
     public ComboBox<String> getItemTypeComboBox() { return itemTypeComboBox; }
     public Button getExitPropButton() { return exitPropButton; }
     public Button getStartPropButton() { return startPropButton; }
+    public Button getUndoButton() { return undoButton; }
 
     public GridPane getMapGrid() { return mapGrid; }
     public ListView<AssetEntry> getAssetListView() { return assetListView; }

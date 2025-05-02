@@ -83,6 +83,11 @@ public class GameScreen {
         heroView = new HeroView();
         cameraGroup.getChildren().add(heroView);
 
+        // Set initial hero position from the model
+        if (gameState.getHero() != null) {
+            heroView.setPosition(gameState.getHero().getX(), gameState.getHero().getY());
+        }
+
         hudView = new HUDView(MAX_HEARTS_DISPLAY, DEFAULT_INVENTORY_SLOTS);
         hudView.setMouseTransparent(true);
 
@@ -172,11 +177,20 @@ public class GameScreen {
     }
 
     private void showPauseScreen(Stage stage, Scene gameScene) {
+        // Pause the game
+        gameController.pauseGame();
+
         final PauseScreen[] pauseScreenRef = new PauseScreen[1];
         pauseScreenRef[0] = new PauseScreen(
             stage,
-            () -> {}, // Reprendre (rien à faire, la fenêtre se ferme automatiquement)
-            () -> stage.setScene(new MenuScreen(stage).getMenuScene()), // Quitter vers le menu
+            gameState,
+            () -> {
+                gameController.resumeGame();
+            },
+            () -> {
+                gameController.stopGame();
+                stage.setScene(new MenuScreen(stage).getMenuScene());
+            },
             null  // La configuration est maintenant gérée directement dans PauseScreen
         );
         pauseScreenRef[0].show();

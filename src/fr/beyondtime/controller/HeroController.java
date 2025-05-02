@@ -67,35 +67,41 @@ public class HeroController {
         this.monsters = new ArrayList<>();
         this.speed = BASE_SPEED;
 
-        // Chercher la case de départ
-        double startX = -1;
-        double startY = -1;
-        
-        for (Node node : mapGrid.getChildren()) {
-            if (node instanceof StackPane cell) {
-                Object tileObj = cell.getProperties().get("tile");
-                if (tileObj instanceof Tile && ((Tile) tileObj).isStart()) {
-                    Integer col = GridPane.getColumnIndex(node);
-                    Integer row = GridPane.getRowIndex(node);
-                    if (col == null) col = 0;
-                    if (row == null) row = 0;
-                    startX = col * cellSize;
-                    startY = row * cellSize;
-                    break;
+        // Ne pas réinitialiser la position si le héros a déjà une position valide (chargement de partie)
+        if (hero.getX() == 0 && hero.getY() == 0) {
+            // Chercher la case de départ seulement pour une nouvelle partie
+            double startX = -1;
+            double startY = -1;
+            
+            for (Node node : mapGrid.getChildren()) {
+                if (node instanceof StackPane cell) {
+                    Object tileObj = cell.getProperties().get("tile");
+                    if (tileObj instanceof Tile && ((Tile) tileObj).isStart()) {
+                        Integer col = GridPane.getColumnIndex(node);
+                        Integer row = GridPane.getRowIndex(node);
+                        if (col == null) col = 0;
+                        if (row == null) row = 0;
+                        startX = col * cellSize;
+                        startY = row * cellSize;
+                        break;
+                    }
                 }
             }
-        }
 
-        // Si aucune case de départ n'est trouvée, utiliser le centre de la carte
-        if (startX == -1 || startY == -1) {
-            int centerCol = mapGrid.getColumnCount() / 2;
-            int centerRow = mapGrid.getRowCount() / 2;
-            startX = centerCol * cellSize;
-            startY = centerRow * cellSize;
-        }
+            // Si aucune case de départ n'est trouvée, utiliser le centre de la carte
+            if (startX == -1 || startY == -1) {
+                int centerCol = mapGrid.getColumnCount() / 2;
+                int centerRow = mapGrid.getRowCount() / 2;
+                startX = centerCol * cellSize;
+                startY = centerRow * cellSize;
+            }
 
-        hero.setPosition(startX, startY);
-        heroView.setPosition(startX, startY);
+            hero.setPosition(startX, startY);
+            heroView.setPosition(startX, startY);
+        } else {
+            // Pour une partie chargée, utiliser la position sauvegardée
+            heroView.setPosition(hero.getX(), hero.getY());
+        }
 
         // Initialiser la boucle de dégâts de poison
         poisonDamageLoop = new Timeline(new KeyFrame(Duration.millis(500), event -> {
@@ -421,5 +427,9 @@ public class HeroController {
 
     public GameController getGameController() {
         return gameController;
+    }
+
+    public GridPane getMapGrid() {
+        return mapGrid;
     }
 }

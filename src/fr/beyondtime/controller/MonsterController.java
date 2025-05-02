@@ -8,6 +8,9 @@ import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import fr.beyondtime.view.effects.DamagePopup;
+import javafx.scene.Node;
+import javafx.scene.layout.GridPane;
+import fr.beyondtime.model.map.Tile;
 
 import java.util.Random;
 
@@ -17,11 +20,15 @@ public class MonsterController {
     private final MonsterView monsterView;
     private final HeroController heroController;
     private final Group cameraGroup;
+    private final GridPane mapGrid;
+    private final int cellSize = 50;
     
     private double randomDx = 0;
     private double randomDy = 0;
     private long lastDirectionChange = 0;
     private static final long DIRECTION_CHANGE_INTERVAL = 2000; // en ms
+    private static final double BASE_SPEED = 0.8; // Vitesse de base pour suivre le héros
+    private static final double RANDOM_SPEED = 0.5; // Vitesse de base pour le mouvement aléatoire
     
     private final int mapRows;
     private final int mapCols;
@@ -36,6 +43,7 @@ public class MonsterController {
         this.mapRows = mapRows;
         this.mapCols = mapCols;
         this.cameraGroup = (Group) monsterView.getParent();
+        this.mapGrid = heroController.getMapGrid(); // Accéder à la grille via le HeroController
 
         attackLoop = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
             if (monster.isAlive() && isHeroNearby()) {
@@ -103,10 +111,51 @@ public class MonsterController {
         }
     }
     
+    private Node getCellNodeAt(int row, int col) {
+        for (Node node : mapGrid.getChildren()) {
+            Integer nodeRow = GridPane.getRowIndex(node);
+            Integer nodeCol = GridPane.getColumnIndex(node);
+            if (nodeRow == null) nodeRow = 0;
+            if (nodeCol == null) nodeCol = 0;
+            if (nodeRow == row && nodeCol == col) return node;
+        }
+        return null;
+    }
+
+    private boolean isTileBlocked(double x, double y) {
+        int col = (int) (x / cellSize);
+        int row = (int) (y / cellSize);
+        
+        Node node = getCellNodeAt(row, col);
+        if (node instanceof StackPane) {
+            StackPane cell = (StackPane) node;
+            Object tileObj = cell.getProperties().get("tile");
+            if (tileObj instanceof Tile) {
+                return !((Tile) tileObj).isPassable();
+            }
+        }
+        return false;
+    }
+
+    private double getTileSlowdown(double x, double y) {
+        int col = (int) (x / cellSize);
+        int row = (int) (y / cellSize);
+        
+        Node node = getCellNodeAt(row, col);
+        if (node instanceof StackPane) {
+            StackPane cell = (StackPane) node;
+            Object tileObj = cell.getProperties().get("tile");
+            if (tileObj instanceof Tile) {
+                return ((Tile) tileObj).getSlowdownFactor();
+            }
+        }
+        return 1.0; // Pas de ralentissement par défaut
+    }
+    
     public void update() {
         if (!monster.isAlive()) return;
 
-        double monsterX = monster.getX(); // position réelle
+        double monsterX = monster.getX();
         double monsterY = monster.getY();
         double heroX = heroController.getWorldX();
         double heroY = heroController.getWorldY();
@@ -115,13 +164,18 @@ public class MonsterController {
         double dy = heroY - monsterY;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
+        // Appliquer le facteur de ralentissement de la case actuelle
+        double slowdownFactor = getTileSlowdown(monsterX, monsterY);
+        
+        double nextX = monsterX;
+        double nextY = monsterY;
+
         if (distance < 200) {
             // Suivre le héros
-            double step = 0.8;
             dx /= distance;
             dy /= distance;
-            monsterX += dx * step;
-            monsterY += dy * step;
+            nextX = monsterX + dx * BASE_SPEED * slowdownFactor;
+            nextY = monsterY + dy * BASE_SPEED * slowdownFactor;
         } else {
             // Mouvement aléatoire
             long now = System.currentTimeMillis();
@@ -131,24 +185,21 @@ public class MonsterController {
                 randomDy = Math.sin(angle);
                 lastDirectionChange = now;
             }
-            double step = 0.5;
-            monsterX += randomDx * step;
-            monsterY += randomDy * step;
+            nextX = monsterX + randomDx * RANDOM_SPEED * slowdownFactor;
+            nextY = monsterY + randomDy * RANDOM_SPEED * slowdownFactor;
         }
         
-        double maxX = (mapCols - 1) * 50;
-        double maxY = (mapRows - 1) * 50;
-
-        monsterX = Math.max(0, Math.min(monsterX, maxX));
-        monsterY = Math.max(0, Math.min(monsterY, maxY));
-
-        monster.setPosition(monsterX, monsterY); // mise à jour du modèle
-        monsterView.updatePosition(monsterX, monsterY); // mise à jour du sprite
+        // Vérifier les collisions avec les obstacles
+        if (!isTileBlocked(nextX, nextY)) {
+            // Limites de la carte
+            nextX = Math.max(0, Math.min(nextX, (mapCols - 1) * cellSize));
+            nextY = Math.max(0, Math.min(nextY, (mapRows - 1) * cellSize));
+            
+            monster.setPosition(nextX, nextY);
+            monsterView.updatePosition(nextX, nextY);
+        }
     }
 
-
-
-    
     public Monster getMonster() { return monster; }
     public double getX() {
         return monster.getX();
@@ -157,6 +208,4 @@ public class MonsterController {
     public double getY() {
         return monster.getY();
     }
-
-    
 }

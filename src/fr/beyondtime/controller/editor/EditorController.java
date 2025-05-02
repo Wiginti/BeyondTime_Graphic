@@ -76,6 +76,9 @@ public class EditorController {
         });
         view.getSaveButton().setOnAction(e -> handleSaveMap());
         view.getExitButton().setOnAction(e -> handleReturn());
+        
+        // Gestionnaire pour le bouton d'annulation
+        view.getUndoButton().setOnAction(e -> handleUndo());
     }
 
     public void toggleEraserMode() {
@@ -88,11 +91,23 @@ public class EditorController {
     }
 
     private void handleClearGrid() {
-        for (var node : model.getMapGrid().getChildren()) {
+        // Sauvegarder l'état de toutes les cellules avant de les effacer
+        for (Node node : model.getMapGrid().getChildren()) {
+            if (node instanceof StackPane cell) {
+                // Sauvegarder l'état avant de nettoyer la cellule
+                model.saveStateBeforeEdit(cell);
+            }
+        }
+
+        // Après avoir sauvegardé l'état de toutes les cellules, les nettoyer
+        for (Node node : model.getMapGrid().getChildren()) {
             if (node instanceof StackPane cell) {
                 clearCell(cell);
             }
         }
+
+        // Activer le bouton d'annulation car nous avons une action à annuler
+        view.getUndoButton().setDisable(false);
     }
 
     private void clearCell(StackPane cell) {
@@ -108,7 +123,28 @@ public class EditorController {
     }
 
     private void handleCellClick(StackPane cell) {
+        // Sauvegarder l'état avant modification
+        model.saveStateBeforeEdit(cell);
+        
         if (model.isEraserMode()) {
+            clearCell(cell);
+        } else {
+            updateCell(cell);
+        }
+        
+        // Activer le bouton d'annulation car nous avons une action à annuler
+        view.getUndoButton().setDisable(false);
+    }
+
+    private void handleUndo() {
+        if (model.undoLastAction()) {
+            // Désactiver le bouton si nous n'avons plus d'actions à annuler
+            view.getUndoButton().setDisable(model.getActionHistorySize() == 0);
+        }
+    }
+
+    private void updateCell(StackPane cell) {
+        if (model.getCurrentTileType() == null) {
             clearCell(cell);
             return;
         }

@@ -14,15 +14,25 @@ import javafx.scene.text.TextAlignment;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import fr.beyondtime.model.config.GameConfig;
+import fr.beyondtime.model.game.GameState;
+import fr.beyondtime.util.SaveGameManager;
+import fr.beyondtime.util.TranslationManager;
+import javafx.scene.control.TextInputDialog;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 public class PauseScreen {
     private Stage stage;
     private Runnable onResumeClick;
     private Runnable onQuitClick;
     private Runnable onConfigClick;
+    private GameState gameState;
 
-    public PauseScreen(Stage parentStage, Runnable onResumeClick, Runnable onQuitClick, Runnable onConfigClick) {
+    public PauseScreen(Stage parentStage, GameState gameState, Runnable onResumeClick, Runnable onQuitClick, Runnable onConfigClick) {
         this.stage = new Stage();
+        this.gameState = gameState;
         this.onResumeClick = onResumeClick;
         this.onQuitClick = onQuitClick;
         this.onConfigClick = onConfigClick;
@@ -48,6 +58,12 @@ public class PauseScreen {
             if (onResumeClick != null) onResumeClick.run();
         });
 
+        Button saveButton = createButton("Sauvegarder la partie");
+        saveButton.setOnAction(e -> showSaveDialog());
+
+        Button loadButton = createButton("Charger une partie");
+        loadButton.setOnAction(e -> showLoadDialog());
+
         Button configButton = createButton("Configuration");
         configButton.setOnAction(e -> showConfigWindow());
 
@@ -63,6 +79,8 @@ public class PauseScreen {
         layout.getChildren().addAll(
             titleText,
             resumeButton,
+            saveButton,
+            loadButton,
             configButton,
             helpButton,
             quitButton
@@ -227,6 +245,126 @@ public class PauseScreen {
         configScene.setFill(null);
         configStage.setScene(configScene);
         configStage.show();
+    }
+
+    private void showSaveDialog() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Sauvegarder la partie");
+        dialog.setHeaderText("Entrez un nom pour votre sauvegarde");
+        dialog.setContentText("Nom de la sauvegarde:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(saveName -> {
+            Path savePath = SaveGameManager.saveGame(gameState, saveName);
+            if (savePath != null) {
+                showInfoDialog("Sauvegarde réussie", "La partie a été sauvegardée avec succès.");
+            } else {
+                showErrorDialog("Erreur de sauvegarde", "Une erreur est survenue lors de la sauvegarde.");
+            }
+        });
+    }
+
+    private void showLoadDialog() {
+        Stage loadStage = new Stage();
+        loadStage.initModality(Modality.APPLICATION_MODAL);
+        loadStage.initOwner(stage);
+        loadStage.setTitle("Charger une partie");
+
+        VBox loadLayout = new VBox(10);
+        loadLayout.setAlignment(Pos.CENTER);
+        loadLayout.setPadding(new Insets(20));
+        loadLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: white; -fx-border-width: 2;");
+
+        Text loadTitle = new Text("Sauvegardes disponibles");
+        loadTitle.setStyle("-fx-fill: white; -fx-font-size: 20;");
+
+        VBox savesList = new VBox(5);
+        savesList.setAlignment(Pos.CENTER);
+
+        List<Path> saves = SaveGameManager.listSaves();
+        if (saves.isEmpty()) {
+            Text noSaves = new Text("Aucune sauvegarde disponible");
+            noSaves.setStyle("-fx-fill: white;");
+            savesList.getChildren().add(noSaves);
+        } else {
+            for (Path save : saves) {
+                Button saveButton = createButton(save.getFileName().toString());
+                saveButton.setOnAction(e -> {
+                    GameState loadedState = SaveGameManager.loadGame(save);
+                    if (loadedState != null) {
+                        // Update the current game state
+                        this.gameState = loadedState;
+                        loadStage.close();
+                        stage.close();
+                        // Refresh the game screen with the loaded state
+                        new GameScreen((Stage) stage.getOwner(), loadedState);
+                    } else {
+                        showErrorDialog("Erreur de chargement", "Impossible de charger la sauvegarde sélectionnée.");
+                    }
+                });
+                savesList.getChildren().add(saveButton);
+            }
+        }
+
+        Button closeButton = createButton("Fermer");
+        closeButton.setOnAction(e -> loadStage.close());
+
+        loadLayout.getChildren().addAll(loadTitle, savesList, closeButton);
+
+        Scene loadScene = new Scene(loadLayout, 400, 500);
+        loadScene.setFill(null);
+        loadStage.setScene(loadScene);
+        loadStage.show();
+    }
+
+    private void showInfoDialog(String title, String message) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initOwner(stage);
+        dialogStage.setTitle(title);
+
+        VBox dialogLayout = new VBox(10);
+        dialogLayout.setAlignment(Pos.CENTER);
+        dialogLayout.setPadding(new Insets(20));
+        dialogLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: white; -fx-border-width: 2;");
+
+        Text messageText = new Text(message);
+        messageText.setStyle("-fx-fill: white;");
+
+        Button okButton = createButton("OK");
+        okButton.setOnAction(e -> dialogStage.close());
+
+        dialogLayout.getChildren().addAll(messageText, okButton);
+
+        Scene dialogScene = new Scene(dialogLayout, 300, 150);
+        dialogScene.setFill(null);
+        dialogStage.setScene(dialogScene);
+        dialogStage.show();
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Stage errorStage = new Stage();
+        errorStage.initModality(Modality.APPLICATION_MODAL);
+        errorStage.initOwner(stage);
+        errorStage.setTitle(title);
+
+        VBox errorLayout = new VBox(10);
+        errorLayout.setAlignment(Pos.CENTER);
+        errorLayout.setPadding(new Insets(20));
+        errorLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: white; -fx-border-width: 2;");
+
+        Text errorText = new Text(message);
+        errorText.setStyle("-fx-fill: white;");
+
+        Button okButton = createButton("OK");
+        okButton.setOnAction(e -> errorStage.close());
+
+        errorLayout.getChildren().addAll(errorText, okButton);
+
+        Scene errorScene = new Scene(errorLayout, 300, 150);
+        errorScene.setFill(null);
+        errorStage.setScene(errorScene);
+        errorStage.show();
     }
 
     public void show() {

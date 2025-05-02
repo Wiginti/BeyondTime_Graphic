@@ -2,12 +2,16 @@ package fr.beyondtime.model.editor;
 
 import fr.beyondtime.model.map.Tile;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class EditorModel {
     public enum TileType {
@@ -26,6 +30,123 @@ public class EditorModel {
     private File rootAssets;
 
     private List<String> savedMaps = new ArrayList<>();
+    
+    // Système d'historique pour l'annulation
+    private static class EditorAction {
+        final StackPane cell;
+        final Tile previousTile;
+        final boolean previousSpawner;
+        final String previousImagePath;
+
+        EditorAction(StackPane cell, Tile previousTile, boolean previousSpawner, String previousImagePath) {
+            this.cell = cell;
+            this.previousTile = previousTile;
+            this.previousSpawner = previousSpawner;
+            this.previousImagePath = previousImagePath;
+        }
+    }
+
+    private Stack<EditorAction> actionHistory = new Stack<>();
+
+    // Méthode pour sauvegarder l'état d'une cellule avant modification
+    public void saveStateBeforeEdit(StackPane cell) {
+        Tile currentTile = (Tile) cell.getProperties().get("tile");
+        boolean isSpawner = cell.getProperties().get("isSpawner") != null;
+        String imagePath = (String) cell.getUserData();
+        
+        actionHistory.push(new EditorAction(
+            cell,
+            currentTile != null ? new Tile(
+                currentTile.isPassable(),
+                currentTile.getSlowdownFactor(),
+                currentTile.getDamage(),
+                currentTile.isExit(),
+                currentTile.isStart()
+            ) : null,
+            isSpawner,
+            imagePath
+        ));
+    }
+
+    // Méthode pour annuler la dernière action
+    public boolean undoLastAction() {
+        if (actionHistory.isEmpty()) {
+            return false;
+        }
+
+        EditorAction lastAction = actionHistory.pop();
+        StackPane cell = lastAction.cell;
+
+        // Restaurer l'état précédent de la cellule
+        cell.getChildren().clear();  // Effacer tous les éléments visuels
+
+        // Recréer le fond de base
+        Rectangle background = new Rectangle(cellSize, cellSize);
+        background.setFill(Color.LIGHTGRAY);
+        background.setStroke(Color.BLACK);
+        cell.getChildren().add(background);
+
+        // Restaurer l'asset s'il y en avait un
+        if (lastAction.previousImagePath != null) {
+            File assetFile = new File("assets", lastAction.previousImagePath);
+            if (assetFile.exists()) {
+                Image img = new Image(assetFile.toURI().toString(), cellSize, cellSize, true, true);
+                javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                iv.setFitWidth(cellSize);
+                iv.setFitHeight(cellSize);
+                cell.getChildren().add(iv);
+            }
+            cell.setUserData(lastAction.previousImagePath);
+        } else {
+            cell.setUserData(null);
+        }
+
+        // Restaurer les propriétés de la tuile
+        if (lastAction.previousTile != null) {
+            cell.getProperties().put("tile", lastAction.previousTile);
+            
+            // Ajouter l'overlay en fonction des propriétés de la tuile
+            if (!lastAction.previousTile.isPassable()) {
+                addOverlay(cell, Color.BLACK);
+            } else if (lastAction.previousTile.getSlowdownFactor() < 1.0) {
+                addOverlay(cell, Color.BLUE);
+            } else if (lastAction.previousTile.getDamage() > 0) {
+                addOverlay(cell, Color.PURPLE);
+            } else if (lastAction.previousTile.isExit()) {
+                addOverlay(cell, Color.GREEN);
+            } else if (lastAction.previousTile.isStart()) {
+                addOverlay(cell, Color.YELLOW);
+            }
+        } else {
+            cell.getProperties().remove("tile");
+        }
+
+        // Restaurer le statut de spawner
+        if (lastAction.previousSpawner) {
+            cell.getProperties().put("isSpawner", true);
+            addOverlay(cell, Color.RED);
+        } else {
+            cell.getProperties().remove("isSpawner");
+        }
+
+        return true;
+    }
+
+    private void addOverlay(StackPane cell, Color color) {
+        Rectangle overlay = new Rectangle(cellSize, cellSize);
+        overlay.setFill(color);
+        overlay.setOpacity(0.4);
+        cell.getChildren().add(overlay);
+    }
+
+    // Méthode pour effacer l'historique
+    public void clearHistory() {
+        actionHistory.clear();
+    }
+
+    public int getActionHistorySize() {
+        return actionHistory.size();
+    }
 
     public EditorModel() {
         rootAssets = new File("assets").getAbsoluteFile();

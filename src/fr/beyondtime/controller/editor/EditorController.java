@@ -276,10 +276,6 @@ public class EditorController {
         view.getSpawnerPropButton().setOnAction(e -> setCurrentTileType(TileType.SPAWNER));
         view.getExitPropButton().setOnAction(e -> setCurrentTileType(TileType.EXIT));
         view.getStartPropButton().setOnAction(e -> setCurrentTileType(TileType.START));
-        view.getClearPropButton().setOnAction(e -> {
-            setCurrentTileType(null);
-            view.getItemTypeComboBox().setVisible(false);
-        });
         view.getSaveButton().setOnAction(e -> handleSaveMap());
         view.getExitButton().setOnAction(e -> handleReturn());
         

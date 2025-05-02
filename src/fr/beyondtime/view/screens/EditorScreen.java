@@ -30,12 +30,9 @@ public class EditorScreen extends VBox {
     private Button slowPropButton;
     private Button poisonPropButton;
     private Button spawnerPropButton;
-    private Button itemPropButton;
-    private Button clearPropButton;
     private Button saveButton;
     private Button exitButton;
     private Button startPropButton;
-    private ComboBox<String> itemTypeComboBox;
     private Button exitPropButton;
     private Button undoButton;
 
@@ -171,27 +168,21 @@ public class EditorScreen extends VBox {
         toolsBox.setPadding(new Insets(10));
         toolsBox.setAlignment(Pos.CENTER_LEFT);
 
-        undoButton = new Button("Annuler");
-        undoButton.setTooltip(new Tooltip("Annuler la dernière action"));
+        undoButton = new Button(translator.get("editor.undo"));
+        undoButton.setTooltip(new Tooltip(translator.get("editor.undo.tooltip")));
         undoButton.setDisable(true);
 
-        clearButton = new Button("Tout effacer");
-        eraserButton = new Button("Gomme");
-        normalPropButton = createPropertyButton("Normal", "normal-button");
-        obstaclePropButton = createPropertyButton("Obstacle", "obstacle-button");
-        slowPropButton = createPropertyButton("Slow", "slow-button");
-        poisonPropButton = createPropertyButton("Poison", "poison-button");
-        spawnerPropButton = createPropertyButton("Spawner", "spawner-button");
-        itemPropButton = new Button("Item");
-        clearPropButton = createPropertyButton("Clear", "clear-button");
-        saveButton = new Button("Sauvegarder");
-        exitButton = new Button("Retour au menu");
-        exitPropButton = createPropertyButton("Sortie", "exit-button");
-        startPropButton = new Button("Départ");
-
-        itemTypeComboBox = new ComboBox<>();
-        setupItemTypeComboBox();
-        itemTypeComboBox.setVisible(false);
+        clearButton = new Button(translator.get("editor.clear"));
+        eraserButton = new Button(translator.get("editor.eraser"));
+        normalPropButton = createPropertyButton(translator.get("editor.normal"), "normal-button");
+        obstaclePropButton = createPropertyButton(translator.get("editor.obstacle"), "obstacle-button");
+        slowPropButton = createPropertyButton(translator.get("editor.slow"), "slow-button");
+        poisonPropButton = createPropertyButton(translator.get("editor.poison"), "poison-button");
+        spawnerPropButton = createPropertyButton(translator.get("editor.spawner"), "spawner-button");
+        saveButton = new Button(translator.get("editor.save"));
+        exitButton = new Button(translator.get("editor.exit"));
+        exitPropButton = createPropertyButton(translator.get("editor.exit.tile"), "exit-button");
+        startPropButton = new Button(translator.get("editor.start"));
 
         toolsBox.getChildren().addAll(
             undoButton,
@@ -202,9 +193,6 @@ public class EditorScreen extends VBox {
             slowPropButton,
             poisonPropButton,
             spawnerPropButton,
-            itemPropButton,
-            clearPropButton,
-            itemTypeComboBox,
             saveButton,
             exitButton,
             exitPropButton,
@@ -218,11 +206,6 @@ public class EditorScreen extends VBox {
         Button button = new Button(text);
         button.getStyleClass().add(styleClass);
         return button;
-    }
-
-    private void setupItemTypeComboBox() {
-        itemTypeComboBox.getItems().addAll("Potion", "Épée");
-        itemTypeComboBox.setValue("Potion");
     }
 
     public int getRowsValue() {
@@ -247,12 +230,9 @@ public class EditorScreen extends VBox {
     public Button getObstaclePropButton() { return obstaclePropButton; }
     public Button getSlowPropButton() { return slowPropButton; }
     public Button getPoisonPropButton() { return poisonPropButton; }
-    public Button getClearPropButton() { return clearPropButton; }
     public Button getSaveButton() { return saveButton; }
     public Button getExitButton() { return exitButton; }
     public Button getSpawnerPropButton() { return spawnerPropButton; }
-    public Button getItemPropButton() { return itemPropButton; }
-    public ComboBox<String> getItemTypeComboBox() { return itemTypeComboBox; }
     public Button getExitPropButton() { return exitPropButton; }
     public Button getStartPropButton() { return startPropButton; }
     public Button getUndoButton() { return undoButton; }

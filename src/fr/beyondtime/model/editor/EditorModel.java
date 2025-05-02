@@ -11,7 +11,7 @@ import java.util.List;
 
 public class EditorModel {
     public enum TileType {
-        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER
+        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER, SORTIE
     }
 
     private GridPane mapGrid;
@@ -134,28 +134,37 @@ public class EditorModel {
 
 
     public void setCellAsNormal(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0);
+        updateTileProperty(cell, true, 1.0, 0, false);
     }
 
     public void setCellAsObstacle(StackPane cell) {
-        updateTileProperty(cell, false, 1.0, 0);
+        updateTileProperty(cell, false, 1.0, 0, false);
     }
 
     public void setCellAsSlowZone(StackPane cell) {
-        updateTileProperty(cell, true, 0.5, 0);
+        updateTileProperty(cell, true, 0.5, 0, false);
     }
 
     public void setCellAsPoison(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 10);
+        updateTileProperty(cell, true, 1.0, 10, false);
     }
 
     public void setCellAsSpawner(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0);
+        updateTileProperty(cell, true, 1.0, 0, false);
         cell.getProperties().put("spawner", true);
     }
 
-    private void updateTileProperty(StackPane cell, boolean passable, double speed, int damage) {
-        Tile tile = new Tile(passable, speed, damage);
+    public void setCellAsItem(StackPane cell) {
+        updateTileProperty(cell, true, 1.0, 0, false);
+        cell.getProperties().put("item", true);
+    }
+
+    public void setCellAsExit(StackPane cell) {
+        updateTileProperty(cell, true, 1.0, 0, true);
+    }
+
+    private void updateTileProperty(StackPane cell, boolean passable, double speed, int damage, boolean isExit) {
+        Tile tile = new Tile(passable, speed, damage, isExit);
         cell.getProperties().put("tile", tile);
     }
 
@@ -170,5 +179,18 @@ public class EditorModel {
 
     public void unmarkSpawner(StackPane cell) {
         cell.getProperties().remove("spawner");
+    }
+
+    public boolean isItemCell(StackPane cell) {
+        Object prop = cell.getProperties().get("item");
+        return prop instanceof Boolean && (Boolean) prop;
+    }
+
+    public void markAsItem(StackPane cell) {
+        cell.getProperties().put("item", true);
+    }
+
+    public void unmarkItem(StackPane cell) {
+        cell.getProperties().remove("item");
     }
 }

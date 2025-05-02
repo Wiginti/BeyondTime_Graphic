@@ -99,7 +99,6 @@ public class GameScreen {
         List<MonsterController> monsterControllers = spawnerController.getActiveControllers();
         heroController.setMonsters(monsterControllers);
 
-
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -131,8 +130,6 @@ public class GameScreen {
                 for (MonsterController mc : monsterControllers) {
                     mc.update();
                 }
-
-
             }
         }.start();
 

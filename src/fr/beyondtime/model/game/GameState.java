@@ -13,6 +13,7 @@ public class GameState implements IGameState {
     private Hero hero;
     private GameMap map;
     private boolean gameOver;
+    private String currentLevel;
 
     /** Default map width/height if no specific map is loaded. */
     private static final int DEFAULT_MAP_SIZE = 16;
@@ -24,8 +25,9 @@ public class GameState implements IGameState {
      * Initializes a default Hero and a default square GameMap.
      * Sets the game over flag to false.
      */
-    public GameState() {
-        this.hero = new Hero();
+    public GameState(String levelName) {
+        this.currentLevel = levelName;
+        this.hero = new Hero(levelName);
         // Creates a default map if none is loaded later
         this.map = new GameMap(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE, DEFAULT_CELL_SIZE);
         this.gameOver = false;
@@ -93,5 +95,9 @@ public class GameState implements IGameState {
     @Override
     public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
+    }
+
+    public String getCurrentLevel() {
+        return currentLevel;
     }
 } 

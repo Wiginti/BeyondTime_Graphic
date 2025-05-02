@@ -21,7 +21,7 @@ public class BeyondTime extends Application {
         primaryStage.setTitle("Beyond Time");
         
         // Initialisation du contrôleur principal
-        gameController = new GameController(primaryStage);
+        gameController = new GameController(primaryStage, "Préhistoire");
         
         // Démarrage du jeu
         gameController.startGame();

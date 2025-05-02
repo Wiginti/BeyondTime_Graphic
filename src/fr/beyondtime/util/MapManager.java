@@ -47,7 +47,7 @@ public class MapManager {
 
                 // Données de la tuile
                 Tile tile = (Tile) cell.getProperties().get("tile");
-                String tileData = (tile != null) ? (tile.isPassable() + ";" + tile.getSlowdownFactor()) : "true;1.0";
+                String tileData = (tile != null) ? (tile.isPassable() + ";" + tile.getSlowdownFactor() + ";" + tile.isExit()) : "true;1.0;false";
 
                 // Spawner ?
                 boolean isSpawner = cell.getProperties().getOrDefault("isSpawner", false).equals(true);
@@ -60,7 +60,7 @@ public class MapManager {
         File saveDir = new File(SAVE_DIR);
         if (!saveDir.exists()) {
             if (!saveDir.mkdirs()) {
-                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier : " + SAVE_DIR, Alert.AlertType.ERROR);
+                showAlert("Erreur de sauvegarde", "Impossible de créer le dossier de sauvegarde.", Alert.AlertType.ERROR);
                 return;
             }
         }
@@ -102,11 +102,16 @@ public class MapManager {
                     String assetPath = parts.length > 0 ? parts[0] : "";
                     boolean passable = parts.length > 1 ? Boolean.parseBoolean(parts[1].split(";")[0]) : true;
                     double slowdown = parts.length > 1 ? Double.parseDouble(parts[1].split(";")[1]) : 1.0;
+                    boolean isExit = parts.length > 1 ? Boolean.parseBoolean(parts[1].split(";")[2]) : false;
 
-                    cell.getProperties().put("tile", new Tile(passable, slowdown));
+                    cell.getProperties().put("tile", new Tile(passable, slowdown, 0, isExit));
 
-                    if (parts.length > 2 && parts[2].equals("SPAWNER")) {
-                        cell.getProperties().put("isSpawner", true);
+                    if (parts.length > 2) {
+                        for (int i = 2; i < parts.length; i++) {
+                            if (parts[i].equals("SPAWNER")) {
+                                cell.getProperties().put("isSpawner", true);
+                            }
+                        }
                     }
 
                     if (!assetPath.isEmpty()) {
@@ -152,7 +157,7 @@ public class MapManager {
             if (selectedFile != null) {
                 GridPane grid = loadMapFromFile(selectedFile);
                 if (grid != null) {
-                    GameState gameState = new GameState();
+                    GameState gameState = new GameState(levelName);
                     GameMap gameMap = new GameMap(grid);
                     gameState.setMap(gameMap);
                     new GameScreen(stage, gameState);

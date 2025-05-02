@@ -27,9 +27,12 @@ public class EditorScreen extends VBox {
     private Button slowPropButton;
     private Button poisonPropButton;
     private Button spawnerPropButton;
+    private Button itemPropButton;
     private Button clearPropButton;
     private Button saveButton;
     private Button exitButton;
+    private ComboBox<String> itemTypeComboBox;
+    private Button exitPropButton;
 
     public EditorScreen() {
         showConfigPane();
@@ -103,25 +106,46 @@ public class EditorScreen extends VBox {
     }
 
     private HBox createToolsBox() {
-        clearButton = new Button("Effacer la grille");
+        HBox toolsBox = new HBox(10);
+        toolsBox.setAlignment(Pos.CENTER);
+        toolsBox.setPadding(new Insets(10));
+
+        clearButton = new Button("Effacer");
         eraserButton = new Button("Gomme");
-        normalPropButton = new Button("Normal");
-        obstaclePropButton = new Button("Obstacle");
-        slowPropButton = new Button("Ralentissement");
-        poisonPropButton = new Button("Poison");
-        spawnerPropButton = new Button("Spawner à Monstre");
-        clearPropButton = new Button("Mode Asset");
+        normalPropButton = createPropertyButton("Normal", "normal-button");
+        obstaclePropButton = createPropertyButton("Obstacle", "obstacle-button");
+        slowPropButton = createPropertyButton("Slow", "slow-button");
+        poisonPropButton = createPropertyButton("Poison", "poison-button");
+        spawnerPropButton = createPropertyButton("Spawner", "spawner-button");
+        itemPropButton = new Button("Item");
+        clearPropButton = createPropertyButton("Clear", "clear-button");
         saveButton = new Button("Sauvegarder");
         exitButton = new Button("Quitter");
+        exitPropButton = createPropertyButton("Sortie", "exit-button");
 
-        HBox box = new HBox(10);
-        box.getChildren().addAll(clearButton, eraserButton,
-            normalPropButton, obstaclePropButton, slowPropButton,
-            poisonPropButton, spawnerPropButton, clearPropButton,
-            saveButton, exitButton);
-        box.setPadding(new Insets(10));
+        itemTypeComboBox = new ComboBox<>();
+        setupItemTypeComboBox();
+        itemTypeComboBox.setVisible(false);
 
-        return box;
+        toolsBox.getChildren().addAll(
+            clearButton, eraserButton, normalPropButton,
+            obstaclePropButton, slowPropButton, poisonPropButton,
+            spawnerPropButton, itemPropButton, clearPropButton,
+            itemTypeComboBox, saveButton, exitButton, exitPropButton
+        );
+
+        return toolsBox;
+    }
+
+    private Button createPropertyButton(String text, String styleClass) {
+        Button button = new Button(text);
+        button.getStyleClass().add(styleClass);
+        return button;
+    }
+
+    private void setupItemTypeComboBox() {
+        itemTypeComboBox.getItems().addAll("Potion", "Épée");
+        itemTypeComboBox.setValue("Potion");
     }
 
     public int getRowsValue() { return Integer.parseInt(rowsField.getText()); }
@@ -140,6 +164,9 @@ public class EditorScreen extends VBox {
     public Button getSaveButton() { return saveButton; }
     public Button getExitButton() { return exitButton; }
     public Button getSpawnerPropButton() { return spawnerPropButton; }
+    public Button getItemPropButton() { return itemPropButton; }
+    public ComboBox<String> getItemTypeComboBox() { return itemTypeComboBox; }
+    public Button getExitPropButton() { return exitPropButton; }
 
     public GridPane getMapGrid() { return mapGrid; }
     public ListView<AssetEntry> getAssetListView() { return assetListView; }

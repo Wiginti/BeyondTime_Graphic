@@ -66,7 +66,11 @@ public class EditorController {
         view.getSlowPropButton().setOnAction(e -> setCurrentTileType(TileType.SLOW));
         view.getPoisonPropButton().setOnAction(e -> setCurrentTileType(TileType.POISON));
         view.getSpawnerPropButton().setOnAction(e -> setCurrentTileType(TileType.SPAWNER));
-        view.getClearPropButton().setOnAction(e -> setCurrentTileType(null));
+        view.getExitPropButton().setOnAction(e -> setCurrentTileType(TileType.SORTIE));
+        view.getClearPropButton().setOnAction(e -> {
+            setCurrentTileType(null);
+            view.getItemTypeComboBox().setVisible(false);
+        });
         view.getSaveButton().setOnAction(e -> handleSaveMap());
         view.getExitButton().setOnAction(e -> handleReturn());
     }
@@ -108,7 +112,7 @@ public class EditorController {
 
         clearCell(cell);
 
-        // Asset d'abord
+        // Asset d'abord (pour tous les types de tuiles)
         if (selectedAsset != null) {
             Image img = new Image(selectedAsset.toURI().toString(), model.getCellSize(), model.getCellSize(), true, true);
             ImageView iv = new ImageView(img);
@@ -135,6 +139,10 @@ public class EditorController {
                     model.setCellAsSpawner(cell);
                     cell.getProperties().put("isSpawner", true);
                 }
+                case SORTIE -> {
+                    model.setCellAsExit(cell);
+                    cell.getProperties().put("isExit", true);
+                }
             }
         }
     }
@@ -146,6 +154,7 @@ public class EditorController {
             case SLOW -> Color.BLUE;
             case POISON -> Color.PURPLE;
             case SPAWNER -> Color.RED;
+            case SORTIE -> Color.GREEN;
         };
     }
 

@@ -131,7 +131,7 @@ L'implémentation du support multilingue via ResourceBundle :
 - Inferface utilisateur
 - Système de sauvegarde 
 - Configuration Maven et script de compil 
-- Tests unitaires 
+- Tests unitaires (en cours soucis gestion avec Maven)
 - Documentation utilisateur 
 - Rapport 
 - Gestion de la traduction, transition entre les niveaux... 

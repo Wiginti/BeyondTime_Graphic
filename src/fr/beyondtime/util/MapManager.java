@@ -101,91 +101,96 @@ public class MapManager {
     }
 
     public static GridPane loadMapFromFile(File file) {
-        try {
-            List<String> lines = Files.readAllLines(file.toPath());
-            if (lines.isEmpty()) return null;
-
-            String[] dimensions = lines.get(0).split(",");
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            // Lire les dimensions
+            String[] dimensions = reader.readLine().split(",");
             int rows = Integer.parseInt(dimensions[0]);
-            int columns = Integer.parseInt(dimensions[1]);
+            int cols = Integer.parseInt(dimensions[1]);
             
-            System.out.println("[DEBUG] Chargement de la carte: " + file.getName());
-            System.out.println("[DEBUG] Dimensions: " + rows + "x" + columns);
-
             GridPane grid = new GridPane();
             grid.setHgap(0);
             grid.setVgap(0);
-
+            
+            // Lire chaque ligne
             for (int row = 0; row < rows; row++) {
-                String[] cells = lines.get(row + 1).split("\\|");
-                for (int col = 0; col < columns; col++) {
-                    if (col + 1 < cells.length) {
-                        String[] properties = cells[col + 1].split(";");
-                        boolean passable = Boolean.parseBoolean(properties[0]);
-                        double slowdown = Double.parseDouble(properties[1]);
-                        int damage = Integer.parseInt(properties[2]);
-                        boolean isSpawner = properties.length > 3 && Boolean.parseBoolean(properties[3]);
-                        boolean isExit = properties.length > 4 && Boolean.parseBoolean(properties[4]);
-                        boolean isStart = properties.length > 5 && Boolean.parseBoolean(properties[5]);
-                        String imagePath = properties.length > 6 ? properties[6] : null;
-
-                        StackPane cell = new StackPane();
-                        cell.setPrefSize(50, 50);
-
-                        Rectangle background = new Rectangle(50, 50);
-                        background.setFill(Color.LIGHTGRAY);
-                        background.setStroke(Color.BLACK);
-                        cell.getChildren().add(background);
-
-                        if (imagePath != null) {
-                            try {
-                                Image image = null;
-                                File localFile = new File("assets/" + imagePath);
-                                
-                                if (localFile.exists()) {
-                                    image = new Image(localFile.toURI().toString());
-                                } else {
-                                    String resourcePath = "/fr/beyondtime/resources/" + imagePath;
-                                    image = new Image(MapManager.class.getResourceAsStream(resourcePath));
-                                }
-                                
-                                if (image != null && !image.isError()) {
-                                    ImageView imageView = new ImageView(image);
-                                    imageView.setFitWidth(50);
-                                    imageView.setFitHeight(50);
-                                    cell.getChildren().add(imageView);
-                                    cell.setUserData(imagePath);
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Erreur lors du chargement de l'image : " + imagePath);
-                                System.err.println("Exception : " + e.getMessage());
+                String line = reader.readLine();
+                String[] cells = line.substring(1, line.length() - 1).split("\\|");
+                
+                for (int col = 0; col < cols; col++) {
+                    StackPane cell = new StackPane();
+                    cell.setPrefSize(50, 50);
+                    
+                    // Fond de base
+                    Rectangle background = new Rectangle(50, 50);
+                    background.setFill(Color.LIGHTGRAY);
+                    background.setStroke(Color.BLACK);
+                    cell.getChildren().add(background);
+                    
+                    // Charger les propriétés de la tuile
+                    String[] properties = cells[col].split(";");
+                    boolean passable = Boolean.parseBoolean(properties[0]);
+                    double slowdown = Double.parseDouble(properties[1]);
+                    int damage = Integer.parseInt(properties[2]);
+                    boolean isSpawner = Boolean.parseBoolean(properties[3]);
+                    boolean isExit = Boolean.parseBoolean(properties[4]);
+                    boolean isStart = Boolean.parseBoolean(properties[5]);
+                    
+                    // Créer la tuile avec les propriétés
+                    Tile tile = new Tile(passable, slowdown, damage, isExit, isStart);
+                    cell.getProperties().put("tile", tile);
+                    
+                    // Ajouter l'image de fond si spécifiée
+                    if (properties.length > 6 && !properties[6].isEmpty()) {
+                        try {
+                            String imagePath = properties[6];
+                            Image img = null;
+                            File localFile = new File("assets/" + imagePath);
+                            
+                            if (localFile.exists()) {
+                                img = new Image(localFile.toURI().toString());
+                            } else {
+                                String resourcePath = "/fr/beyondtime/resources/" + imagePath;
+                                img = new Image(MapManager.class.getResourceAsStream(resourcePath));
                             }
+                            
+                            if (img != null && !img.isError()) {
+                                ImageView iv = new ImageView(img);
+                                iv.setFitWidth(50);
+                                iv.setFitHeight(50);
+                                cell.getChildren().add(iv);
+                                cell.setUserData(imagePath);
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Erreur lors du chargement de l'image: " + properties[6]);
+                            e.printStackTrace();
                         }
-
-                        Tile tile = new Tile(passable, slowdown, damage, isExit, isStart);
-                        cell.getProperties().put("tile", tile);
-                        
-                        if (isSpawner) {
-                            cell.getProperties().put("isSpawner", true);
-                        }
-                        
-                        if (isExit) {
-                            cell.getProperties().put("isExit", true);
-                        }
-
-                        if (isStart) {
-                            cell.getProperties().put("isStart", true);
-                        }
-
-                        grid.add(cell, col, row);
                     }
+                    
+                    // Ajouter des overlays visuels pour les effets spéciaux
+                    if (damage > 0) {  // Case de poison
+                        Rectangle poisonOverlay = new Rectangle(50, 50);
+                        poisonOverlay.setFill(Color.PURPLE);
+                        poisonOverlay.setOpacity(0.3);
+                        cell.getChildren().add(poisonOverlay);
+                    }
+                    if (slowdown < 1.0) {  // Case de ralentissement
+                        Rectangle slowOverlay = new Rectangle(50, 50);
+                        slowOverlay.setFill(Color.BLUE);
+                        slowOverlay.setOpacity(0.3);
+                        cell.getChildren().add(slowOverlay);
+                    }
+                    if (isSpawner) {
+                        cell.getProperties().put("isSpawner", true);
+                    }
+                    
+                    grid.add(cell, col, row);
                 }
             }
-
+            
             return grid;
+            
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
-            System.err.println("Erreur lors du chargement de la carte : " + e.getMessage());
             return null;
         }
     }

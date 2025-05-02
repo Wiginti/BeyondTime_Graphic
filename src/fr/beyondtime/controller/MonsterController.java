@@ -32,6 +32,7 @@ public class MonsterController {
     
     private final int mapRows;
     private final int mapCols;
+    private boolean hasBeenKilled = false; // Pour suivre si ce monstre a déjà été compté
 
     private Timeline attackLoop;
     private final Random random = new Random();
@@ -105,7 +106,9 @@ public class MonsterController {
             monster.setAlive(false);
             monsterView.setVisible(false);
             attackLoop.stop();
-            if (heroController != null && heroController.getGameController() != null) {
+            // Incrémenter le compteur seulement si ce monstre n'a pas déjà été tué
+            if (!hasBeenKilled && heroController != null && heroController.getGameController() != null) {
+                hasBeenKilled = true;
                 heroController.getGameController().incrementMonstersKilled();
             }
         } else {

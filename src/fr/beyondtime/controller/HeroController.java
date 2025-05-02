@@ -325,14 +325,11 @@ public class HeroController {
         // Calculer le déplacement en fonction du temps écoulé
         double moveDistance = currentSpeed * deltaTime;
 
-        if (upPressed) {
-            nextWorldY -= moveDistance;
-            heroView.updateSprite("up");
-        }
-        if (downPressed) {
-            nextWorldY += moveDistance;
-            heroView.updateSprite("down");
-        }
+        // Sauvegarder la position initiale
+        double originalX = nextWorldX;
+        double originalY = nextWorldY;
+
+        // Essayer le mouvement horizontal
         if (leftPressed) {
             nextWorldX -= moveDistance;
             heroView.updateSprite("left");
@@ -342,9 +339,28 @@ public class HeroController {
             heroView.updateSprite("right");
         }
 
-        // Vérifier la collision avec mise en cache
-        lastCollisionResult = checkCollision(nextWorldX, nextWorldY);
-        if (!lastCollisionResult) {
+        // Vérifier la collision horizontale
+        if (checkCollision(nextWorldX, originalY)) {
+            nextWorldX = originalX; // Annuler le mouvement horizontal
+        }
+
+        // Essayer le mouvement vertical
+        if (upPressed) {
+            nextWorldY -= moveDistance;
+            heroView.updateSprite("up");
+        }
+        if (downPressed) {
+            nextWorldY += moveDistance;
+            heroView.updateSprite("down");
+        }
+
+        // Vérifier la collision verticale
+        if (checkCollision(nextWorldX, nextWorldY)) {
+            nextWorldY = originalY; // Annuler le mouvement vertical
+        }
+
+        // Mettre à jour la position si elle a changé
+        if (nextWorldX != hero.getX() || nextWorldY != hero.getY()) {
             hero.setPosition(nextWorldX, nextWorldY);
             heroView.setPosition(nextWorldX, nextWorldY);
             if (onUpdateCallback != null) onUpdateCallback.run();

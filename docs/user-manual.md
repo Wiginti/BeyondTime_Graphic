@@ -44,7 +44,6 @@ Le menu principal propose les options suivantes :
 - Types d'items :
   - Potions de soin
   - Armes
-  - Objets de quête
 
 ### Système
 - **ÉCHAP** : Menu pause
@@ -88,7 +87,7 @@ Le menu principal propose les options suivantes :
 - **Normal** : Créer une tuile traversable
 - **Obstacle** : Placer un mur ou obstacle
 - **Ralentissement** : Zone de ralentissement
-- **Poison** : Zone de dégâts continus
+- **Poison** : Zone de dégâts continus et ralentissement
 - **Spawner** : Point d'apparition des monstres
 - **Exit** : Point de sortie du niveau
 - **Start** : Point de départ du héros
@@ -99,7 +98,6 @@ Le menu principal propose les options suivantes :
 - Annulation de la dernière action (Undo)
 - Sauvegarde automatique
 - Prévisualisation des effets
-- Test du niveau
 
 ### Sauvegarde
 1. Cliquez sur "Sauvegarder"
@@ -120,11 +118,6 @@ Le menu principal propose les options suivantes :
 - English
 - Interface mise à jour en temps réel
 
-### Contrôles
-- Configuration des touches
-- Sensibilité de la souris
-- Options d'accessibilité
-
 ## Conseils et Astuces
 
 1. **Combat**
@@ -133,7 +126,7 @@ Le menu principal propose les options suivantes :
    - Gérez votre stamina
 
 2. **Exploration**
-   - Évitez les zones de poison
+   - Évitez les zones de poison (lave, poison,...)
    - Utilisez le terrain à votre avantage
    - Cherchez des routes alternatives
 

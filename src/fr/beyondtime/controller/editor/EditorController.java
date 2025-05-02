@@ -66,7 +66,7 @@ public class EditorController {
         view.getSlowPropButton().setOnAction(e -> setCurrentTileType(TileType.SLOW));
         view.getPoisonPropButton().setOnAction(e -> setCurrentTileType(TileType.POISON));
         view.getSpawnerPropButton().setOnAction(e -> setCurrentTileType(TileType.SPAWNER));
-        view.getExitPropButton().setOnAction(e -> setCurrentTileType(TileType.SORTIE));
+        view.getExitPropButton().setOnAction(e -> setCurrentTileType(TileType.EXIT));
         view.getClearPropButton().setOnAction(e -> {
             setCurrentTileType(null);
             view.getItemTypeComboBox().setVisible(false);
@@ -139,9 +139,12 @@ public class EditorController {
                     model.setCellAsSpawner(cell);
                     cell.getProperties().put("isSpawner", true);
                 }
-                case SORTIE -> {
+                case EXIT -> {
                     model.setCellAsExit(cell);
                     cell.getProperties().put("isExit", true);
+                    System.out.println("Case de sortie créée à la position: " + GridPane.getColumnIndex(cell) + "," + GridPane.getRowIndex(cell));
+                    Tile tile = (Tile) cell.getProperties().get("tile");
+                    System.out.println("Propriété isExit de la tuile: " + tile.isExit());
                 }
             }
         }
@@ -154,7 +157,7 @@ public class EditorController {
             case SLOW -> Color.BLUE;
             case POISON -> Color.PURPLE;
             case SPAWNER -> Color.RED;
-            case SORTIE -> Color.GREEN;
+            case EXIT -> Color.GREEN;
         };
     }
 

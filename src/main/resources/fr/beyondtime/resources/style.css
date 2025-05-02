@@ -1,0 +1,110 @@
+.root {
+    -fx-background-image: url("menu_background.jpg");
+    -fx-background-size: cover;
+}
+
+.button.classique-button {
+    -fx-background-image: url("wood_button_large.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-background-position: center;
+    -fx-font-size: 40px;
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.button.personnalise-button {
+    -fx-background-image: url("wood_button_large.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-font-size: 40px;
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.button.level-button{
+    -fx-background-image: url("wood_button_large.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-font-size: 40px;
+    -fx-padding: 30px;
+    -fx-background-color: transparent;
+}
+
+.button {
+    -fx-font-size: 40px;
+    -fx-padding: 20px;
+    -fx-background-color: transparent;
+    -fx-background-image: url("wood_button.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-background-position: center;
+}
+
+.button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.vbox-gameview {
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-alignment: center;
+}
+
+/* Styles spécifiques pour l'écran de configuration */
+
+.config-screen {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+}
+
+.config-title {
+    -fx-font-size: 50px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+}
+
+.combo-box {
+    -fx-font-size: 20px;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-min-width: 200px;
+}
+
+.combo-box .list-cell {
+    -fx-font-size: 20px;
+}
+
+.combo-box .list-view {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Styles spécifiques pour l'écran de configuration */
+
+.label.config-label {
+    -fx-font-size: 50px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.label.config-input-label {
+    -fx-font-size: 40px;
+    -fx-text-fill: white;
+}
+
+.text-field.config-text-field {
+    -fx-font-size: 40px;
+    -fx-background-color: rgba(255,255,255,0.7);
+}
+
+.vbox-config {
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-alignment: center;
+}

@@ -1,6 +1,7 @@
 package fr.beyondtime.main;
 
 import fr.beyondtime.controller.game.GameController;
+import fr.beyondtime.model.game.GameState;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -20,8 +21,11 @@ public class BeyondTime extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Beyond Time");
         
+        // Création du GameState
+        GameState gameState = new GameState("Préhistoire");
+        
         // Initialisation du contrôleur principal
-        gameController = new GameController(primaryStage, "Préhistoire");
+        gameController = new GameController(primaryStage, gameState);
         
         // Démarrage du jeu
         gameController.startGame();

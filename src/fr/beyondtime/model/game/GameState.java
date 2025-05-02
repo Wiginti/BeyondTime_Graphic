@@ -100,4 +100,11 @@ public class GameState implements IGameState {
     public String getCurrentLevel() {
         return currentLevel;
     }
+
+    public void initializeHero() {
+        hero = new Hero(currentLevel);
+        // Position initiale du héros (à ajuster selon vos besoins)
+        hero.setPosition(50, 50); // Commence à la première case
+        System.out.println("Hero initialized at position: " + hero.getX() + "," + hero.getY());
+    }
 } 

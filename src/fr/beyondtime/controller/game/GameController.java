@@ -110,6 +110,10 @@ public class GameController {
             String nextLevel = switch (currentLevel) {
                 case "Préhistoire" -> "Égypte Antique";
                 case "Égypte Antique" -> "2nde Guerre Mondiale";
+                case "Level 1 - Prehistory" -> "Égypte Antique";
+                case "Level 2 - Ancient Egypt" -> "2nde Guerre Mondiale";
+                case "Niveau 1 - Préhistoire" -> "Égypte Antique";
+                case "Niveau 2 - Égypte Antique" -> "2nde Guerre Mondiale";
                 default -> null;
             };
             

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class EditorModel {
     public enum TileType {
-        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER, SORTIE
+        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER, EXIT
     }
 
     private GridPane mapGrid;

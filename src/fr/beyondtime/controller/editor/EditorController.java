@@ -26,14 +26,25 @@ import javafx.scene.text.Text;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Contrôleur gérant l'éditeur de niveaux.
+ * Permet de créer ou modifier des cartes de jeu.
+ */
 public class EditorController {
 
+    /** Modèle gérant les données de l'éditeur de cartes. */
     private final EditorModel model;
+    /** Vue de l'éditeur pour l'affichage du contenu. */
     private final EditorScreen view;
+    /** Fenêtre principale de l'application. */
     private final Stage stage;
+    /** Dossier actuel des ressources (assets) de l'éditeur. */
     private File currentAssetFolder = new File("assets");
+    /** Fichier de ressource actuellement sélectionné (image ou autre). */
     private File selectedAsset = null;
+    /** Fichier de la carte actuellement éditée (null si aucune). */
     private File currentMapFile = null;  // Pour suivre le fichier de la carte en cours d'édition
+    /** Gestionnaire de traduction pour l'internationalisation. */
     private final TranslationManager translator;
 
     public EditorController(Stage stage) {
@@ -105,11 +116,13 @@ public class EditorController {
         setupInitialConfigEventHandlers();
     }
 
+    /** Affiche une fenêtre pour créer une nouvelle carte. */
     private void showNewMapDialog() {
         stage.setTitle(translator.get("editor.new.title"));
         this.stage.setScene(new Scene(view));
     }
 
+    /** Affiche une fenêtre pour sélectionner et modifier une carte existante. */
     private void showModifyMapDialog() {
         File saveDir = new File("saved_map");
         if (!saveDir.exists() || !saveDir.isDirectory()) {
@@ -213,6 +226,7 @@ public class EditorController {
         mapSelectStage.show();
     }
 
+    /** Crée et configure un bouton pour l'éditeur. */
     private Button createEditorButton(String text) {
         final Button button = new Button(text);
         
@@ -245,12 +259,14 @@ public class EditorController {
         return button;
     }
 
+    /** Configure les gestionnaires d'événements initiaux avant création de la carte. */
     private void setupInitialConfigEventHandlers() {
         view.getStartButton().setOnAction(e -> handleCreateMap(view.getRowsValue(), view.getColumnsValue()));
         view.getModifyButton().setOnAction(e -> handleModifyMap());
         view.getReturnButton().setOnAction(e -> handleReturn());
     }
 
+    /** Crée une nouvelle carte avec les dimensions spécifiées. */
     public void handleCreateMap(int rows, int columns) {
         model.setGridRows(rows);
         model.setGridColumns(columns);
@@ -261,11 +277,13 @@ public class EditorController {
         loadAssetList();
     }
 
+    /** Retourne au menu principal depuis l'éditeur. */
     public void handleReturn() {
         MenuScreen menuScreen = new MenuScreen(stage);
         stage.setScene(menuScreen.getMenuScene());
     }
 
+    /** Configure les gestionnaires d'événements de l'interface de l'éditeur. */
     private void setupEditorUIEventHandlers() {
         view.getClearButton().setOnAction(e -> handleClearGrid());
         view.getEraserButton().setOnAction(e -> toggleEraserMode());
@@ -283,15 +301,18 @@ public class EditorController {
         view.getUndoButton().setOnAction(e -> handleUndo());
     }
 
+    /** Active ou désactive le mode 'gomme' (effaceur) dans l'éditeur. */
     public void toggleEraserMode() {
         model.setEraserMode(!model.isEraserMode());
     }
 
+    /** Définit le type de tuile actif pour la peinture dans l'éditeur. */
     public void setCurrentTileType(TileType type) {
         model.setCurrentTileType(type);
         if (type != null) model.setEraserMode(false);
     }
 
+    /** Efface complètement la grille de l'éditeur (toutes les cellules). */
     private void handleClearGrid() {
         // Sauvegarder l'état de toutes les cellules avant de les effacer
         for (Node node : model.getMapGrid().getChildren()) {
@@ -303,7 +324,8 @@ public class EditorController {
         // Activer le bouton d'annulation car nous avons une action à annuler
         view.getUndoButton().setDisable(false);
     }
-
+    
+    /** Efface une cellule spécifique (retire toutes ses couches de contenu). */
     private void clearCell(StackPane cell) {
         cell.getChildren().clear();
         Rectangle background = new Rectangle(model.getCellSize(), model.getCellSize());
@@ -316,6 +338,7 @@ public class EditorController {
         model.unmarkSpawner(cell);
     }
 
+    /** Gère le clic sur une cellule : peinture ou effacement selon le mode. */
     private void handleCellClick(StackPane cell) {
         // Sauvegarder l'état avant modification
         model.saveStateBeforeEdit(cell);
@@ -330,6 +353,7 @@ public class EditorController {
         view.getUndoButton().setDisable(false);
     }
 
+    /** Annule la dernière action de peinture. */
     private void handleUndo() {
         if (model.undoLastAction()) {
             // Désactiver le bouton si nous n'avons plus d'actions à annuler
@@ -337,6 +361,7 @@ public class EditorController {
         }
     }
 
+    /** Met à jour l'affichage d'une cellule en fonction du modèle. */
     private void updateCell(StackPane cell) {
         if (model.getCurrentTileType() == null) {
             clearCell(cell);
@@ -354,7 +379,7 @@ public class EditorController {
                 }
             }
         }
-
+        // Effacer la cellule pour la remettre à l'état de base
         clearCell(cell);
 
         // Asset d'abord (pour tous les types de tuiles)
@@ -368,6 +393,33 @@ public class EditorController {
             cell.setUserData(relativePath);
         }
 
+<<<<<<< HEAD
+        // Puis overlay transparent
+        if (model.getCurrentTileType() != null) {
+        	// Appliquer l'overlay coloré selon le type de tuile
+            Rectangle overlay = new Rectangle(model.getCellSize(), model.getCellSize());
+            overlay.setFill(getOverlayColor(model.getCurrentTileType()));
+            overlay.setOpacity(0.4);
+            cell.getChildren().add(overlay);
+
+            switch (model.getCurrentTileType()) {
+                case NORMAL -> model.setCellAsNormal(cell);
+                case OBSTACLE -> model.setCellAsObstacle(cell);
+                case SLOW -> model.setCellAsSlowZone(cell);
+                case POISON -> model.setCellAsPoison(cell);
+                case SPAWNER -> {
+                    model.setCellAsSpawner(cell);
+                    cell.getProperties().put("isSpawner", true);
+                }
+                case EXIT -> {
+                    model.setCellAsExit(cell);
+                    cell.getProperties().put("isExit", true);
+                }
+                case START -> {
+                    model.setCellAsStart(cell);
+                    cell.getProperties().put("isStart", true);
+                }
+=======
         // Appliquer les propriétés de la tuile
         switch (model.getCurrentTileType()) {
             case NORMAL -> model.setCellAsNormal(cell);
@@ -377,6 +429,7 @@ public class EditorController {
             case SPAWNER -> {
                 model.setCellAsSpawner(cell);
                 cell.getProperties().put("isSpawner", true);
+>>>>>>> 1fc08a2950cd1a5f9ff4b16c17d0d5daa8334d57
             }
             case EXIT -> {
                 model.setCellAsExit(cell);
@@ -398,6 +451,7 @@ public class EditorController {
         }
     }
 
+    /** Retourne la couleur de surbrillance pour un type de tuile donné. */
     private Color getOverlayColor(TileType type) {
         return switch (type) {
             case NORMAL -> Color.TRANSPARENT;
@@ -410,6 +464,7 @@ public class EditorController {
         };
     }
 
+    /** Crée une grille de carte visuelle avec les dimensions données. */
     private GridPane createMapGrid(int rows, int cols) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(0));
@@ -431,6 +486,7 @@ public class EditorController {
         return grid;
     }
 
+    /** Enregistre la carte actuelle dans un fichier. */
     public void handleSaveMap() {
         if (model.getMapGrid() == null) {
             view.showAlert("Erreur", "Aucune carte à sauvegarder.");
@@ -459,6 +515,7 @@ public class EditorController {
         }
     }
 
+    /** Lance la procédure de modification d'une carte existante. */
     public void handleModifyMap() {
         File saveDir = new File("saved_map");
         if (!saveDir.exists() || !saveDir.isDirectory()) {
@@ -502,7 +559,8 @@ public class EditorController {
             }
         });
     }
-
+    
+    /** Charge et affiche la liste des ressources disponibles pour l'éditeur. */
     public void loadAssetList() {
         if (!currentAssetFolder.exists() || !currentAssetFolder.isDirectory()) {
             view.showAlert("Erreur", "Le dossier des assets n'existe pas : " + currentAssetFolder.getAbsolutePath());
@@ -571,6 +629,7 @@ public class EditorController {
         });
     }
 
+    /** Vérifie si le fichier spécifié est une image. */
     private boolean isImageFile(File file) {
         String name = file.getName().toLowerCase();
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif");
@@ -607,6 +666,7 @@ public class EditorController {
         }
     }
 
+    /** Ajoute une couche colorée semi-transparente sur une cellule (overlay). */
     private void addOverlay(StackPane cell, Color color) {
         Rectangle overlay = new Rectangle(model.getCellSize(), model.getCellSize());
         overlay.setFill(color);

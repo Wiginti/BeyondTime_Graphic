@@ -8,14 +8,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.scene.text.TextAlignment;
 
 public class GameOverScreen {
     private Stage stage;
-    private int monstersKilled;
-    private Runnable onMenuClick;
+    @SuppressWarnings("unused")
+	private int monstersKilled;
+    @SuppressWarnings("unused")
+	private Runnable onMenuClick;
 
     public GameOverScreen(Stage parentStage, int monstersKilled, Runnable onMenuClick) {
         this.stage = new Stage();

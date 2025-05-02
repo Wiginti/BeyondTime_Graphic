@@ -65,33 +65,49 @@ public class Hero extends Entity implements Fightable {
 	public int getDamage() {
 		return this.damageAmount;
 	}
-
+	
+	/** Ajouter des dégâts au héro */
 	public void addDamage(int amount) {
 		this.damageAmount += amount;
 	}
 
+	/** Attaque la cible spécifiée. */
 	@Override
 	public void attack(Entity entity) {
 		entity.removeHealth(this.damageAmount);
 	}
 
+	/**
+	 * 
+	 * @return X
+	 */
 	public double getX() {
 		return x;
 	}
 
+	/**
+	 * 
+	 * @return Y
+	 */
 	public double getY() {
 		return y;
 	}
 
+	/** Mettre le joueur à une position x, y */
 	public void setPosition(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 	
+	/** 
+	 * 
+	 * @return lastDamageTime
+	 */
 	public long getLastDamageTime() {
 	    return lastDamageTime;
 	}
 	
+	/** Retirer amount de vie au héro */
 	@Override
 	public void removeHealth(int amount) {
 		super.removeHealth(amount);

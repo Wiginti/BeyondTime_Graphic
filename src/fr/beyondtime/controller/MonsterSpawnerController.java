@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
+/**
+ * Contrôleur gérant la génération des monstres dans le jeu.
+ */
 public class MonsterSpawnerController {
 
     private final List<MonsterController> activeControllers = new ArrayList<>();

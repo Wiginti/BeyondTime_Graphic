@@ -6,6 +6,7 @@ import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.view.screens.GameScreen;
 import fr.beyondtime.view.screens.MenuScreen;
 import fr.beyondtime.view.screens.VictoryScreen;
+import fr.beyondtime.util.MapManager;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Stage;
 import javafx.scene.Node;
@@ -94,19 +95,39 @@ public class GameController {
     }
 
     private void showVictoryScreen() {
+        // Store the current level for the callbacks
+        String currentLevel = gameState.getCurrentLevel();
+        
+        // Define callbacks before creating the VictoryScreen
+        Runnable onMenuClick = () -> {
+            // Retour au menu
+            stage.setScene(new MenuScreen(stage).getMenuScene());
+            stopGame();
+        };
+
+        Runnable onNextLevelClick = () -> {
+            // Get the next level based on current level
+            String nextLevel = switch (currentLevel) {
+                case "Préhistoire" -> "Égypte Antique";
+                case "Égypte Antique" -> "2nde Guerre Mondiale";
+                default -> null;
+            };
+            
+            // Proceed to next level if available
+            if (nextLevel != null) {
+                System.out.println("Passage au niveau suivant: " + nextLevel);
+                MapManager.selectAndLoadMap(stage, nextLevel);
+                stopGame();
+            }
+        };
+
+        // Create and show the VictoryScreen with the prepared callbacks
         VictoryScreen victoryScreen = new VictoryScreen(
             stage,
+            currentLevel,
             monstersKilled,
-            () -> {
-                // Retour au menu
-                stage.setScene(new MenuScreen(stage).getMenuScene());
-                stopGame();
-            },
-            () -> {
-                // Passer au niveau suivant (à implémenter)
-                System.out.println("Passage au niveau suivant...");
-                // TODO: Implémenter la logique de passage au niveau suivant
-            }
+            onMenuClick,
+            onNextLevelClick
         );
         victoryScreen.show();
     }

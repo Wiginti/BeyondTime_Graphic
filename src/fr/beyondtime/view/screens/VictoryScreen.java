@@ -14,8 +14,14 @@ public class VictoryScreen {
     private int monstersKilled;
     private Runnable onMenuClick;
     private Runnable onNextLevelClick;
+    private String currentLevel;
 
-    public VictoryScreen(Stage parentStage, int monstersKilled, Runnable onMenuClick, Runnable onNextLevelClick) {
+    private static final String LEVEL_PREHISTOIRE = "Préhistoire";
+    private static final String LEVEL_EGYPTE = "Égypte Antique";
+    private static final String LEVEL_WWII = "2nde Guerre Mondiale";
+
+    public VictoryScreen(Stage parentStage, String currentLevel, int monstersKilled, Runnable onMenuClick, Runnable onNextLevelClick) {
+        this.currentLevel = currentLevel;
         this.monstersKilled = monstersKilled;
         this.onMenuClick = onMenuClick;
         this.onNextLevelClick = onNextLevelClick;
@@ -48,10 +54,24 @@ public class VictoryScreen {
             onNextLevelClick.run();
         });
 
-        layout.getChildren().addAll(victoryText, statsText, menuButton, nextLevelButton);
+        layout.getChildren().addAll(victoryText, statsText, menuButton);
+        
+        // Only show the next level button if there is a next level
+        if (getNextLevel() != null) {
+            layout.getChildren().add(nextLevelButton);
+        }
 
         Scene scene = new Scene(layout, 300, 200);
         stage.setScene(scene);
+    }
+
+    public String getNextLevel() {
+        return switch (currentLevel) {
+            case LEVEL_PREHISTOIRE -> LEVEL_EGYPTE;
+            case LEVEL_EGYPTE -> LEVEL_WWII;
+            case LEVEL_WWII -> null; // No next level after WWII
+            default -> null;
+        };
     }
 
     public void show() {

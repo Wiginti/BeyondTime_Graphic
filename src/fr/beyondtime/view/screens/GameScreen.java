@@ -8,7 +8,9 @@ import fr.beyondtime.model.config.GameConfig;
 import fr.beyondtime.model.entities.Hero;
 import fr.beyondtime.model.entities.Item;
 import fr.beyondtime.model.game.GameState;
+import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.util.ImageLoader;
+import fr.beyondtime.util.TranslationManager;
 import fr.beyondtime.view.components.HUDView;
 import fr.beyondtime.view.entities.HeroView;
 import javafx.animation.AnimationTimer;
@@ -16,14 +18,18 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -194,5 +200,33 @@ public class GameScreen {
             null  // La configuration est maintenant gérée directement dans PauseScreen
         );
         pauseScreenRef[0].show();
+    }
+
+    private void updateCell(StackPane cell) {
+        // Supprimer tous les enfants de la cellule sauf l'asset
+        List<Node> toKeep = new ArrayList<>();
+        for (Node child : cell.getChildren()) {
+            if (child instanceof ImageView) {
+                toKeep.add(child);
+            }
+        }
+        cell.getChildren().clear();
+        cell.getChildren().addAll(toKeep);
+        
+        // Ajouter l'image de fond si elle n'existe pas déjà
+        if (cell.getChildren().isEmpty()) {
+            String imagePath = (String) cell.getUserData();
+            if (imagePath != null) {
+                try {
+                    Image image = new Image(getClass().getResourceAsStream("/fr/beyondtime/resources/" + imagePath));
+                    ImageView imageView = new ImageView(image);
+                    imageView.setFitWidth(50);
+                    imageView.setFitHeight(50);
+                    cell.getChildren().add(imageView);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors du chargement de l'image : " + imagePath);
+                }
+            }
+        }
     }
 }

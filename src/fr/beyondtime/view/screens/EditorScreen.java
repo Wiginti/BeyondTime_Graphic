@@ -11,7 +11,7 @@ import java.io.File;
 
 public class EditorScreen extends VBox {
     @SuppressWarnings("unused")
-    private EditorController controller;
+	private EditorController controller;
     private GridPane mapGrid;
     private ListView<AssetEntry> assetListView;
     private HBox toolsBox;

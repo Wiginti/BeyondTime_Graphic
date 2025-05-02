@@ -368,31 +368,33 @@ public class EditorController {
             cell.setUserData(relativePath);
         }
 
-        // Puis overlay transparent
-        if (model.getCurrentTileType() != null) {
-            Rectangle overlay = new Rectangle(model.getCellSize(), model.getCellSize());
-            overlay.setFill(getOverlayColor(model.getCurrentTileType()));
-            overlay.setOpacity(0.4);
-            cell.getChildren().add(overlay);
-
-            switch (model.getCurrentTileType()) {
-                case NORMAL -> model.setCellAsNormal(cell);
-                case OBSTACLE -> model.setCellAsObstacle(cell);
-                case SLOW -> model.setCellAsSlowZone(cell);
-                case POISON -> model.setCellAsPoison(cell);
-                case SPAWNER -> {
-                    model.setCellAsSpawner(cell);
-                    cell.getProperties().put("isSpawner", true);
-                }
-                case EXIT -> {
-                    model.setCellAsExit(cell);
-                    cell.getProperties().put("isExit", true);
-                }
-                case START -> {
-                    model.setCellAsStart(cell);
-                    cell.getProperties().put("isStart", true);
-                }
+        // Appliquer les propriétés de la tuile
+        switch (model.getCurrentTileType()) {
+            case NORMAL -> model.setCellAsNormal(cell);
+            case OBSTACLE -> model.setCellAsObstacle(cell);
+            case SLOW -> model.setCellAsSlowZone(cell);
+            case POISON -> model.setCellAsPoison(cell);
+            case SPAWNER -> {
+                model.setCellAsSpawner(cell);
+                cell.getProperties().put("isSpawner", true);
             }
+            case EXIT -> {
+                model.setCellAsExit(cell);
+                cell.getProperties().put("isExit", true);
+            }
+            case START -> {
+                model.setCellAsStart(cell);
+                cell.getProperties().put("isStart", true);
+            }
+        }
+
+        // Ajouter l'overlay de couleur uniquement en mode éditeur
+        Object tileObj = cell.getProperties().get("tile");
+        if (tileObj instanceof Tile tile) {
+            Rectangle colorOverlay = new Rectangle(model.getCellSize(), model.getCellSize());
+            colorOverlay.setFill(tile.getEditorColor());
+            colorOverlay.setOpacity(0.4);
+            cell.getChildren().add(colorOverlay);
         }
     }
 

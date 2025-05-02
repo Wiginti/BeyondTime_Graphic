@@ -1,5 +1,7 @@
 package fr.beyondtime.model.map;
 
+import javafx.scene.paint.Color;
+
 public class Tile {
     private final boolean passable;
     private final double slowdownFactor;
@@ -62,6 +64,15 @@ public class Tile {
 
     public boolean isStart() {
         return isStart;
+    }
+
+    public Color getEditorColor() {
+        if (!isPassable()) return Color.BLACK;
+        if (getSlowdownFactor() < 1.0) return Color.BLUE;
+        if (getDamage() > 0) return Color.PURPLE;
+        if (isExit()) return Color.GREEN;
+        if (isStart()) return Color.YELLOW;
+        return Color.TRANSPARENT;
     }
 
     @Override

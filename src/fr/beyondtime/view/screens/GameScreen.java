@@ -116,7 +116,20 @@ public class GameScreen {
         scene.setOnKeyPressed(event -> {
             heroController.handleKeyPress(event);
             if (event.getCode() == KeyCode.ESCAPE) {
-                stage.setScene(new MenuScreen(stage).getMenuScene());
+                // Créer et afficher la fenêtre de pause
+                PauseScreen pauseScreen = new PauseScreen(
+                    stage,
+                    () -> {}, // Reprendre (rien à faire, la fenêtre se ferme automatiquement)
+                    () -> stage.setScene(new MenuScreen(stage).getMenuScene()), // Quitter vers le menu
+                    () -> {
+                        // Ouvrir la configuration
+                        ConfigScreen configScreen = new ConfigScreen(stage, stage.getScene());
+                        Scene configScene = new Scene(configScreen);
+                        configScene.getStylesheets().add(getClass().getResource(CSS_PATH).toExternalForm());
+                        stage.setScene(configScene);
+                    }
+                );
+                pauseScreen.show();
             }
         });
         

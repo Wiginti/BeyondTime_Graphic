@@ -31,6 +31,7 @@ public class EditorScreen extends VBox {
     private Button clearPropButton;
     private Button saveButton;
     private Button exitButton;
+    private Button startPropButton;
     private ComboBox<String> itemTypeComboBox;
     private Button exitPropButton;
 
@@ -122,6 +123,7 @@ public class EditorScreen extends VBox {
         saveButton = new Button("Sauvegarder");
         exitButton = new Button("Quitter");
         exitPropButton = createPropertyButton("Sortie", "exit-button");
+        startPropButton = new Button("Départ");
 
         itemTypeComboBox = new ComboBox<>();
         setupItemTypeComboBox();
@@ -131,7 +133,8 @@ public class EditorScreen extends VBox {
             clearButton, eraserButton, normalPropButton,
             obstaclePropButton, slowPropButton, poisonPropButton,
             spawnerPropButton, itemPropButton, clearPropButton,
-            itemTypeComboBox, saveButton, exitButton, exitPropButton
+            itemTypeComboBox, saveButton, exitButton, exitPropButton,
+            startPropButton
         );
 
         return toolsBox;
@@ -167,6 +170,7 @@ public class EditorScreen extends VBox {
     public Button getItemPropButton() { return itemPropButton; }
     public ComboBox<String> getItemTypeComboBox() { return itemTypeComboBox; }
     public Button getExitPropButton() { return exitPropButton; }
+    public Button getStartPropButton() { return startPropButton; }
 
     public GridPane getMapGrid() { return mapGrid; }
     public ListView<AssetEntry> getAssetListView() { return assetListView; }

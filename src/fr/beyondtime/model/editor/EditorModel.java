@@ -11,7 +11,7 @@ import java.util.List;
 
 public class EditorModel {
     public enum TileType {
-        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER, EXIT
+        NORMAL, OBSTACLE, SLOW, POISON, SPAWNER, EXIT, START
     }
 
     private GridPane mapGrid;
@@ -134,37 +134,42 @@ public class EditorModel {
 
 
     public void setCellAsNormal(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0, false);
+        updateTileProperty(cell, true, 1.0, 0, false, false);
     }
 
     public void setCellAsObstacle(StackPane cell) {
-        updateTileProperty(cell, false, 1.0, 0, false);
+        updateTileProperty(cell, false, 1.0, 0, false, false);
     }
 
     public void setCellAsSlowZone(StackPane cell) {
-        updateTileProperty(cell, true, 0.5, 0, false);
+        updateTileProperty(cell, true, 0.5, 0, false, false);
     }
 
     public void setCellAsPoison(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 10, false);
+        updateTileProperty(cell, true, 1.0, 10, false, false);
     }
 
     public void setCellAsSpawner(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0, false);
+        updateTileProperty(cell, true, 1.0, 0, false, false);
         cell.getProperties().put("spawner", true);
     }
 
     public void setCellAsItem(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0, false);
+        updateTileProperty(cell, true, 1.0, 0, false, false);
         cell.getProperties().put("item", true);
     }
 
     public void setCellAsExit(StackPane cell) {
-        updateTileProperty(cell, true, 1.0, 0, true);
+        updateTileProperty(cell, true, 1.0, 0, true, false);
     }
 
-    private void updateTileProperty(StackPane cell, boolean passable, double speed, int damage, boolean isExit) {
-        Tile tile = new Tile(passable, speed, damage, isExit);
+    public void setCellAsStart(StackPane cell) {
+        updateTileProperty(cell, true, 1.0, 0, false, true);
+        cell.getProperties().put("isStart", true);
+    }
+
+    private void updateTileProperty(StackPane cell, boolean passable, double speed, int damage, boolean isExit, boolean isStart) {
+        Tile tile = new Tile(passable, speed, damage, isExit, isStart);
         cell.getProperties().put("tile", tile);
     }
 

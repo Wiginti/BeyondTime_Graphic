@@ -31,7 +31,15 @@ public class HeroController {
     private int selectedSlot = -1; // Aucun slot sélectionné par défaut
     private GameController gameController;
 
-    private double speed = 2;
+    private double speed;
+    private long lastUpdate = 0;
+    private static final double BASE_SPEED = 120.0; // Vitesse en pixels par seconde
+    private static final double SPRINT_MULTIPLIER = 1.8; // Multiplicateur de vitesse pour le sprint
+    private static final double MAX_STAMINA = 100.0;
+    private static final double STAMINA_DRAIN_RATE = 30.0; // Points de stamina perdus par seconde en sprintant
+    private static final double STAMINA_REGEN_RATE = 20.0; // Points de stamina regagnés par seconde au repos
+    private double currentStamina = MAX_STAMINA;
+    private boolean isSprinting = false;
 
     public static final int HERO_WIDTH = 32;
     public static final int HERO_HEIGHT = 32;
@@ -57,19 +65,42 @@ public class HeroController {
         this.cellSize = cellSize;
         this.hudView = hudView;
         this.monsters = new ArrayList<>();
+        this.speed = BASE_SPEED;
 
-        int centerCol = mapGrid.getColumnCount() / 2;
-        int centerRow = mapGrid.getRowCount() / 2;
-        double startX = centerCol * cellSize;
-        double startY = centerRow * cellSize;
+        // Chercher la case de départ
+        double startX = -1;
+        double startY = -1;
+        
+        for (Node node : mapGrid.getChildren()) {
+            if (node instanceof StackPane cell) {
+                Object tileObj = cell.getProperties().get("tile");
+                if (tileObj instanceof Tile && ((Tile) tileObj).isStart()) {
+                    Integer col = GridPane.getColumnIndex(node);
+                    Integer row = GridPane.getRowIndex(node);
+                    if (col == null) col = 0;
+                    if (row == null) row = 0;
+                    startX = col * cellSize;
+                    startY = row * cellSize;
+                    break;
+                }
+            }
+        }
+
+        // Si aucune case de départ n'est trouvée, utiliser le centre de la carte
+        if (startX == -1 || startY == -1) {
+            int centerCol = mapGrid.getColumnCount() / 2;
+            int centerRow = mapGrid.getRowCount() / 2;
+            startX = centerCol * cellSize;
+            startY = centerRow * cellSize;
+        }
 
         hero.setPosition(startX, startY);
         heroView.setPosition(startX, startY);
 
-        // Initialiser la boucle de dégâts de poison avec un intervalle plus court
+        // Initialiser la boucle de dégâts de poison
         poisonDamageLoop = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             if (currentPoisonTile != null && !isInvincible) {
-                takeDamage(currentPoisonTile.getDamage() / 2); // Diviser les dégâts par 2 car l'intervalle est plus court
+                takeDamage(currentPoisonTile.getDamage() / 2);
             }
         }));
         poisonDamageLoop.setCycleCount(Timeline.INDEFINITE);
@@ -77,7 +108,16 @@ public class HeroController {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateMovement();
+                if (lastUpdate == 0) {
+                    lastUpdate = now;
+                    return;
+                }
+                
+                double deltaTime = (now - lastUpdate) / 1_000_000_000.0; // Convertir en secondes
+                lastUpdate = now;
+                
+                updateMovement(deltaTime);
+                updateStamina(deltaTime);
             }
         }.start();
     }
@@ -93,6 +133,7 @@ public class HeroController {
         if (code == KeyCode.DOWN || code == KeyCode.S) downPressed = true;
         if (code == KeyCode.LEFT || code == KeyCode.Q) leftPressed = true;
         if (code == KeyCode.RIGHT || code == KeyCode.D) rightPressed = true;
+        if (code == KeyCode.SHIFT) isSprinting = true;
 
         // Sélection des slots avec les touches 1-5
         if (code == KeyCode.DIGIT1) selectSlot(0);
@@ -181,9 +222,25 @@ public class HeroController {
         if (code == KeyCode.DOWN || code == KeyCode.S) downPressed = false;
         if (code == KeyCode.LEFT || code == KeyCode.Q) leftPressed = false;
         if (code == KeyCode.RIGHT || code == KeyCode.D) rightPressed = false;
+        if (code == KeyCode.SHIFT) isSprinting = false;
     }
 
-    private void updateMovement() {
+    private void updateStamina(double deltaTime) {
+        boolean isMoving = upPressed || downPressed || leftPressed || rightPressed;
+        
+        if (isSprinting && isMoving && currentStamina > 0) {
+            // Drain de stamina pendant le sprint
+            currentStamina = Math.max(0, currentStamina - STAMINA_DRAIN_RATE * deltaTime);
+        } else if (!isSprinting || !isMoving) {
+            // Régénération de stamina quand on ne sprinte pas
+            currentStamina = Math.min(MAX_STAMINA, currentStamina + STAMINA_REGEN_RATE * deltaTime);
+        }
+        
+        // Mise à jour de la barre de stamina dans le HUD
+        hudView.updateStamina(currentStamina / MAX_STAMINA);
+    }
+
+    private void updateMovement(double deltaTime) {
         double nextWorldX = hero.getX();
         double nextWorldY = hero.getY();
 
@@ -194,6 +251,11 @@ public class HeroController {
         
         // Vitesse de base
         double currentSpeed = speed;
+        
+        // Appliquer le sprint si possible
+        if (isSprinting && currentStamina > 0) {
+            currentSpeed *= SPRINT_MULTIPLIER;
+        }
         
         // Appliquer les effets de la case actuelle
         if (currentNode instanceof StackPane) {
@@ -207,24 +269,20 @@ public class HeroController {
                 
                 // Effet de poison
                 if (currentTile.getDamage() > 0) {
-                    // Si on entre sur une nouvelle case de poison ou si on est sur une case de poison différente
                     if (currentPoisonTile == null || currentPoisonTile != currentTile) {
                         if (currentPoisonTile == null) {
                             poisonDamageLoop.play();
                         }
                         currentPoisonTile = currentTile;
-                        // Appliquer les dégâts immédiatement
                         takeDamage(currentTile.getDamage());
                     }
                 } else {
-                    // Si on quitte une case de poison
                     if (currentPoisonTile != null) {
                         currentPoisonTile = null;
                         poisonDamageLoop.stop();
                     }
                 }
             } else {
-                // Si on quitte une case de poison
                 if (currentPoisonTile != null) {
                     currentPoisonTile = null;
                     poisonDamageLoop.stop();
@@ -232,20 +290,23 @@ public class HeroController {
             }
         }
 
+        // Calculer le déplacement en fonction du temps écoulé
+        double moveDistance = currentSpeed * deltaTime;
+
         if (upPressed) {
-            nextWorldY -= currentSpeed;
+            nextWorldY -= moveDistance;
             heroView.updateSprite("up");
         }
         if (downPressed) {
-            nextWorldY += currentSpeed;
+            nextWorldY += moveDistance;
             heroView.updateSprite("down");
         }
         if (leftPressed) {
-            nextWorldX -= currentSpeed;
+            nextWorldX -= moveDistance;
             heroView.updateSprite("left");
         }
         if (rightPressed) {
-            nextWorldX += currentSpeed;
+            nextWorldX += moveDistance;
             heroView.updateSprite("right");
         }
 

@@ -69,6 +69,7 @@ public class EditorController {
         view.getPoisonPropButton().setOnAction(e -> setCurrentTileType(TileType.POISON));
         view.getSpawnerPropButton().setOnAction(e -> setCurrentTileType(TileType.SPAWNER));
         view.getExitPropButton().setOnAction(e -> setCurrentTileType(TileType.EXIT));
+        view.getStartPropButton().setOnAction(e -> setCurrentTileType(TileType.START));
         view.getClearPropButton().setOnAction(e -> {
             setCurrentTileType(null);
             view.getItemTypeComboBox().setVisible(false);
@@ -112,6 +113,18 @@ public class EditorController {
             return;
         }
 
+        // Supprimer l'ancien point de départ si on en place un nouveau
+        if (model.getCurrentTileType() == TileType.START) {
+            for (Node node : model.getMapGrid().getChildren()) {
+                if (node instanceof StackPane existingCell) {
+                    Object tileObj = existingCell.getProperties().get("tile");
+                    if (tileObj instanceof Tile && ((Tile) tileObj).isStart()) {
+                        clearCell(existingCell);
+                    }
+                }
+            }
+        }
+
         clearCell(cell);
 
         // Asset d'abord (pour tous les types de tuiles)
@@ -145,6 +158,10 @@ public class EditorController {
                     model.setCellAsExit(cell);
                     cell.getProperties().put("isExit", true);
                 }
+                case START -> {
+                    model.setCellAsStart(cell);
+                    cell.getProperties().put("isStart", true);
+                }
             }
         }
     }
@@ -157,6 +174,7 @@ public class EditorController {
             case POISON -> Color.PURPLE;
             case SPAWNER -> Color.RED;
             case EXIT -> Color.GREEN;
+            case START -> Color.YELLOW;
         };
     }
 
@@ -341,6 +359,8 @@ public class EditorController {
                         addOverlay(cell, Color.PURPLE);
                     } else if (tile.isExit()) {
                         addOverlay(cell, Color.GREEN);
+                    } else if (tile.isStart()) {
+                        addOverlay(cell, Color.YELLOW);
                     }
                 }
                 

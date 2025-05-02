@@ -66,6 +66,7 @@ public class MapManager {
                         int damage = tile != null ? tile.getDamage() : 0;
                         boolean isSpawner = cell.getProperties().get("isSpawner") != null;
                         boolean isExit = tile != null && tile.isExit();
+                        boolean isStart = tile != null && tile.isStart();
                         
                         // Debug pour les cases avec des dégâts
                         if (damage > 0) {
@@ -77,10 +78,11 @@ public class MapManager {
                         // Récupérer le chemin de l'image s'il existe
                         String imagePath = (String) cell.getUserData();
                         
-                        writer.print(isPassable + ";" + slowdown + ";" + damage + ";" + isSpawner + ";" + isExit + 
-                            (imagePath != null ? ";" + imagePath : ""));
+                        writer.print(isPassable + ";" + slowdown + ";" + damage + ";" + 
+                                   isSpawner + ";" + isExit + ";" + isStart +
+                                   (imagePath != null ? ";" + imagePath : ""));
                     } else {
-                        writer.print("true;1.0;0;false;false");
+                        writer.print("true;1.0;0;false;false;false");
                     }
                     writer.print("|");
                 }
@@ -120,7 +122,8 @@ public class MapManager {
                         int damage = Integer.parseInt(properties[2]);
                         boolean isSpawner = properties.length > 3 && Boolean.parseBoolean(properties[3]);
                         boolean isExit = properties.length > 4 && Boolean.parseBoolean(properties[4]);
-                        String imagePath = properties.length > 5 ? properties[5] : null;
+                        boolean isStart = properties.length > 5 && Boolean.parseBoolean(properties[5]);
+                        String imagePath = properties.length > 6 ? properties[6] : null;
 
                         StackPane cell = new StackPane();
                         cell.setPrefSize(50, 50);
@@ -130,12 +133,12 @@ public class MapManager {
                         background.setStroke(Color.BLACK);
                         cell.getChildren().add(background);
 
-                        // Garder l'overlay violet pour les cases poison
+                        // Ajouter les overlays appropriés
                         if (damage > 0) {
-                            Rectangle overlay = new Rectangle(50, 50);
-                            overlay.setFill(Color.PURPLE);
-                            overlay.setOpacity(0.4);
-                            cell.getChildren().add(overlay);
+                            addOverlay(cell, Color.PURPLE);
+                        }
+                        if (isExit) {
+                            addOverlay(cell, Color.GREEN);
                         }
 
                         if (imagePath != null) {
@@ -163,7 +166,7 @@ public class MapManager {
                             }
                         }
 
-                        Tile tile = new Tile(passable, slowdown, damage, isExit);
+                        Tile tile = new Tile(passable, slowdown, damage, isExit, isStart);
                         cell.getProperties().put("tile", tile);
                         
                         if (isSpawner) {
@@ -174,11 +177,9 @@ public class MapManager {
                             cell.getProperties().put("isExit", true);
                         }
 
-                        cell.setOnMouseClicked(event -> {
-                            if (event.getSource() instanceof StackPane clickedCell) {
-                                clickedCell.fireEvent(event);
-                            }
-                        });
+                        if (isStart) {
+                            cell.getProperties().put("isStart", true);
+                        }
 
                         grid.add(cell, col, row);
                     }
@@ -252,5 +253,12 @@ public class MapManager {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private static void addOverlay(StackPane cell, Color color) {
+        Rectangle overlay = new Rectangle(50, 50);
+        overlay.setFill(color);
+        overlay.setOpacity(0.4);
+        cell.getChildren().add(overlay);
     }
 } 

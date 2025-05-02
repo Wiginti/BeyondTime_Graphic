@@ -82,6 +82,13 @@ public class MonsterController {
         DamagePopup popup = new DamagePopup(damage, monster.getX(), monster.getY());
         cameraGroup.getChildren().add(popup);
         
+        // Animation pour faire disparaître le popup
+        Timeline fadeOutTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            cameraGroup.getChildren().remove(popup);
+        }));
+        fadeOutTimeline.setCycleCount(1);
+        fadeOutTimeline.play();
+        
         if (monster.getHealth() <= 0) {
             // Le monstre est mort
             monster.setAlive(false);

@@ -5,6 +5,7 @@ public class Tile {
     private final double slowdownFactor;
     private final int damage;
     private final boolean isExit;
+    private final boolean isStart;
 
     /**
      * Constructeur pour une case sans dégâts (damage = 0 par défaut).
@@ -24,6 +25,7 @@ public class Tile {
         this.slowdownFactor = slowdownFactor;
         this.damage = damage;
         this.isExit = false;
+        this.isStart = false;
     }
 
     public Tile(boolean passable, double slowdownFactor, int damage, boolean isExit) {
@@ -31,6 +33,15 @@ public class Tile {
         this.slowdownFactor = slowdownFactor;
         this.damage = damage;
         this.isExit = isExit;
+        this.isStart = false;
+    }
+
+    public Tile(boolean passable, double slowdownFactor, int damage, boolean isExit, boolean isStart) {
+        this.passable = passable;
+        this.slowdownFactor = slowdownFactor;
+        this.damage = damage;
+        this.isExit = isExit;
+        this.isStart = isStart;
     }
 
     public boolean isPassable() {
@@ -49,8 +60,13 @@ public class Tile {
         return isExit;
     }
 
+    public boolean isStart() {
+        return isStart;
+    }
+
     @Override
     public String toString() {
-        return "Tile[passable=" + passable + ", slowdownFactor=" + slowdownFactor + ", damage=" + damage + "]";
+        return "Tile[passable=" + passable + ", slowdownFactor=" + slowdownFactor + 
+               ", damage=" + damage + ", isExit=" + isExit + ", isStart=" + isStart + "]";
     }
 }

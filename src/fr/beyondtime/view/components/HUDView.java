@@ -15,16 +15,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import java.util.List;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 
 public class HUDView extends AnchorPane {
 
     private HBox healthBar;
     private HBox inventoryBar;
     private ImageView[] heartSlots;
-    private int selectedSlot = -1; // Aucun slot sélectionné par défaut
+    private int selectedSlot = -1;
     private Text swordStatusText;
+    private ProgressBar staminaBar;
+    private final int maxHearts;
+    private final int inventorySlots;
 
-    // Chemins corrects des images de coeurs
     private static final String FULL_HEART_PATH = "/fr/beyondtime/resources/hearts/full.png";
     private static final String HALF_HEART_PATH = "/fr/beyondtime/resources/hearts/half.png";
     private static final String EMPTY_HEART_PATH = "/fr/beyondtime/resources/hearts/empty.png";
@@ -33,19 +37,41 @@ public class HUDView extends AnchorPane {
     private Image heartHalf;
     private Image heartEmpty;
 
-    private final int maxHearts;
-    private final int inventorySlots;
-
     public HUDView(int maxHearts, int inventorySlots) {
         this.maxHearts = maxHearts;
         this.inventorySlots = inventorySlots;
         loadHeartImages();
-        buildHUD();
-        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        // Barre de stamina en haut à droite
+        staminaBar = new ProgressBar(1.0);
+        staminaBar.setStyle("-fx-accent: green;");
+        staminaBar.setPrefWidth(150);
+        staminaBar.setMaxWidth(150);
+        AnchorPane.setTopAnchor(staminaBar, 10.0);
+        AnchorPane.setRightAnchor(staminaBar, 10.0);
+        getChildren().add(staminaBar);
+
+        // Barre de vie
+        healthBar = buildHealthBar();
+        AnchorPane.setTopAnchor(healthBar, 10.0);
+        AnchorPane.setLeftAnchor(healthBar, 10.0);
+        getChildren().add(healthBar);
+
+        // Inventaire
+        inventoryBar = buildInventory();
+        AnchorPane.setBottomAnchor(inventoryBar, 10.0);
+        AnchorPane.setLeftAnchor(inventoryBar, 10.0);
+        getChildren().add(inventoryBar);
+
+        // Status de l'épée
+        swordStatusText = new Text("Épée non équipée");
+        swordStatusText.setFill(Color.WHITE);
+        AnchorPane.setBottomAnchor(swordStatusText, 50.0);
+        AnchorPane.setLeftAnchor(swordStatusText, 10.0);
+        getChildren().add(swordStatusText);
     }
 
     private void loadHeartImages() {
-        // Utiliser ImageLoader avec les chemins corrigés
         heartFull = ImageLoader.loadImage(FULL_HEART_PATH);
         heartHalf = ImageLoader.loadImage(HALF_HEART_PATH);
         heartEmpty = ImageLoader.loadImage(EMPTY_HEART_PATH);
@@ -56,50 +82,6 @@ public class HUDView extends AnchorPane {
              System.err.println("  Half: " + HALF_HEART_PATH + (heartHalf == null ? " (Failed)" : " (OK)"));
              System.err.println("  Empty: " + EMPTY_HEART_PATH + (heartEmpty == null ? " (Failed)" : " (OK)"));
         }
-    }
-
-    private void buildHUD() {
-        healthBar = buildHealthBar();
-        inventoryBar = buildInventory();
-
-        // Conteneur pour la barre de vie en haut
-        HBox healthContainer = new HBox(healthBar);
-        healthContainer.setPadding(new Insets(10));
-        healthContainer.setAlignment(Pos.TOP_LEFT);
-
-        // Conteneur pour l'inventaire en bas
-        HBox inventoryContainer = new HBox(inventoryBar);
-        inventoryContainer.setPadding(new Insets(10));
-        inventoryContainer.setAlignment(Pos.CENTER);
-        inventoryContainer.setPrefHeight(60);
-
-        // Texte d'état de l'épée
-        swordStatusText = new Text("Épée non équipée");
-        swordStatusText.setFill(Color.WHITE);
-        swordStatusText.setStyle("-fx-font-size: 14px;");
-        HBox swordStatusContainer = new HBox(swordStatusText);
-        swordStatusContainer.setAlignment(Pos.CENTER);
-        swordStatusContainer.setPadding(new Insets(5));
-
-        // Filler pour occuper l'espace restant entre le top et le bottom
-        Region filler = new Region();
-        VBox.setVgrow(filler, Priority.ALWAYS);
-
-        // Utilisation d'un VBox pour empiler verticalement :
-        // - La barre de vie en haut
-        // - Le filler qui pousse l'inventaire vers le bas
-        // - Le texte d'état de l'épée
-        // - L'inventaire
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(healthContainer, filler, swordStatusContainer, inventoryContainer);
-
-        // Ancrer le VBox sur toute la surface du HUDView
-        AnchorPane.setTopAnchor(vbox, 0.0);
-        AnchorPane.setBottomAnchor(vbox, 0.0);
-        AnchorPane.setLeftAnchor(vbox, 0.0);
-        AnchorPane.setRightAnchor(vbox, 0.0);
-
-        getChildren().add(vbox);
     }
 
     public HBox buildHealthBar() {
@@ -124,7 +106,7 @@ public class HUDView extends AnchorPane {
 
     public HBox buildInventory() {
         HBox ib = new HBox(10);
-        ib.setAlignment(Pos.CENTER);
+        ib.setAlignment(Pos.CENTER_LEFT);
         for (int i = 0; i < inventorySlots; i++) {
             StackPane slot = new StackPane();
             slot.setPrefSize(40, 40);
@@ -170,34 +152,37 @@ public class HUDView extends AnchorPane {
     }
 
     public void selectSlot(int index) {
-        System.out.println("Tentative de sélection du slot " + index);
-        if (index < 0 || index >= inventorySlots) {
-            System.out.println("Index invalide : " + index);
-            return;
-        }
+        if (index < 0 || index >= inventorySlots) return;
         
-        // Réinitialiser la sélection précédente
         if (selectedSlot >= 0) {
-            System.out.println("Réinitialisation de la sélection précédente du slot " + selectedSlot);
             StackPane previousSlot = (StackPane) inventoryBar.getChildren().get(selectedSlot);
             Rectangle previousBg = (Rectangle) previousSlot.getChildren().get(0);
             previousBg.setStroke(Color.WHITE);
             previousBg.setStrokeWidth(1);
         }
         
-        // Mettre à jour la nouvelle sélection
         selectedSlot = index;
-        System.out.println("Nouvelle sélection du slot " + selectedSlot);
         StackPane currentSlot = (StackPane) inventoryBar.getChildren().get(selectedSlot);
         Rectangle currentBg = (Rectangle) currentSlot.getChildren().get(0);
         currentBg.setStroke(Color.BLUE);
-        currentBg.setStrokeWidth(3); // Augmenter l'épaisseur de la bordure pour mieux voir la sélection
+        currentBg.setStrokeWidth(3);
     }
 
     public void updateSwordStatus(boolean isEquipped) {
         if (swordStatusText != null) {
             swordStatusText.setText(isEquipped ? "Épée équipée" : "Épée non équipée");
             swordStatusText.setFill(isEquipped ? Color.GREEN : Color.WHITE);
+        }
+    }
+
+    public void updateStamina(double value) {
+        staminaBar.setProgress(value);
+        if (value < 0.3) {
+            staminaBar.setStyle("-fx-accent: red;");
+        } else if (value < 0.6) {
+            staminaBar.setStyle("-fx-accent: orange;");
+        } else {
+            staminaBar.setStyle("-fx-accent: green;");
         }
     }
 }

@@ -2,8 +2,12 @@ package fr.beyondtime.util;
 
 import javafx.scene.image.Image;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImageLoader {
+    private static final Map<String, Image> imageCache = new HashMap<>();
+    private static boolean debugMode = false;
 
     /**
      * Charge une image depuis le classpath.
@@ -29,10 +33,10 @@ public class ImageLoader {
                     img.getException().printStackTrace(); // Afficher la stack trace de l'erreur de l'image
                     img = null; // Assurer que null est retourné en cas d'erreur de chargement d'image
                 } else {
-                     System.out.println("ImageLoader: Image loaded successfully from " + path);
+                    System.out.println("ImageLoader: Image loaded successfully from " + path);
                 }
-                 // Il est bon de fermer le stream, bien que Image puisse le faire
-                 try { stream.close(); } catch (Exception ioEx) { /* Ignorer */ }
+                // Il est bon de fermer le stream, bien que Image puisse le faire
+                try { stream.close(); } catch (Exception ioEx) { /* Ignorer */ }
             }
         } catch (Exception e) {
             // Capturer toute autre exception pendant le processus
@@ -41,6 +45,14 @@ public class ImageLoader {
             img = null; // Assurer que null est retourné
         }
         return img;
+    }
+
+    public static void clearCache() {
+        imageCache.clear();
+    }
+
+    public static void setDebugMode(boolean debug) {
+        debugMode = debug;
     }
 
     // Vous pouvez ajouter d'autres méthodes utilitaires ici si nécessaire

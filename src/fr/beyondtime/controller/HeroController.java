@@ -42,6 +42,11 @@ public class HeroController {
     private double currentStamina = MAX_STAMINA;
     private boolean isSprinting = false;
 
+    // Cache pour les collisions
+    private int lastCheckedCol = -1;
+    private int lastCheckedRow = -1;
+    private boolean lastCollisionResult = false;
+
     public static final int HERO_WIDTH = 32;
     public static final int HERO_HEIGHT = 32;
 
@@ -255,7 +260,42 @@ public class HeroController {
         // Vérifier les effets de la case actuelle
         int currentCol = (int) (hero.getX() / cellSize);
         int currentRow = (int) (hero.getY() / cellSize);
-        Node currentNode = getCellNodeAt(mapGrid, currentRow, currentCol);
+        
+        // Utiliser le cache de collision si possible
+        if (currentCol == lastCheckedCol && currentRow == lastCheckedRow) {
+            if (lastCollisionResult) return;
+        } else {
+            Node currentNode = getCellNodeAt(mapGrid, currentRow, currentCol);
+            lastCheckedCol = currentCol;
+            lastCheckedRow = currentRow;
+            
+            if (currentNode instanceof StackPane) {
+                StackPane cell = (StackPane) currentNode;
+                Object tileObj = cell.getProperties().get("tile");
+                if (tileObj instanceof Tile) {
+                    Tile currentTile = (Tile) tileObj;
+                    
+                    // Effet de ralentissement
+                    speed = BASE_SPEED * currentTile.getSlowdownFactor();
+                    
+                    // Effet de poison
+                    if (currentTile.getDamage() > 0) {
+                        if (currentPoisonTile == null || currentPoisonTile != currentTile) {
+                            if (currentPoisonTile == null) {
+                                poisonDamageLoop.play();
+                            }
+                            currentPoisonTile = currentTile;
+                            takeDamage(currentTile.getDamage());
+                        }
+                    } else {
+                        if (currentPoisonTile != null) {
+                            currentPoisonTile = null;
+                            poisonDamageLoop.stop();
+                        }
+                    }
+                }
+            }
+        }
         
         // Vitesse de base
         double currentSpeed = speed;
@@ -263,39 +303,6 @@ public class HeroController {
         // Appliquer le sprint si possible
         if (isSprinting && currentStamina > 0) {
             currentSpeed *= SPRINT_MULTIPLIER;
-        }
-        
-        // Appliquer les effets de la case actuelle
-        if (currentNode instanceof StackPane) {
-            StackPane cell = (StackPane) currentNode;
-            Object tileObj = cell.getProperties().get("tile");
-            if (tileObj instanceof Tile) {
-                Tile currentTile = (Tile) tileObj;
-                
-                // Effet de ralentissement
-                currentSpeed *= currentTile.getSlowdownFactor();
-                
-                // Effet de poison
-                if (currentTile.getDamage() > 0) {
-                    if (currentPoisonTile == null || currentPoisonTile != currentTile) {
-                        if (currentPoisonTile == null) {
-                            poisonDamageLoop.play();
-                        }
-                        currentPoisonTile = currentTile;
-                        takeDamage(currentTile.getDamage());
-                    }
-                } else {
-                    if (currentPoisonTile != null) {
-                        currentPoisonTile = null;
-                        poisonDamageLoop.stop();
-                    }
-                }
-            } else {
-                if (currentPoisonTile != null) {
-                    currentPoisonTile = null;
-                    poisonDamageLoop.stop();
-                }
-            }
         }
 
         // Calculer le déplacement en fonction du temps écoulé
@@ -318,7 +325,9 @@ public class HeroController {
             heroView.updateSprite("right");
         }
 
-        if (!checkCollision(nextWorldX, nextWorldY)) {
+        // Vérifier la collision avec mise en cache
+        lastCollisionResult = checkCollision(nextWorldX, nextWorldY);
+        if (!lastCollisionResult) {
             hero.setPosition(nextWorldX, nextWorldY);
             heroView.setPosition(nextWorldX, nextWorldY);
             if (onUpdateCallback != null) onUpdateCallback.run();
@@ -334,11 +343,11 @@ public class HeroController {
             return true;
         }
 
-        double epsilon = 0.0001;
+        // Optimisation : ne vérifier que les cases adjacentes
         int leftCol = (int) (nextWorldX / cellSize);
-        int rightCol = (int) ((nextWorldX + HERO_WIDTH - epsilon) / cellSize);
+        int rightCol = (int) ((nextWorldX + HERO_WIDTH) / cellSize);
         int topRow = (int) (nextWorldY / cellSize);
-        int bottomRow = (int) ((nextWorldY + HERO_HEIGHT - epsilon) / cellSize);
+        int bottomRow = (int) ((nextWorldY + HERO_HEIGHT) / cellSize);
 
         for (int row = topRow; row <= bottomRow; row++) {
             for (int col = leftCol; col <= rightCol; col++) {

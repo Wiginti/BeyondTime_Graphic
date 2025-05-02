@@ -50,6 +50,9 @@ public class GameScreen {
     private Group cameraGroup;
     private GridPane mapGrid;
     private GameController gameController;
+    private List<MonsterController> monsterControllers;
+    private long lastHUDUpdate = 0;
+    private static final long HUD_UPDATE_INTERVAL = 100; // Mettre à jour le HUD toutes les 100ms
 
     public GameScreen(Stage stage, GameState gameState) {
         this.primaryStage = stage;
@@ -121,7 +124,7 @@ public class GameScreen {
         @SuppressWarnings("unused")
 		List<Node> monsterViews = spawnerController.spawnMonsters(mapGrid, cameraGroup, heroController, CELL_SIZE);
         
-        List<MonsterController> monsterControllers = spawnerController.getActiveControllers();
+        monsterControllers = spawnerController.getActiveControllers();
         heroController.setMonsters(monsterControllers);
 
         scene.setOnKeyPressed(event -> {
@@ -144,22 +147,38 @@ public class GameScreen {
         stage.setScene(scene);
         stage.show();
 
+        // AnimationTimer unique pour toutes les mises à jour
         new AnimationTimer() {
+            private long lastUpdate = 0;
+            
             @Override
             public void handle(long now) {
+                if (lastUpdate == 0) {
+                    lastUpdate = now;
+                    return;
+                }
+                
+                double deltaTime = (now - lastUpdate) / 1_000_000_000.0; // Convertir en secondes
+                lastUpdate = now;
+                
+                // Mise à jour de la caméra
                 double heroX = hero.getX();
                 double heroY = hero.getY();
-
                 cameraGroup.setTranslateX(SCENE_WIDTH / 2.0 - heroX);
                 cameraGroup.setTranslateY(SCENE_HEIGHT / 2.0 - heroY);
                 
+                // Mise à jour des monstres
                 for (MonsterController mc : monsterControllers) {
                     mc.update();
                 }
+                
+                // Mise à jour du HUD à intervalle régulier
+                if (now - lastHUDUpdate >= HUD_UPDATE_INTERVAL * 1_000_000) {
+                    updateHUD();
+                    lastHUDUpdate = now;
+                }
             }
         }.start();
-
-        updateHUD();
     }
 
     private void updateHUD() {
@@ -171,14 +190,12 @@ public class GameScreen {
 
         List<Item> items = gameState.getHero().getBag().getItems();
         List<Image> itemImages = new ArrayList<>();
-
         for (Item item : items) {
             Image itemImage = ImageLoader.loadImage(item.getImagePath());
             if (itemImage != null) {
                 itemImages.add(itemImage);
             }
         }
-
         hudView.updateInventory(itemImages);
     }
 

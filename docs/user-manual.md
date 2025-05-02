@@ -38,6 +38,7 @@ Le menu principal propose les options suivantes :
 - **3** : Slot 3 de l'inventaire
 - **4** : Slot 4 de l'inventaire
 - **5** : Slot 5 de l'inventaire
+- Clique Gauche : Attaquer
 - **ÉCHAP** : Menu pause
 
 ## Éditeur de Niveaux

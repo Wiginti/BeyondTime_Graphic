@@ -124,7 +124,10 @@ L'implémentation du support multilingue via ResourceBundle :
 #### Ruben COFFLARD
 - Création des boutons 
 - Correction de bugs
-- Gestion de l'inventaire, caméra (suivi du héro) 
+- Gestion de l'inventaire
+- Caméra
+- HUD
+- Items
 
 #### Tarik TAHOUNE
 - Déplacement en diagonale du personnage

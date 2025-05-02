@@ -32,7 +32,7 @@ import java.util.List;
 public class GameScreen {
     private static final int CELL_SIZE = 50;
     private static final int MAX_HEARTS_DISPLAY = 10;
-    private static final int DEFAULT_INVENTORY_SLOTS = 8;
+    private static final int DEFAULT_INVENTORY_SLOTS = 5;
     private static final String CSS_PATH = "/fr/beyondtime/resources/style.css";
 
     @SuppressWarnings("unused")

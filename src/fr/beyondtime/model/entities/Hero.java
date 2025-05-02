@@ -10,7 +10,7 @@ public class Hero extends Entity implements Fightable {
 	private double y;
 
 	public static final int DEFAULT_HEALTH = 100;
-	public static final int DEFAULT_DAMAGE = 25;
+	public static final int DEFAULT_DAMAGE = 20;
 
 	public Hero() {
 		super(DEFAULT_HEALTH, "Hero");

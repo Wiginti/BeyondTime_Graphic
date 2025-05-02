@@ -5,7 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import java.io.File;
+import java.util.ResourceBundle;
 
 public class EditorScreen extends VBox {
     @SuppressWarnings("unused")
@@ -13,6 +15,7 @@ public class EditorScreen extends VBox {
     private GridPane mapGrid;
     private ListView<AssetEntry> assetListView;
     private HBox toolsBox;
+    private ResourceBundle translator;
 
     private TextField rowsField;
     private TextField columnsField;
@@ -36,31 +39,127 @@ public class EditorScreen extends VBox {
     private Button exitPropButton;
     private Button undoButton;
 
+    private Spinner<Integer> rowsSpinner;
+    private Spinner<Integer> columnsSpinner;
+
     public EditorScreen() {
-        showConfigPane();
+        this.translator = ResourceBundle.getBundle("fr.beyondtime.resources.strings");
+        setupInitialUI();
     }
 
     public void setController(EditorController controller) {
         this.controller = controller;
     }
 
-    public void showConfigPane() {
-        VBox configPane = new VBox(10);
-        configPane.setAlignment(Pos.CENTER);
+    private void setupInitialUI() {
+        setAlignment(Pos.CENTER);
+        setSpacing(20);
+        setPadding(new Insets(40));
+        setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            """);
 
-        Label configLabel = new Label("Configurer la taille de la grille");
-        Label rowsLabel = new Label("Nombre de lignes :");
-        rowsField = new TextField("25");
-        Label columnsLabel = new Label("Nombre de colonnes :");
-        columnsField = new TextField("25");
+        Text titleText = new Text(translator.getString("editor.new.title"));
+        titleText.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 28;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
 
-        startButton = new Button("Créer la carte");
-        modifyButton = new Button("Modifier une carte existante");
-        returnButton = new Button("Retour");
+        VBox configBox = new VBox(20);
+        configBox.setAlignment(Pos.CENTER);
+        configBox.setPadding(new Insets(20));
+        configBox.setStyle("""
+            -fx-background-color: rgba(26, 42, 61, 0.6);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            -fx-min-width: 400;
+            """);
 
-        configPane.getChildren().addAll(configLabel, rowsLabel, rowsField,
-            columnsLabel, columnsField, startButton, modifyButton, returnButton);
-        getChildren().add(configPane);
+        // Configuration des lignes
+        HBox rowsBox = new HBox(15);
+        rowsBox.setAlignment(Pos.CENTER);
+        Text rowsLabel = new Text(translator.getString("editor.rows"));
+        rowsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
+        rowsSpinner = new Spinner<>(5, 50, 10);
+        styleSpinner(rowsSpinner);
+        rowsBox.getChildren().addAll(rowsLabel, rowsSpinner);
+
+        // Configuration des colonnes
+        HBox colsBox = new HBox(15);
+        colsBox.setAlignment(Pos.CENTER);
+        Text colsLabel = new Text(translator.getString("editor.columns"));
+        colsLabel.setStyle("-fx-fill: #e0e0e0; -fx-font-size: 18;");
+        columnsSpinner = new Spinner<>(5, 50, 10);
+        styleSpinner(columnsSpinner);
+        colsBox.getChildren().addAll(colsLabel, columnsSpinner);
+
+        // Boutons
+        HBox buttonsBox = new HBox(20);
+        buttonsBox.setAlignment(Pos.CENTER);
+
+        startButton = createStyledButton(translator.getString("editor.create"));
+        modifyButton = createStyledButton(translator.getString("editor.modify.select"));
+        returnButton = createStyledButton(translator.getString("editor.back"));
+
+        buttonsBox.getChildren().addAll(startButton, modifyButton, returnButton);
+
+        configBox.getChildren().addAll(rowsBox, colsBox, buttonsBox);
+        getChildren().addAll(titleText, configBox);
+    }
+
+    private void styleSpinner(Spinner<Integer> spinner) {
+        spinner.setEditable(true);
+        spinner.setPrefWidth(120);
+        spinner.setStyle("""
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            """);
+        
+        // Style pour la zone de texte du spinner
+        spinner.getEditor().setStyle("""
+            -fx-background-color: #3a4a5d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            """);
+
+        // Style pour les boutons du spinner
+        spinner.getStyleClass().add("spinner-modern");
+    }
+
+    private Button createStyledButton(String text) {
+        Button button = new Button(text);
+        
+        final String baseStyle = """
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 18;
+            -fx-padding: 10 30;
+            -fx-min-width: 150;
+            -fx-background-radius: 8;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-border-color: #4a5a6d;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, #000000, 8, 0.4, 0, 0);
+            """;
+
+        final String hoverStyle = baseStyle + """
+            -fx-scale-x: 1.03;
+            -fx-scale-y: 1.03;
+            -fx-effect: dropshadow(gaussian, #000000, 15, 0.6, 0, 0);
+            -fx-background-color: #3a4a5d;
+            """;
+
+        button.setStyle(baseStyle);
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+
+        return button;
     }
 
     public void buildEditorUI(GridPane grid, int rows, int columns) {
@@ -166,12 +265,22 @@ public class EditorScreen extends VBox {
         itemTypeComboBox.setValue("Potion");
     }
 
-    public int getRowsValue() { return Integer.parseInt(rowsField.getText()); }
-    public int getColumnsValue() { return Integer.parseInt(columnsField.getText()); }
+    public int getRowsValue() {
+        return rowsSpinner.getValue();
+    }
 
-    public Button getStartButton() { return startButton; }
+    public int getColumnsValue() {
+        return columnsSpinner.getValue();
+    }
+
+    public Button getStartButton() {
+        return startButton;
+    }
+
     public Button getModifyButton() { return modifyButton; }
-    public Button getReturnButton() { return returnButton; }
+    public Button getReturnButton() {
+        return returnButton;
+    }
     public Button getClearButton() { return clearButton; }
     public Button getEraserButton() { return eraserButton; }
     public Button getNormalPropButton() { return normalPropButton; }

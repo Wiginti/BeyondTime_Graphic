@@ -23,9 +23,7 @@ public class MenuScreen extends VBox {
     private Scene menuScene;
     private TranslationManager translator;
 
-    private Button btnNiveau1;
-    private Button btnNiveau2;
-    private Button btnNiveau3;
+    private Button btnNiveaux;
     private Button btnLoadGame;
     private Button btnEditor;
     private Button btnConfig;
@@ -47,100 +45,300 @@ public class MenuScreen extends VBox {
 
     private void setupUI() {
         setAlignment(Pos.CENTER);
-        setSpacing(40);
+        setSpacing(20);
+        setPadding(new Insets(20));
+        setMaxWidth(400);
         getStyleClass().add("vbox-menu");
 
-        btnNiveau1 = new Button();
-        btnNiveau2 = new Button();
-        btnNiveau3 = new Button();
-        btnLoadGame = new Button();
-        btnEditor = new Button();
-        btnConfig = new Button();
-        btnRetour = new Button();
+        VBox buttonsBox = new VBox(10);
+        buttonsBox.setAlignment(Pos.CENTER);
+        
+        btnNiveaux = createMenuButton();
+        btnLoadGame = createMenuButton();
+        btnEditor = createMenuButton();
+        btnConfig = createMenuButton();
+        btnRetour = createMenuButton();
 
-        btnNiveau1.getStyleClass().add("classique-button");
-        btnNiveau2.getStyleClass().add("classique-button");
-        btnNiveau3.getStyleClass().add("classique-button");
+        btnNiveaux.getStyleClass().add("classique-button");
         btnLoadGame.getStyleClass().add("classique-button");
         btnEditor.getStyleClass().add("classique-button");
         btnConfig.getStyleClass().add("classique-button");
         btnRetour.getStyleClass().add("classique-button");
 
-        btnNiveau1.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level1")));
-        btnNiveau2.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level2")));
-        btnNiveau3.setOnAction(e -> MapManager.selectAndLoadMap(stage, translator.get("menu.level3")));
+        btnNiveaux.setOnAction(e -> showLevelsDialog());
         btnLoadGame.setOnAction(e -> showLoadGameDialog());
         btnEditor.setOnAction(e -> new EditorController(stage));
-
         btnConfig.setOnAction(e -> {
             ConfigScreen configScreen = new ConfigScreen(stage, menuScene);
             Scene configScene = new Scene(configScreen);
             configScene.getStylesheets().add(getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm());
             stage.setScene(configScene);
         });
-
         btnRetour.setOnAction(e -> stage.close());
 
-        getChildren().addAll(
-            btnNiveau1,
-            btnNiveau2,
-            btnNiveau3,
-            btnLoadGame,
-            btnEditor,
-            btnConfig,
-            btnRetour
-        );
+        buttonsBox.getChildren().addAll(btnNiveaux, btnLoadGame, btnEditor, btnConfig, btnRetour);
+        getChildren().add(buttonsBox);
+    }
+
+    private void showLevelsDialog() {
+        final Stage levelStage = new Stage();
+        levelStage.initModality(Modality.APPLICATION_MODAL);
+        levelStage.initOwner(stage);
+        levelStage.setTitle(translator.get("menu.levels"));
+
+        VBox levelLayout = new VBox(30);
+        levelLayout.setAlignment(Pos.CENTER);
+        levelLayout.setPadding(new Insets(40));
+        levelLayout.setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            """);
+
+        Text levelTitle = new Text(translator.get("menu.select.level"));
+        levelTitle.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 28;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
+
+        VBox levelsBox = new VBox(20);
+        levelsBox.setAlignment(Pos.CENTER);
+        levelsBox.setPadding(new Insets(20, 0, 20, 0));
+        levelsBox.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
+
+        Button btnNiveau1 = createLevelButton(translator.get("menu.level1"), "prehistoric-theme");
+        Button btnNiveau2 = createLevelButton(translator.get("menu.level2"), "egypt-theme");
+        Button btnNiveau3 = createLevelButton(translator.get("menu.level3"), "ww2-theme");
+
+        final String level1Name = translator.get("menu.level1");
+        final String level2Name = translator.get("menu.level2");
+        final String level3Name = translator.get("menu.level3");
+
+        btnNiveau1.setOnAction(e -> {
+            levelStage.close();
+            MapManager.selectAndLoadMap(stage, level1Name);
+        });
+        btnNiveau2.setOnAction(e -> {
+            levelStage.close();
+            MapManager.selectAndLoadMap(stage, level2Name);
+        });
+        btnNiveau3.setOnAction(e -> {
+            levelStage.close();
+            MapManager.selectAndLoadMap(stage, level3Name);
+        });
+
+        levelsBox.getChildren().addAll(btnNiveau1, btnNiveau2, btnNiveau3);
+
+        Button closeButton = new Button(translator.get("menu.close"));
+        closeButton.setStyle("""
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            -fx-padding: 10 20;
+            -fx-background-radius: 5;
+            -fx-border-radius: 5;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-min-width: 120;
+            """);
+
+        final String baseCloseStyle = closeButton.getStyle();
+        final String hoverCloseStyle = baseCloseStyle + "-fx-background-color: #3a4a5d;";
+
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(hoverCloseStyle));
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(baseCloseStyle));
+        closeButton.setOnAction(e -> levelStage.close());
+
+        levelLayout.getChildren().addAll(levelTitle, levelsBox, closeButton);
+
+        Scene levelScene = new Scene(levelLayout, 500, 600);
+        levelScene.setFill(null);
+        levelStage.setScene(levelScene);
+        levelStage.show();
+    }
+
+    private Button createLevelButton(String text, String theme) {
+        final Button button = new Button(text);
+        
+        // Style de base
+        final String baseStyle = """
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 20;
+            -fx-padding: 20 40;
+            -fx-min-width: 300;
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-width: 2;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, #000000, 10, 0.5, 0, 0);
+            """;
+
+        // Ajouter des styles spécifiques selon le thème
+        final String themeStyle = switch (theme) {
+            case "prehistoric-theme" -> baseStyle + """
+                -fx-border-color: #8B4513;
+                -fx-background-image: url('/fr/beyondtime/resources/menu/prehistoric.png');
+                -fx-background-size: cover;
+                """;
+            case "egypt-theme" -> baseStyle + """
+                -fx-border-color: #FFD700;
+                -fx-background-image: url('/fr/beyondtime/resources/menu/egypt.png');
+                -fx-background-size: cover;
+                """;
+            case "ww2-theme" -> baseStyle + """
+                -fx-border-color: #696969;
+                -fx-background-image: url('/fr/beyondtime/resources/menu/ww2.png');
+                -fx-background-size: cover;
+                """;
+            default -> baseStyle;
+        };
+
+        button.setStyle(themeStyle);
+
+        final String hoverStyle = themeStyle + """
+            -fx-scale-x: 1.05;
+            -fx-scale-y: 1.05;
+            -fx-effect: dropshadow(gaussian, #000000, 20, 0.7, 0, 0);
+            """;
+
+        // Effets de survol
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(themeStyle));
+
+        return button;
+    }
+
+    private Button createMenuButton() {
+        Button button = new Button();
+        button.setPrefWidth(250);
+        button.setMinHeight(40);
+        return button;
     }
 
     private void showLoadGameDialog() {
-        Stage loadStage = new Stage();
+        final Stage loadStage = new Stage();
         loadStage.initModality(Modality.APPLICATION_MODAL);
         loadStage.initOwner(stage);
-        loadStage.setTitle("Charger une partie");
+        loadStage.setTitle(translator.get("menu.load"));
 
-        VBox loadLayout = new VBox(10);
+        VBox loadLayout = new VBox(30);
         loadLayout.setAlignment(Pos.CENTER);
-        loadLayout.setPadding(new Insets(20));
-        loadLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: white; -fx-border-width: 2;");
+        loadLayout.setPadding(new Insets(40));
+        loadLayout.setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            """);
 
-        Text loadTitle = new Text("Sauvegardes disponibles");
-        loadTitle.setStyle("-fx-fill: white; -fx-font-size: 20;");
+        Text loadTitle = new Text(translator.get("menu.available.saves"));
+        loadTitle.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 28;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
 
-        VBox savesList = new VBox(5);
+        VBox savesList = new VBox(20);
         savesList.setAlignment(Pos.CENTER);
+        savesList.setPadding(new Insets(20, 0, 20, 0));
+        savesList.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
 
         List<Path> saves = SaveGameManager.listSaves();
         if (saves.isEmpty()) {
-            Text noSaves = new Text("Aucune sauvegarde disponible");
-            noSaves.setStyle("-fx-fill: white;");
+            Text noSaves = new Text(translator.get("menu.no.saves"));
+            noSaves.setStyle("""
+                -fx-fill: #e0e0e0;
+                -fx-font-size: 18;
+                -fx-font-style: italic;
+                """);
             savesList.getChildren().add(noSaves);
         } else {
             for (Path save : saves) {
-                Button saveButton = new Button(save.getFileName().toString());
-                saveButton.getStyleClass().add("classique-button");
+                final String saveName = save.getFileName().toString();
+                Button saveButton = createSaveButton(saveName);
+                final Path currentSave = save;
+                
                 saveButton.setOnAction(e -> {
-                    GameState loadedState = SaveGameManager.loadGame(save);
+                    GameState loadedState = SaveGameManager.loadGame(currentSave);
                     if (loadedState != null) {
                         loadStage.close();
                         new GameScreen(stage, loadedState);
                     } else {
-                        showErrorDialog(loadStage, "Erreur de chargement", "Impossible de charger la sauvegarde sélectionnée.");
+                        showErrorDialog(loadStage, translator.get("error.loading.title"), 
+                                               translator.get("error.loading.message"));
                     }
                 });
                 savesList.getChildren().add(saveButton);
             }
         }
 
-        Button closeButton = new Button("Fermer");
-        closeButton.getStyleClass().add("classique-button");
+        Button closeButton = new Button(translator.get("menu.close"));
+        closeButton.setStyle("""
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            -fx-padding: 10 20;
+            -fx-background-radius: 5;
+            -fx-border-radius: 5;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-min-width: 120;
+            """);
+
+        final String baseCloseStyle = closeButton.getStyle();
+        final String hoverCloseStyle = baseCloseStyle + "-fx-background-color: #3a4a5d;";
+
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(hoverCloseStyle));
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(baseCloseStyle));
         closeButton.setOnAction(e -> loadStage.close());
 
         loadLayout.getChildren().addAll(loadTitle, savesList, closeButton);
 
-        Scene loadScene = new Scene(loadLayout, 400, 500);
-        loadScene.getStylesheets().add(getClass().getResource("/fr/beyondtime/resources/style.css").toExternalForm());
+        Scene loadScene = new Scene(loadLayout, 500, 600);
+        loadScene.setFill(null);
         loadStage.setScene(loadScene);
         loadStage.show();
+    }
+
+    private Button createSaveButton(String text) {
+        final Button button = new Button(text);
+        
+        final String baseStyle = """
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 20;
+            -fx-padding: 15 30;
+            -fx-min-width: 300;
+            -fx-background-radius: 8;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-border-color: #4a5a6d;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, #000000, 8, 0.4, 0, 0);
+            """;
+
+        button.setStyle(baseStyle);
+
+        final String hoverStyle = baseStyle + """
+            -fx-scale-x: 1.03;
+            -fx-scale-y: 1.03;
+            -fx-effect: dropshadow(gaussian, #000000, 15, 0.6, 0, 0);
+            -fx-background-color: #3a4a5d;
+            """;
+
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+
+        return button;
     }
 
     private void showErrorDialog(Stage owner, String title, String message) {
@@ -175,9 +373,7 @@ public class MenuScreen extends VBox {
     }
 
     private void updateTranslations() {
-        btnNiveau1.setText(translator.get("menu.level1"));
-        btnNiveau2.setText(translator.get("menu.level2"));
-        btnNiveau3.setText(translator.get("menu.level3"));
+        btnNiveaux.setText(translator.get("menu.levels"));
         btnLoadGame.setText(translator.get("menu.load"));
         btnEditor.setText(translator.get("menu.editor"));
         btnConfig.setText(translator.get("menu.config"));

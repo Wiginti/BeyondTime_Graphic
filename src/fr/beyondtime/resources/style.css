@@ -137,5 +137,26 @@
     -fx-spacing: 15px;
 }
 
+.spinner-modern {
+    -fx-background-color: #2a3a4d;
+    -fx-text-fill: #e0e0e0;
+}
+
+.spinner-modern .increment-arrow-button,
+.spinner-modern .decrement-arrow-button {
+    -fx-background-color: #3a4a5d;
+    -fx-background-radius: 0;
+}
+
+.spinner-modern .increment-arrow-button:hover,
+.spinner-modern .decrement-arrow-button:hover {
+    -fx-background-color: #4a5a6d;
+}
+
+.spinner-modern .increment-arrow,
+.spinner-modern .decrement-arrow {
+    -fx-background-color: #e0e0e0;
+}
+
 
 

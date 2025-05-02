@@ -4,9 +4,11 @@ import fr.beyondtime.model.editor.EditorModel;
 import fr.beyondtime.model.editor.EditorModel.TileType;
 import fr.beyondtime.model.map.Tile;
 import fr.beyondtime.util.MapManager;
+import fr.beyondtime.util.TranslationManager;
 import fr.beyondtime.view.screens.EditorScreen;
 import fr.beyondtime.view.screens.MenuScreen;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,9 +16,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.text.Text;
 
 import java.io.*;
 import java.util.*;
@@ -29,14 +34,214 @@ public class EditorController {
     private File currentAssetFolder = new File("assets");
     private File selectedAsset = null;
     private File currentMapFile = null;  // Pour suivre le fichier de la carte en cours d'édition
+    private final TranslationManager translator;
 
     public EditorController(Stage stage) {
         this.stage = stage;
         this.model = new EditorModel();
         this.view = new EditorScreen();
+        this.translator = TranslationManager.getInstance();
+
+        // Création de la fenêtre de choix
+        Stage choiceStage = new Stage();
+        choiceStage.initModality(Modality.APPLICATION_MODAL);
+        choiceStage.initOwner(stage);
+        choiceStage.setTitle(translator.get("editor.title"));
+
+        VBox layout = new VBox(30);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(40));
+        layout.setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            """);
+
+        Text titleText = new Text(translator.get("editor.choose"));
+        titleText.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 28;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
+
+        VBox buttonsBox = new VBox(20);
+        buttonsBox.setAlignment(Pos.CENTER);
+        buttonsBox.setPadding(new Insets(20, 0, 20, 0));
+        buttonsBox.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
+        buttonsBox.setMinWidth(400);
+
+        Button newMapButton = createEditorButton(translator.get("editor.new"));
+        Button modifyMapButton = createEditorButton(translator.get("editor.modify"));
+        Button backButton = createEditorButton(translator.get("editor.back"));
+
+        newMapButton.setOnAction(e -> {
+            choiceStage.close();
+            showNewMapDialog();
+        });
+
+        modifyMapButton.setOnAction(e -> {
+            choiceStage.close();
+            showModifyMapDialog();
+        });
+
+        backButton.setOnAction(e -> {
+            choiceStage.close();
+            stage.setScene(new MenuScreen(stage).getMenuScene());
+        });
+
+        buttonsBox.getChildren().addAll(newMapButton, modifyMapButton, backButton);
+        layout.getChildren().addAll(titleText, buttonsBox);
+
+        Scene scene = new Scene(layout, 500, 600);
+        scene.setFill(null);
+        choiceStage.setScene(scene);
+        choiceStage.show();
+
+        // Setup de l'éditeur
         this.view.setController(this);
-        this.stage.setScene(new Scene(view));
         setupInitialConfigEventHandlers();
+    }
+
+    private void showNewMapDialog() {
+        this.stage.setScene(new Scene(view));
+    }
+
+    private void showModifyMapDialog() {
+        File saveDir = new File("saved_map");
+        if (!saveDir.exists() || !saveDir.isDirectory()) {
+            view.showAlert("Modification", "Dossier de sauvegarde introuvable.");
+            return;
+        }
+
+        File[] files = saveDir.listFiles((dir, name) -> name.endsWith(".map"));
+        if (files == null || files.length == 0) {
+            view.showAlert("Modification", "Aucune carte existante à modifier.");
+            return;
+        }
+
+        // Création de la fenêtre de sélection de map
+        Stage mapSelectStage = new Stage();
+        mapSelectStage.initModality(Modality.APPLICATION_MODAL);
+        mapSelectStage.initOwner(stage);
+        mapSelectStage.setTitle(translator.get("editor.modify.title"));
+
+        VBox layout = new VBox(30);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(40));
+        layout.setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            """);
+
+        Text titleText = new Text(translator.get("editor.modify.select"));
+        titleText.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 28;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
+
+        VBox mapsBox = new VBox(20);
+        mapsBox.setAlignment(Pos.CENTER);
+        mapsBox.setPadding(new Insets(20, 0, 20, 0));
+        mapsBox.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
+        mapsBox.setMinWidth(400);
+
+        for (File file : files) {
+            String mapName = file.getName();
+            Button mapButton = createEditorButton(mapName);
+            final File selectedMap = file;
+            
+            mapButton.setOnAction(e -> {
+                currentMapFile = selectedMap;
+                GridPane loadedGrid = MapManager.loadMapFromFile(selectedMap);
+                if (loadedGrid != null) {
+                    mapSelectStage.close();
+                    
+                    model.setMapGrid(loadedGrid);
+                    model.setGridRows((int) loadedGrid.getRowCount());
+                    model.setGridColumns((int) loadedGrid.getColumnCount());
+                    
+                    // Ajouter les overlays pour les effets spéciaux
+                    loadExistingGrid(loadedGrid);
+                    
+                    view.buildEditorUI(loadedGrid, model.getGridRows(), model.getGridColumns());
+                    setupEditorUIEventHandlers();
+                    loadAssetList();
+                    
+                    // Afficher l'éditeur
+                    stage.setScene(new Scene(view));
+                }
+            });
+            
+            mapsBox.getChildren().add(mapButton);
+        }
+
+        Button closeButton = new Button(translator.get("menu.close"));
+        closeButton.setStyle("""
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            -fx-padding: 10 20;
+            -fx-background-radius: 5;
+            -fx-border-radius: 5;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-min-width: 120;
+            """);
+
+        final String baseCloseStyle = closeButton.getStyle();
+        final String hoverCloseStyle = baseCloseStyle + "-fx-background-color: #3a4a5d;";
+
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(hoverCloseStyle));
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(baseCloseStyle));
+        closeButton.setOnAction(e -> mapSelectStage.close());
+
+        layout.getChildren().addAll(titleText, mapsBox, closeButton);
+
+        Scene scene = new Scene(layout, 500, 600);
+        scene.setFill(null);
+        mapSelectStage.setScene(scene);
+        mapSelectStage.show();
+    }
+
+    private Button createEditorButton(String text) {
+        final Button button = new Button(text);
+        
+        final String baseStyle = """
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 20;
+            -fx-padding: 15 30;
+            -fx-min-width: 350;
+            -fx-background-radius: 8;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-border-color: #4a5a6d;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, #000000, 8, 0.4, 0, 0);
+            """;
+
+        button.setStyle(baseStyle);
+
+        final String hoverStyle = baseStyle + """
+            -fx-scale-x: 1.03;
+            -fx-scale-y: 1.03;
+            -fx-effect: dropshadow(gaussian, #000000, 15, 0.6, 0, 0);
+            -fx-background-color: #3a4a5d;
+            """;
+
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+
+        return button;
     }
 
     private void setupInitialConfigEventHandlers() {
@@ -94,18 +299,10 @@ public class EditorController {
         // Sauvegarder l'état de toutes les cellules avant de les effacer
         for (Node node : model.getMapGrid().getChildren()) {
             if (node instanceof StackPane cell) {
-                // Sauvegarder l'état avant de nettoyer la cellule
                 model.saveStateBeforeEdit(cell);
-            }
-        }
-
-        // Après avoir sauvegardé l'état de toutes les cellules, les nettoyer
-        for (Node node : model.getMapGrid().getChildren()) {
-            if (node instanceof StackPane cell) {
                 clearCell(cell);
             }
         }
-
         // Activer le bouton d'annulation car nous avons une action à annuler
         view.getUndoButton().setDisable(false);
     }

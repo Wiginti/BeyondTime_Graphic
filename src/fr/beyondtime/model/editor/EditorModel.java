@@ -91,7 +91,7 @@ public class EditorModel {
             File assetFile = new File("assets", lastAction.previousImagePath);
             if (assetFile.exists()) {
                 Image img = new Image(assetFile.toURI().toString(), cellSize, cellSize, true, true);
-                javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                ImageView iv = new ImageView(img);
                 iv.setFitWidth(cellSize);
                 iv.setFitHeight(cellSize);
                 cell.getChildren().add(iv);
@@ -119,6 +119,7 @@ public class EditorModel {
             }
         } else {
             cell.getProperties().remove("tile");
+            cell.getProperties().put("tile", new Tile(true, 1.0, 0));  // Ajouter une tuile par défaut
         }
 
         // Restaurer le statut de spawner

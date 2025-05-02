@@ -6,15 +6,21 @@ import fr.beyondtime.model.game.GameState;
 import fr.beyondtime.model.map.GameMap;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.text.Text;
 
 import java.io.*;
 import java.util.Arrays;
@@ -200,29 +206,117 @@ public class MapManager {
             showAlert("Chargement", "Aucune map sauvegardée pour " + levelName, Alert.AlertType.INFORMATION);
             return;
         }
-        List<String> choices = Arrays.stream(maps).map(File::getName).collect(Collectors.toList());
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
-        dialog.setTitle("Sélection de map");
-        dialog.setHeaderText("Choisissez la map à ouvrir pour " + levelName);
-        dialog.setContentText("Map :");
 
-        dialog.showAndWait().ifPresent(selectedFileName -> {
-            File selectedFile = Arrays.stream(maps)
-                .filter(file -> file.getName().equals(selectedFileName))
-                .findFirst()
-                .orElse(null);
-            if (selectedFile != null) {
-                GridPane grid = loadMapFromFile(selectedFile);
+        Stage mapSelectStage = new Stage();
+        mapSelectStage.initModality(Modality.APPLICATION_MODAL);
+        mapSelectStage.initOwner(stage);
+        mapSelectStage.setTitle("Sélection de map - " + levelName);
+
+        VBox layout = new VBox(30);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(40));
+        layout.setStyle("""
+            -fx-background-color: linear-gradient(to bottom, #1a2a3d, #2a3a4d);
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 2;
+            """);
+
+        Text titleText = new Text("Sélectionnez une map pour " + levelName);
+        titleText.setStyle("""
+            -fx-fill: #e0e0e0;
+            -fx-font-size: 24;
+            -fx-font-weight: bold;
+            -fx-effect: dropshadow(gaussian, #000000, 2, 0.3, 0, 1);
+            """);
+
+        VBox mapsBox = new VBox(20);
+        mapsBox.setAlignment(Pos.CENTER);
+        mapsBox.setPadding(new Insets(20, 0, 20, 0));
+        mapsBox.setStyle("-fx-background-color: rgba(26, 42, 61, 0.6); -fx-background-radius: 5;");
+        mapsBox.setMinWidth(400);
+
+        for (File map : maps) {
+            String mapName = map.getName();
+            Button mapButton = createMapButton(mapName);
+            final File selectedMap = map;
+            
+            mapButton.setOnAction(e -> {
+                GridPane grid = loadMapFromFile(selectedMap);
                 if (grid != null) {
+                    mapSelectStage.close();
                     GameState gameState = new GameState(levelName);
                     GameMap gameMap = new GameMap(grid);
                     gameState.setMap(gameMap);
                     new GameScreen(stage, gameState);
                 }
-            }
-        });
+            });
+            
+            mapsBox.getChildren().add(mapButton);
+        }
+
+        Button closeButton = new Button("Fermer");
+        closeButton.setStyle("""
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 16;
+            -fx-padding: 10 20;
+            -fx-background-radius: 5;
+            -fx-border-radius: 5;
+            -fx-border-color: #4a5a6d;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-min-width: 120;
+            """);
+
+        final String baseCloseStyle = closeButton.getStyle();
+        final String hoverCloseStyle = baseCloseStyle + "-fx-background-color: #3a4a5d;";
+
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(hoverCloseStyle));
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(baseCloseStyle));
+        closeButton.setOnAction(e -> mapSelectStage.close());
+
+        layout.getChildren().addAll(titleText, mapsBox, closeButton);
+
+        Scene scene = new Scene(layout, 500, 600);
+        scene.setFill(null);
+        mapSelectStage.setScene(scene);
+        mapSelectStage.show();
     }
-    
+
+    private static Button createMapButton(String text) {
+        Button button = new Button(text);
+        
+        final String baseStyle = """
+            -fx-background-color: #2a3a4d;
+            -fx-text-fill: #e0e0e0;
+            -fx-font-size: 18;
+            -fx-padding: 15 30;
+            -fx-min-width: 350;
+            -fx-background-radius: 8;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-border-color: #4a5a6d;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, #000000, 8, 0.4, 0, 0);
+            """;
+
+        button.setStyle(baseStyle);
+
+        final String hoverStyle = baseStyle + """
+            -fx-scale-x: 1.03;
+            -fx-scale-y: 1.03;
+            -fx-effect: dropshadow(gaussian, #000000, 15, 0.6, 0, 0);
+            -fx-background-color: #3a4a5d;
+            """;
+
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+
+        return button;
+    }
+
     private static File[] getMapFilesForLevel(String levelName) {
         File saveDir = new File("saved_map");
         if (!saveDir.exists()) return new File[0];
